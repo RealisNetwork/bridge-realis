@@ -1,0 +1,20 @@
+cargo-features = ["resolver"]
+
+[workspace]
+resolver = "2"
+
+members = [
+#    "bsc-adapter",
+#    "bsc-sender",
+    "realis-adapter",
+#    "realis-sender",
+]
+
+[patch.'https://github.com//paritytech/substrate']
+sp-core = { git = "https://github.com/paritytech/substrate" }
+
+[profile.dev]
+split-debuginfo = "unpacked"
+
+[profile.release]
+panic = "unwind"
