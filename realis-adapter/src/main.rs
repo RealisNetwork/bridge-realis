@@ -62,7 +62,7 @@ fn listener(events_out: Receiver<String>) {
                             println!("decoded: {:?} {:?}", evr.phase, evr.event);
                             match &evr.event {
                                 Event::RealisBridge(bridge_event) => {
-                                    println!("Bridge event: {:?}", bridge_event);
+                                    println!("\n\x1b[32mBridge event:\x1b[0m {:?}", bridge_event);
                                     match bridge_event {
                                         realis_bridge::Event::TransferTokenToBSC(from, to, value) => {
                                             println!("From: {:?}", from);
@@ -84,8 +84,9 @@ fn listener(events_out: Receiver<String>) {
                                             println!("To: {:?}", to);
                                             println!("Value: {:?}", token_id);
                                         }
-                                        _ => {}
+                                        _ => println!("\x1b[31mUnsupported event!\x1b[0m")
                                     }
+                                    println!()
                                 }
                                 _ => debug!("ignoring unsupported module event: {:?}", evr.event),
                             }
