@@ -3,6 +3,7 @@
 use sp_keyring::AccountKeyring;
 use substrate_api_client::{AccountInfo, BlockNumber};
 use substrate_api_client::Api;
+use substrate_api_client::utils::FromHexString;
 use sp_core::sr25519;
 use sp_runtime::generic;
 use sp_runtime::traits::BlakeTwo256;
@@ -22,9 +23,8 @@ fn main() {
     // if no signer is set in the whole program, we need to give to Api a specific type instead of an associated type
     // as during compilation the type needs to be defined
     env_logger::init();
-    let url = "rpc.realis.network";
 
-    let api = Api::<sr25519::Pair>::new(format!("wss://{}", url)).unwrap();
+    let api = get_api();
 
     println!("Subscribe to events");
 
@@ -39,4 +39,9 @@ fn main() {
 
         println!("{}", event_str)
     }
+}
+
+fn get_api() -> Api<sr25519::Pair> {
+    let url = "rpc.realis.network";
+    Api::<sr25519::Pair>::new(format!("wss://{}", url)).unwrap()
 }
