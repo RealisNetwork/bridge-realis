@@ -76,15 +76,9 @@ branch = "master"
 package = "sp-std"
 default-features = false
 
-[dependencies.sc-rpc-api]
-git = "https://github.com/paritytech/substrate.git"
-branch = "master"
-optional = true
-
 [features]
 default = ["std"]
 std = [
-    "sc-rpc-api",
     "codec/std",
     "serde/std",
     "serde_json",

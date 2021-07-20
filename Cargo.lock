@@ -4534,7 +4534,6 @@ dependencies = [
  "pallet-balances 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "parity-scale-codec 2.2.0",
  "primitive-types 0.6.2",
- "sc-rpc-api",
  "serde",
  "serde_json",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
@@ -4588,6 +4587,18 @@ dependencies = [
  "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "sp-staking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+]
+
+[[package]]
+name = "realis-lisener"
+version = "0.1.0"
+dependencies = [
+ "env_logger",
+ "log",
+ "parity-scale-codec 2.2.0",
+ "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "substrate-api-client",
 ]
 
 [[package]]
