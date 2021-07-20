@@ -7,13 +7,14 @@ use sp_core::sr25519;
 use sp_runtime::generic;
 use sp_runtime::traits::BlakeTwo256;
 pub use sp_runtime::OpaqueExtrinsic as UncheckedExtrinsic;
-use std::sync::mpsc::channel;
+use std::sync::mpsc::{channel, Receiver};
 use codec::Decode;
 use sp_core::H256 as Hash;
 use log::{debug, error};
 use sp_std::prelude::*;
 use system;
 use runtime::Event;
+use runtime::realis_bridge;
 
 pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
 
@@ -38,42 +39,13 @@ fn main() {
     println!("Subscribe to events");
     let (events_in, events_out) = channel();
     api.subscribe_events(events_in).unwrap();
-    loop {
-        let event_str = events_out.recv().unwrap();
 
-        let unhex = Vec::from_hex(event_str).unwrap();
-        let mut er_enc = unhex.as_slice();
-        let _events = Vec::<system::EventRecord<Event, Hash>>::decode(&mut er_enc);
-        match _events {
-            Ok(evts) => {
-                for evr in &evts {
-                    println!("decoded: {:?} {:?}", evr.phase, evr.event);
-                    match &evr.event {
-                        Event::Balances(be) => {
-                            println!(">>>>>>>>>> balances event: {:?}", be);
-                            match &be {
-                                balances::Event::Transfer(transactor, dest, value) => {
-                                    println!("Transactor: {:?}", transactor);
-                                    println!("Destination: {:?}", dest);
-                                    println!("Value: {:?}", value);
-                                }
-                                _ => {
-                                    debug!("ignoring unsupported balances event");
-                                }
-                            }
-                        }
-                        _ => debug!("ignoring unsupported module event: {:?}", evr.event),
-                    }
-                }
-            }
-            Err(_) => error!("couldn't decode event record list"),
-        }
-    }
+    listener(events_out);
 }
 
 fn get_api() -> Api<sr25519::Pair> {
-    let url = "rpc.realis.network";
-    Api::<sr25519::Pair>::new(format!("wss://{}", url)).unwrap()
+    let url = "localhost:9944";
+    Api::<sr25519::Pair>::new(format!("ws://{}", url)).unwrap()
 }
 
 fn listener(events_out: Receiver<String>) {
@@ -87,7 +59,7 @@ fn listener(events_out: Receiver<String>) {
                 for evr in &evts {
                     println!("decoded: {:?} {:?}", evr.phase, evr.event);
                     match &evr.event {
-                        Event::RealisGameApi(be) => {
+                        Event::RealisBridge(be) => {
                             println!(">>>>>>>>>> balances event: {:?}", be);
                             match be {
                                 realis_bridge::Event::TransferTokenToBSC(transactor, dest, value) => {
