@@ -4590,18 +4590,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "realis-lisener"
-version = "0.1.0"
-dependencies = [
- "env_logger",
- "log",
- "parity-scale-codec 2.2.0",
- "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
- "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
- "substrate-api-client",
-]
-
-[[package]]
 name = "realis-primitives"
 version = "0.0.2"
 source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=0de8deecff7dcc0604f3e743aa4b33617474e93b#0de8deecff7dcc0604f3e743aa4b33617474e93b"

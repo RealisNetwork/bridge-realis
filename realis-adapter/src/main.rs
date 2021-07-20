@@ -30,6 +30,10 @@ pub type Block = generic::Block<Header, UncheckedExtrinsic>;
 // }
 
 fn main() {
+    listener_realis()
+}
+
+fn listener_realis() {
     // if no signer is set in the whole program, we need to give to Api a specific type instead of an associated type
     // as during compilation the type needs to be defined
     env_logger::init();
@@ -44,7 +48,7 @@ fn main() {
 }
 
 fn get_api() -> Api<sr25519::Pair> {
-    let url = "localhost:9943";
+    let url = "localhost:9944";
     Api::<sr25519::Pair>::new(format!("ws://{}", url)).unwrap()
 }
 
