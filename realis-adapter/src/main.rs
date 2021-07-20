@@ -1,7 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use sp_keyring::AccountKeyring;
-use substrate_api_client::{AccountInfo, BlockNumber};
+use substrate_api_client::BlockNumber;
 use substrate_api_client::Api;
 use substrate_api_client::utils::FromHexString;
 use sp_core::sr25519;
@@ -13,9 +12,7 @@ use codec::Decode;
 use sp_core::H256 as Hash;
 use log::{debug, error};
 use sp_std::prelude::*;
-use substrate_api_client::extrinsic::xt_primitives::AccountId;
 use system;
-use balances;
 use runtime::Event;
 
 pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
@@ -40,7 +37,6 @@ fn main() {
 
     println!("Subscribe to events");
     let (events_in, events_out) = channel();
-
     api.subscribe_events(events_in).unwrap();
     loop {
         let event_str = events_out.recv().unwrap();
@@ -78,4 +74,44 @@ fn main() {
 fn get_api() -> Api<sr25519::Pair> {
     let url = "rpc.realis.network";
     Api::<sr25519::Pair>::new(format!("wss://{}", url)).unwrap()
+}
+
+fn listener(events_out: Receiver<String>) {
+    loop {
+        let event_str = events_out.recv().unwrap();
+        let unhex = Vec::from_hex(event_str).unwrap();
+        let mut er_enc = unhex.as_slice();
+        let _events = Vec::<system::EventRecord<Event, Hash>>::decode(&mut er_enc);
+        match _events {
+            Ok(evts) => {
+                for evr in &evts {
+                    println!("decoded: {:?} {:?}", evr.phase, evr.event);
+                    match &evr.event {
+                        Event::RealisGameApi(be) => {
+                            println!(">>>>>>>>>> balances event: {:?}", be);
+                            match be {
+                                realis_bridge::Event::TransferTokenToBSC(transactor, dest, value) => {
+                                    println!("Transactor: {:?}", transactor);
+                                    println!("Destination: {:?}", dest);
+                                    println!("Value: {:?}", value);
+                                }
+                                _ => {
+                                    debug!("ignoring unsupported balances event");
+                                }
+                            }
+                        }
+                        //Event::Bridge(bridge_event) => {
+                        //  println!("Bridge event: {:?}", bridge_event);
+                        //  match bridge_event {
+                        //      TransferToken(from, to, amount) => {}
+                        //      TransferNft(from, to, token_id) => {}
+                        //  }
+                        //}
+                        _ => debug!("ignoring unsupported module event: {:?}", evr.event),
+                    }
+                }
+            }
+            Err(_) => error!("couldn't decode event record list"),
+        };
+    }
 }
