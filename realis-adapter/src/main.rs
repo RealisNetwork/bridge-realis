@@ -48,8 +48,8 @@ fn listener_realis() {
 }
 
 fn get_api() -> Api<sr25519::Pair> {
-    let url = "localhost:9944";
-    Api::<sr25519::Pair>::new(format!("ws://{}", url)).unwrap()
+    let url = "rpc.realis.network";
+    Api::<sr25519::Pair>::new(format!("wss://{}", url)).unwrap()
 }
 
 fn listener(events_out: Receiver<String>) {
