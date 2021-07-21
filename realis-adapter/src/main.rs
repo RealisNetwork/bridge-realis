@@ -69,6 +69,7 @@ fn listener(events_out: Receiver<String>) {
                                     println!("\n\x1b[32mBridge event:\x1b[0m {:?}", bridge_event);
                                     match bridge_event {
                                         realis_bridge::Event::TransferTokenToBSC(from, to, value) => {
+                                            //sent_to_bsc(to, value);
                                             println!("From: {:?}", from);
                                             println!("To: {:?}", to);
                                             println!("Value: {:?}", value);
