@@ -4,6 +4,7 @@ cargo-features = ["resolver"]
 resolver = "2"
 
 members = [
+    "bridge",
 #    "bsc-adapter",
     "bsc-sender",
     "realis-adapter",
