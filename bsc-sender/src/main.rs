@@ -48,4 +48,3 @@ async fn main() -> web3::Result<()> {
     println!("{:?}", result);
     Ok(())
 }
-
