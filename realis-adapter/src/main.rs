@@ -15,6 +15,7 @@ use sp_std::prelude::*;
 use system;
 use runtime::Event;
 use runtime::realis_bridge;
+use primitive_types::{H160, U256};
 
 pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
 
@@ -69,10 +70,9 @@ fn listener(events_out: Receiver<String>) {
                                     println!("\n\x1b[32mBridge event:\x1b[0m {:?}", bridge_event);
                                     match bridge_event {
                                         realis_bridge::Event::TransferTokenToBSC(from, to, value) => {
+                                            transfer_token_to_bsc(&to, value);
                                             //sent_to_bsc(to, value);
                                             println!("From: {:?}", from);
-                                            println!("To: {:?}", to);
-                                            println!("Value: {:?}", value);
                                         }
                                         realis_bridge::Event::TransferNftToBSC(from, to, token_id) => {
                                             println!("From: {:?}", from);
@@ -103,4 +103,9 @@ fn listener(events_out: Receiver<String>) {
             Err(error) => println!("{}", error)
         }
     }
+}
+
+fn transfer_token_to_bsc(to: &sp_core::H160, value: &u128) {
+    println!("To: {:?}", to);
+    println!("Value: {:?}", value);
 }
