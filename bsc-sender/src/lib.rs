@@ -16,6 +16,8 @@ use serde_json::value::Value;
 use std::fs;
 use hex_literal::hex;
 use log::{info, warn};
+use async_trait::async_trait;
+
 
 // #[derive(Deserialize, Debug)]
 // struct Key {
@@ -31,7 +33,7 @@ use log::{info, warn};
 //     let json_abi = include_bytes!("../res/BEP20.abi");
 //     // TODO add file like env for private keys
 //     let address: Address = Address::from_str("0x0db8499bb62772e805af78fc918ee8c8cd6a2859").unwrap();
-//     let key = read_file_for_secret_key("./res/accounts.key");
+//     let key = BscSender::read_file_for_secret_key("./res/accounts.key");
 //     println!("{:?}", key);
 //     let registry_contract = Contract::from_json(web3.eth(), address, json_abi).unwrap();
 //     let from: Address = Address::from_str("0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943").unwrap();
@@ -81,25 +83,31 @@ impl BscSender {
     }
 }
 
+#[async_trait]
 impl BridgeEvents for BscSender {
-    fn on_transfer_token_to_bsc(&self, to: &H160, value: &u128) {
+    async fn on_transfer_token_to_bsc<'a>(&self, to: &H160, value: &u128) {
         // Convert arguments
         let to: Address = Address::from(to.0);
-        let value = U256::from(*value);
+        let value = U256::from(*value) * 100_000_000;
+        println!("Account BSC: {:?}", to);
+        println!("Value: {:?}", value);
 
-        let a = self.contract
-            .signed_call_with_confirmations("transfer", (to, value), Default::default(), 1, &self.wallet_key);
+        let result = self.contract
+            .signed_call_with_confirmations("transfer", (to, value), Default::default(), 1, &self.wallet_key)
+            .await;
+
+        match result {
+            Ok(value) => println!("Transaction hash: {:?}", value.transaction_hash),
+            Err(err) => println!("Error: {:?}", err)
+        }
     }
 
-    fn on_transfer_nft_to_bsc(&self, to: &H160, token_id: &TokenId) {
-
-    }
-
-    fn on_transfer_token_to_realis(&self, to: &runtime::AccountId, value: &u128) {
-
-    }
-
-    fn on_transfer_nft_to_realis(&self, to: &runtime::AccountId, token_id: &U256) {
-
-    }
+    // fn on_transfer_nft_to_bsc<'a>(&self, to: &H160, token_id: &TokenId) {
+    //     // Convert arguments
+    //     let to: Address = Address::from(to.0);
+    //     let value = U256::from(*token_id);
+    //
+    //     // let a = self.contract
+    //     //     .signed_call_with_confirmations("transfer_nft", (to, value), Default::default(), 1, &self.wallet_key).await;
+    // }
 }
