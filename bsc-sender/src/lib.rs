@@ -103,21 +103,3 @@ impl BridgeEvents for BscSender {
 
     }
 }
-
-async fn check_balance(contract: &Contract<WebSocket>, from: Address, to: Address) {
-    let from_balance: web3::contract::Result<U256> = contract
-        .query("balanceOf", (from, ), from, Options::default(), None)
-        .await;
-    match from_balance {
-        Ok(value) => println!("From balance: {}", value),
-        Err(error) => println!("Error: {:?}", error)
-    }
-
-    let to_balance: web3::contract::Result<U256> = contract
-        .query("balanceOf", (to, ), to, Options::default(), None)
-        .await;
-    match to_balance {
-        Ok(value) => println!("To balance: {}", value),
-        Err(error) => println!("Error: {:?}", error)
-    }
-}

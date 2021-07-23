@@ -44,12 +44,12 @@ impl<T: BridgeEvents> RealisAdapter<T> {
         return Vec::<system::EventRecord<Event, Hash>>::decode(&mut er_enc).unwrap();
     }
 
-    fn process_event(&self, event: &system::EventRecord<Event, Hash>) {
+    async fn process_event(&self, event: &system::EventRecord<Event, Hash>) {
         match &event.event {
             Event::RealisBridge(bridge_event) => {
                 match bridge_event {
                     realis_bridge::Event::TransferTokenToBSC(from, to, value) => {
-                        self.event_handler.on_transfer_token_to_bsc(&to, value);
+                        self.event_handler.on_transfer_token_to_bsc(&to, value).await;
                         println!("From: {:?}", from);
                         println!("To: {:?}", to);
                         println!("Value: {:?}", value);
@@ -80,13 +80,13 @@ impl<T: BridgeEvents> RealisAdapter<T> {
     }
 
     // Add bsc sender as argument
-    pub fn listener(&self) {
+    pub async fn listener(&self) {
         loop {
             match self.events_out.recv() {
                 Ok(event_str) => {
                     let events = RealisAdapter::<T>::parse_events_str(event_str);
                     for event in &events {
-                        self.process_event(event);
+                        self.process_event(event).await;
                     }
                 }
                 Err(error) => println!("{}", error)
