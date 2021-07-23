@@ -13,7 +13,7 @@ use runtime::Event;
 use runtime::realis_bridge;
 use realis_bridge::TokenId;
 use web3::types::U256;
-use async_trait::async_trait;
+
 
 pub struct RealisAdapter<T: BridgeEvents> {
     events_in: Sender<String>,
