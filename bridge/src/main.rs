@@ -1,8 +1,10 @@
 use std::env;
+use tokio;
 
 mod realis_to_bsc;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     // Get command lines arguments
     let args: Vec<String> = env::args().collect();
     // Get command line first argument
@@ -12,10 +14,8 @@ fn main() {
         None => println!("Specify flag (realis-to-bsc or bsc-to-realis)"),
         Some(value) => {
             match value.as_str() {
-                "realis-to-bsc" => realis_to_bsc::run(),
-                "bsc-to-realis" => {
-
-                }
+                "realis-to-bsc" => realis_to_bsc::run().await,
+                "bsc-to-realis" => {},
                 _ => println!("Unknown command!")
             }
         }

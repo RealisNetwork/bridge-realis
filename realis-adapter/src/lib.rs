@@ -11,8 +11,9 @@ use sp_std::prelude::*;
 use system;
 use runtime::Event;
 use runtime::realis_bridge;
-use realis_bridge::realis_primitives::TokenId;
+use realis_bridge::TokenId;
 use web3::types::U256;
+use async_trait::async_trait;
 
 pub struct RealisAdapter<T: BridgeEvents> {
     events_in: Sender<String>,
@@ -93,6 +94,7 @@ impl<T: BridgeEvents> RealisAdapter<T> {
         }
     }
 }
+
 
 pub trait BridgeEvents {
     fn on_transfer_token_to_bsc(&self, to: &H160, value: &u128);
