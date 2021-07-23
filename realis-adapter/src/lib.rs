@@ -14,7 +14,6 @@ use runtime::realis_bridge;
 use realis_bridge::TokenId;
 use web3::types::U256;
 
-
 pub struct RealisAdapter<T: BridgeEvents> {
     events_in: Sender<String>,
     events_out: Receiver<String>,
@@ -75,7 +74,7 @@ impl<T: BridgeEvents> RealisAdapter<T> {
                     _ => println!("\x1b[31mUnsupported event!\x1b[0m")
                 }
             }
-            _ => println!("Unsupported module event: {:?}", event.event),
+            _ => println!("\x1b[31mUnsupported module event:\x1b[0m {:?}", event.event),
         }
     }
 

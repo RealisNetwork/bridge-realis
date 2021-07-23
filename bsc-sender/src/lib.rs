@@ -1,22 +1,20 @@
+use std::str::FromStr;
+use std::path::Path;
 use sp_core::H160;
 use web3::contract::{Contract, Options};
 use web3::types::{Address, U256};
-use std::str::FromStr;
-use secp256k1::SecretKey;
-use runtime::realis_bridge;
-use realis_bridge::TokenId;
-use std::path::Path;
-use realis_adapter::BridgeEvents;
 use web3::transports::WebSocket;
+use secp256k1::SecretKey;
+use runtime::realis_bridge::TokenId;
+use realis_adapter::BridgeEvents;
 use std::fs;
+
 
 pub struct BscSender {
     web3: web3::Web3<WebSocket>,
     contract: Contract<WebSocket>,
     wallet_key: SecretKey
 }
-
-
 
 impl BscSender {
 
@@ -50,7 +48,7 @@ impl BridgeEvents for BscSender {
         let to: Address = Address::from(to.0);
         let value = U256::from(*value);
 
-        self.contract
+        let a = self.contract
             .signed_call_with_confirmations("transfer", (to, value), Default::default(), 1, &self.wallet_key);
     }
 
