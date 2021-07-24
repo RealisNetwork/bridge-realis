@@ -50,8 +50,6 @@ impl BridgeEvents for BscSender {
         // Convert arguments
         let to: Address = Address::from(to.0);
         let value = U256::from(*value) * 100_000_000;
-        println!("Account BSC: {:?}", to);
-        println!("Value: {:?}", value);
 
         let result = self.contract
             .signed_call_with_confirmations("transfer", (to, value), Default::default(), 1, &self.wallet_key)
