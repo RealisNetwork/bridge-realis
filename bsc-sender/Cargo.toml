@@ -7,56 +7,16 @@ edition = "2018"
 
 [dependencies]
 async-trait = "0.1.50"
-env_logger = { version = "0.7", optional = true }
-ws = { version = "0.9.1", optional = true, features = ["ssl"] }
-hex = { version = "0.4.3", default-features = false, features = ["alloc"] }
-log = { version = "0.4", optional = true }
-serde = { version = "1.0", optional = true, features = ["derive"] }
-serde_json = "1.0.64"
-thiserror = { version = "1.0", optional =true }
-substrate-api-client = { git = "https://github.com/scs/substrate-api-client.git" }
 web3 = "0.16.0"
 secp256k1 = { version = "0.20", features = ["recovery"], optional = true }
-binance = "0.16.2"
-tokio = { version = "1.0", optional = true, features = ["full"] }
-tokio-stream = { version = "0.1", optional = true }
-tokio-util = { version = "0.6", optional = true, features = ["compat", "io"] }
-hex-literal = "0.3"
-runtime = {git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "757d331d7af58bd5275ea71ccf13cf0c3f4f5d57", package = "node-runtime", default-features = false}
-
-realis-adapter = {version = "0.1.0", path = "../realis-adapter" }
+sp-core = { git = "https://github.com/paritytech/substrate.git", package = "sp-core", default-features = false }
+runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "757d331d7af58bd5275ea71ccf13cf0c3f4f5d57", package = "node-runtime", default-features = false }
+realis-adapter = { version = "0.1.0", path = "../realis-adapter" }
 logger = { path = "../logger" }
-
-[dependencies.sp-core]
-git = "https://github.com/paritytech/substrate.git"
-branch = "master"
-package = "sp-core"
-default-features = false
-features = ["full_crypto"]
-
-[dependencies.codec]
-package = "parity-scale-codec"
-features = ["derive"]
-version = "2.0.0"
-default-features = false
-
-[dev-dependencies]
-hex-literal = "0.3"
 
 [features]
 default = ["std"]
 std = [
-    "codec/std",
-    "serde/std",
-    "env_logger",
-    "log",
-    "ws",
-    "hex/std",
-    "thiserror",
-    "tokio",
     "secp256k1",
     "runtime/std"
 ]
-
-# need to add this for the app_crypto macro
-full_crypto = []
