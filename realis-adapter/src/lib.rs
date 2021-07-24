@@ -15,6 +15,8 @@ use realis_bridge::TokenId;
 use web3::types::U256;
 use async_trait::async_trait;
 
+use logger::logger::{log, Type};
+
 pub struct RealisAdapter<T: BridgeEvents> {
     events_in: Sender<String>,
     events_out: Receiver<String>,
@@ -50,30 +52,30 @@ impl<T: BridgeEvents> RealisAdapter<T> {
                 match bridge_event {
                     realis_bridge::Event::TransferTokenToBSC(from, to, value) => {
                         self.event_handler.on_transfer_token_to_bsc(&to, value).await;
-                        println!("From: {:?}", from);
-                        println!("To: {:?}", to);
-                        println!("Value: {:?}", value);
+                        log(Type::Info, String::from("From"), &from);
+                        log(Type::Info, String::from("To"), &to);
+                        log(Type::Info, String::from("Value"), &value);
                     }
                     realis_bridge::Event::TransferNftToBSC(from, to, token_id) => {
                         // self.event_handler.on_transfer_nft_to_bsc(&to, &token_id);
-                        println!("From: {:?}", from);
-                        println!("To: {:?}", to);
-                        println!("Value: {:?}", token_id);
+                        log(Type::Info, String::from("From"), &from);
+                        log(Type::Info, String::from("To"), &to);
+                        log(Type::Info, String::from("Token id"), &token_id);
                     }
                     realis_bridge::Event::TransferTokenToRealis(from, to, value) => {
-                        println!("From: {:?}", from);
-                        println!("To: {:?}", to);
-                        println!("Value: {:?}", value);
+                        log(Type::Info, String::from("From"), &from);
+                        log(Type::Info, String::from("To"), &to);
+                        log(Type::Info, String::from("Value"), &value);
                     }
                     realis_bridge::Event::TransferNftToRealis(from, to, token_id) => {
-                        println!("From: {:?}", from);
-                        println!("To: {:?}", to);
-                        println!("Value: {:?}", token_id);
+                        log(Type::Info, String::from("From"), &from);
+                        log(Type::Info, String::from("To"), &to);
+                        log(Type::Info, String::from("Token id"), &token_id);
                     }
-                    _ => println!("\x1b[31mUnsupported event!\x1b[0m")
+                    _ => log(Type::Warning, String::from("Unsupported event"), &event.event),
                 }
             }
-            _ => println!("Unsupported module event: {:?}", event.event),
+            _ => log(Type::Warning, String::from("Unsupported event"), &event.event),
         }
     }
 

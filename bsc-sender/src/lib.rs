@@ -15,8 +15,8 @@ use serde::Deserialize;
 use serde_json::value::Value;
 use std::fs;
 use hex_literal::hex;
-use log::{info, warn};
 use async_trait::async_trait;
+use logger::logger::{log, Type};
 
 
 // #[derive(Deserialize, Debug)]
@@ -68,7 +68,7 @@ impl BscSender {
         let contract = Contract::from_json(web3.eth(), address, json_abi).unwrap();
 
 
-        let wallet_key = BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
+        let wallet_key = BscSender::read_file_for_secret_key("./bsc-sender/res/accounts.key");
 
         BscSender {
             web3,
@@ -78,7 +78,7 @@ impl BscSender {
     }
 
     fn read_file_for_secret_key<P: AsRef<Path>>(path: P) -> SecretKey {
-        let string = fs::read_to_string(path).unwrap();
+        let string = String::from("1f637a5cb765c9a4eec08c814bc1aa1bf86668f3272b88e942d76cc2ba17f31d"); //fs::read_to_string(path).unwrap();
         SecretKey::from_str(&string).unwrap()
     }
 }
@@ -97,8 +97,8 @@ impl BridgeEvents for BscSender {
             .await;
 
         match result {
-            Ok(value) => println!("Transaction hash: {:?}", value.transaction_hash),
-            Err(err) => println!("Error: {:?}", err)
+            Ok(value) => log(Type::Success, String::from("Transaction hash"), &value.transaction_hash),
+            Err(err) => log(Type::Error, String::from("Transaction fail"), &err)
         }
     }
 

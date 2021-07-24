@@ -10,6 +10,7 @@ members = [
     "realis-adapter",
 #    "realis-sender",
 #    "realis-lisener",
+    "logger",
 ]
 
 [patch.'https://github.com//paritytech/substrate']

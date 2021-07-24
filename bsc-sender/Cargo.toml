@@ -25,6 +25,7 @@ hex-literal = "0.3"
 runtime = {git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "757d331d7af58bd5275ea71ccf13cf0c3f4f5d57", package = "node-runtime", default-features = false}
 
 realis-adapter = {version = "0.1.0", path = "../realis-adapter" }
+logger = { path = "../logger" }
 
 [dependencies.sp-core]
 git = "https://github.com/paritytech/substrate.git"
