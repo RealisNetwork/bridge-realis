@@ -1,7 +1,7 @@
 use web3::Web3;
 use web3::transports::WebSocket;
 use web3::contract::Contract;
-use web3::types::{FilterBuilder, U256};
+use web3::types::{FilterBuilder, U256, U128};
 use std::str::FromStr;
 use web3::contract::tokens::Detokenize;
 use ethabi::{Error, Uint, Address, Bytes};
@@ -10,6 +10,17 @@ use hex_literal::hex;
 use web3::signing::Key;
 use ethabi::ethereum_types::H160;
 use tokio::time::{sleep, Duration};
+use std::sync::mpsc::{channel, Receiver, Sender};
+use sp_runtime::AccountId32;
+use runtime::AccountId;
+use async_trait::async_trait;
+use std::convert::TryFrom;
+
+pub struct BscAdapter<T: ContractEvents> {
+    events_in: Sender<String>,
+    events_out: Receiver<String>,
+    event_handler: T,
+}
 
 #[tokio::main]
 async fn main() {
@@ -34,8 +45,6 @@ async fn main() {
     let from: Address = Address::from_str("0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943").unwrap();
 
     loop {
-        // let result: Result<Vec<(Address, Address, Uint)>, Error> =
-        //     events(&web3, &contract, "Transfer").await;
 
         let result: web3::contract::Result<Vec<(Address, Bytes, Uint)>> = contract
             .events(
@@ -55,9 +64,12 @@ async fn main() {
                 match first {
                     None => {}
                     Some((from, to, value)) => {
-                        log(Type::Info, String::from(""), from);
-                        log(Type::Info, String::from(""), to);
-                        log(Type::Info, String::from(""), value);
+                        // Convert argument
+                        let account_id = AccountId32::new(<[u8; 32]>::try_from(to.as_slice()).unwrap());
+                        // Log arguments
+                        log(Type::Info, String::from("From: "), from);
+                        log(Type::Info, String::from("To: "), &account_id);
+                        log(Type::Info, String::from("Value: "), value);
                     }
                 }
             }
@@ -66,4 +78,10 @@ async fn main() {
 
         sleep(Duration::from_millis(2000)).await;
     }
+}
+
+#[async_trait]
+pub trait ContractEvents {
+    async fn on_transfer_token_to_realis<'a>(to: AccountId32, value: &u128);
+    // async fn on_transfer_nft_to_bsc<'a>(&self, to: &H160, token_id: &TokenId);
 }
