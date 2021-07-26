@@ -12,6 +12,7 @@ use web3::contract::Contract;
 use web3::transports::WebSocket;
 use web3::types::{Address, U256};
 
+
 pub struct BscSender {
     // web3: web3::Web3<WebSocket>,
     // contract: Contract<WebSocket>,
@@ -30,8 +31,20 @@ impl BscSender {
     }
 
     async fn get_connection(url: &str) -> Contract<WebSocket> {
-        let wss = WebSocket::new(url).await.unwrap();
-        let web3 = web3::Web3::new(wss);
+        // Connect to bsc
+        let mut wss = WebSocket::new(url).await;
+        loop {
+            match wss {
+                Ok(_) => break,
+                Err(error) => {
+                    log(Type::Error, String::from("Cannot connect"), &error);
+                    log(Type::Info, String::from("Try to reconnect"), &());
+                    wss = WebSocket::new(url).await;
+                }
+            }
+        }
+
+        let web3 = web3::Web3::new(wss.unwrap());
 
         let address: Address =
             Address::from_str("0x0db8499bb62772e805af78fc918ee8c8cd6a2859").unwrap();
