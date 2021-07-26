@@ -61,12 +61,20 @@ impl BridgeEvents for BscSender {
         }
     }
 
-    // fn on_transfer_nft_to_bsc<'a>(&self, to: &H160, token_id: &TokenId) {
-    //     // Convert arguments
-    //     let to: Address = Address::from(to.0);
-    //     let value = U256::from(*token_id);
-    //
-    //     // let a = self.contract
-    //     //     .signed_call_with_confirmations("transfer_nft", (to, value), Default::default(), 1, &self.wallet_key).await;
-    // }
+    async fn on_transfer_nft_to_bsc<'a>(&self, to: &H160, token_id: &TokenId) {
+        // Convert arguments
+        let to: Address = Address::from(to.0);
+        let value = U256::from(token_id);
+        println!("Account BSC: {:?}", to);
+        println!("Value: {:?}", value);
+
+        let result = self.contract
+            .signed_call_with_confirmations("transfer", (to, value), Default::default(), 1, &self.wallet_key)
+            .await;
+
+        match result {
+            Ok(value) => log(Type::Success, String::from("Transaction hash"), &value.transaction_hash),
+            Err(err) => log(Type::Error, String::from("Transaction fail"), &err)
+        }
+    }
 }

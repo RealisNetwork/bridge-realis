@@ -5,11 +5,10 @@ resolver = "2"
 
 members = [
     "bridge",
-#    "bsc-adapter",
-    "bsc-sender",
+    "bsc-adapter",
+#    "bsc-sender",
     "realis-adapter",
 #    "realis-sender",
-#    "realis-lisener",
     "logger",
 ]
 
