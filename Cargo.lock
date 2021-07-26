@@ -582,7 +582,9 @@ version = "0.1.0"
 dependencies = [
  "env_logger",
  "ethabi",
+ "hex-literal 0.3.3",
  "logger",
+ "secp256k1",
  "tokio 1.9.0",
  "web3",
  "ws",
@@ -2048,6 +2050,12 @@ dependencies = [
  "hex-literal-impl",
  "proc-macro-hack",
 ]
+
+[[package]]
+name = "hex-literal"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21e4590e13640f19f249fe3e4eca5113bc4289f2497710378190e7f4bd96f45b"
 
 [[package]]
 name = "hex-literal-impl"
@@ -3958,7 +3966,7 @@ dependencies = [
  "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
- "hex-literal",
+ "hex-literal 0.2.1",
  "node-primitives",
  "pallet-balances 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "parity-scale-codec 2.2.0",
