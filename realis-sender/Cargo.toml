@@ -6,3 +6,93 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+async-trait = "0.1.50"
+
+env_logger = { version = "0.7", optional = true }
+ws = { version = "0.9.1", optional = true, features = ["ssl"] }
+hex = { version = "0.4.3", default-features = false, features = ["alloc"] }
+log = { version = "0.4", optional = true }
+hex-literal = "0.3.3"
+serde = { version = "1.0", optional = true, features = ["derive"] }
+serde_json = { version = "1.0", optional = true }
+thiserror = { version = "1.0", optional =true }
+primitive-types = { version = "0.6.1", optional = true, features = ["codec"] }
+web3 = "0.16.0"
+
+sp-keyring = { git = "https://github.com/paritytech/substrate.git" }
+
+substrate-api-client = { git = "https://github.com/scs/substrate-api-client.git", rev = "672a5d4ed9f076525235fef6b5af288f666df803" }
+
+runtime = {git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "757d331d7af58bd5275ea71ccf13cf0c3f4f5d57", package = "node-runtime", default-features = false}
+
+[dependencies.sp-core]
+git = "https://github.com/paritytech/substrate.git"
+branch = "master"
+package = "sp-core"
+default-features = false
+features = ["full_crypto"]
+
+[dependencies.codec]
+package = "parity-scale-codec"
+features = ["derive"]
+version = "2.0.0"
+default-features = false
+
+[dependencies.metadata]
+git = "https://github.com/paritytech/substrate.git"
+branch = "master"
+package = "frame-metadata"
+default-features=false
+
+[dependencies.sp-version]
+git = "https://github.com/paritytech/substrate.git"
+branch = "master"
+package = "sp-version"
+optional = true
+
+[dependencies.balances]
+git = "https://github.com/paritytech/substrate.git"
+branch = "master"
+package = "pallet-balances"
+#optional = true
+
+[dependencies.system]
+git = "https://github.com/paritytech/substrate.git"
+branch = "master"
+package = "frame-system"
+#optional = true
+
+[dependencies.sp-runtime]
+git = "https://github.com/paritytech/substrate.git"
+branch = "master"
+package = "sp-runtime"
+default-features=false
+
+[dependencies.support]
+git = "https://github.com/paritytech/substrate.git"
+branch = "master"
+package = "frame-support"
+default-features=false
+
+[dependencies.sp-std]
+git = "https://github.com/paritytech/substrate.git"
+branch = "master"
+package = "sp-std"
+default-features = false
+
+[features]
+default = ["std"]
+std = [
+    "codec/std",
+    "serde/std",
+    "serde_json",
+    "env_logger",
+    "log",
+    "ws",
+    "hex/std",
+    "primitive-types",
+    "thiserror",
+    "runtime/std",
+]
+# need to add this for the app_crypto macro
+full_crypto = []
