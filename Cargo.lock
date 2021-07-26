@@ -4910,6 +4910,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "realis-sender"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "env_logger",
+ "frame-metadata 14.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "hex",
+ "hex-literal 0.3.3",
+ "log",
+ "node-runtime",
+ "pallet-balances 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "parity-scale-codec 2.2.0",
+ "primitive-types 0.6.2",
+ "serde",
+ "serde_json",
+ "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "sp-keyring 4.0.0-dev (git+https://github.com/paritytech/substrate)",
+ "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "sp-version 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "substrate-api-client",
+ "thiserror",
+ "web3",
+ "ws",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.1.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"

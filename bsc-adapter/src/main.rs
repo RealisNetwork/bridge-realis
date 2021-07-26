@@ -31,7 +31,7 @@ async fn main() {
 
         let result: web3::contract::Result<Vec<(Address, Address)>> = contract
             .events(
-                "Transfer",
+                "TransferToRealis",
                 (),
                 (),
                 (),
