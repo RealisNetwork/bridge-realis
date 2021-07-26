@@ -17,3 +17,5 @@ common.rs
 
 # The cache for chain data in container
 .local
+/bsc-sender/res/accounts.key
+/bsc-sender/res/LIS.sol

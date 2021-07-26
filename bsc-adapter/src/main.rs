@@ -7,6 +7,9 @@ use web3::contract::tokens::Detokenize;
 use ethabi::{Error, Uint, Address, Bytes};
 use logger::logger::{log, Type};
 use hex_literal::hex;
+use web3::signing::Key;
+use ethabi::ethereum_types::H160;
+use tokio::time::{sleep, Duration};
 
 #[tokio::main]
 async fn main() {
@@ -45,44 +48,21 @@ async fn main() {
 
         // result.unwrap();
         match result {
-            Ok(value) => log(Type::Info, String::from("Got events"), &value),
+            Ok(value) => {
+                log(Type::Success, String::from("Got events"), &value);
+                let first = value.get(0);
+                match first {
+                    None => {}
+                    Some((from, to, value)) => {
+                        log(Type::Info, String::from(""), from);
+                        log(Type::Info, String::from(""), to);
+                        log(Type::Info, String::from(""), value);
+                    }
+                }
+            }
             Err(error) => log(Type::Error, String::from("Shit happens"), &error)
         }
 
-
+        sleep(Duration::from_millis(2000)).await;
     }
-}
-
-async fn events<R: Detokenize>(web3: &Web3<WebSocket>, contract: &Contract<WebSocket>, event: &str) -> Result<Vec<R>, Error> {
-    let res = contract.abi().event(event).and_then(|ev| {
-        let filter = ev.filter(ethabi::RawTopicFilter {
-            topic0: ethabi::Topic::Any,
-            topic1: ethabi::Topic::Any,
-            topic2: ethabi::Topic::Any,
-        })?;
-        Ok((ev.clone(), filter))
-    });
-
-    let (ev, filter) = match res {
-        Ok(x) => x,
-        Err(e) => return Err(e.into()),
-    };
-
-    let logs = web3
-        .eth()
-        .logs(FilterBuilder::default().topic_filter(filter).build())
-        .await
-        .unwrap();
-    logs.into_iter()
-        .map(move |l| {
-            let log = ev.parse_log(ethabi::RawLog {
-                topics: l.topics,
-                data: l.data.0,
-            })?;
-
-            Ok(R::from_tokens(
-                log.params.into_iter().map(|x| x.value).collect::<Vec<_>>(),
-            ).unwrap())
-        })
-        .collect::<Result<Vec<R>, Error>>()
 }
