@@ -21,14 +21,14 @@ use sp_core::Pair;
 
 fn main() {
     env_logger::init();
-    let url = "rpc.realis.network";
+    let url = String::from("wss://rpc.realis.network");
 
     // initialize api and set the signer (sender) that is used to sign the extrinsics
     let from = AccountKeyring::public("5CSxbs1GPGgUZvsHNcFMyFRqu56jykBcBWBXhUBay2SXBsaA".parse().unwrap()).pair();
     let api = Api::new(url.parse().unwrap()).map(|api| api.set_signer(from)).unwrap();
 
     // set the recipient
-    let to = AccountKeyring::Bob.to_account_id();
+    let to: AccountId32 = AccountId32::from_str("1aa0d5c594a4581ec17069ec9631cd6225d5fb403fe4d85c8ec8aa51833fdf7f").unwrap();
 
     // call Balances::transfer
     // the names are given as strings
