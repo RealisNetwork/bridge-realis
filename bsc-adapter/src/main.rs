@@ -50,6 +50,7 @@ async fn main() {
         match result {
             Ok(value) => {
                 log(Type::Success, String::from("Got events"), &value);
+                // TODO check all logs
                 let first = value.get(0);
                 match first {
                     None => {}
