@@ -1,17 +1,19 @@
-use std::str::FromStr;
-use std::path::Path;
 use sp_core::H160;
-use web3::contract::{Contract, Options};
+use web3::contract::Contract;
 use web3::types::{Address, U256};
 use web3::transports::WebSocket;
+use std::str::FromStr;
 use secp256k1::SecretKey;
-use runtime::realis_bridge::TokenId;
+use runtime::realis_bridge;
+use realis_bridge::TokenId;
+use std::path::Path;
 use realis_adapter::BridgeEvents;
 use std::fs;
-
+use async_trait::async_trait;
+use logger::logger::{log, Type};
 
 pub struct BscSender {
-    web3: web3::Web3<WebSocket>,
+    // web3: web3::Web3<WebSocket>,
     contract: Contract<WebSocket>,
     wallet_key: SecretKey
 }
@@ -27,10 +29,10 @@ impl BscSender {
         let contract = Contract::from_json(web3.eth(), address, json_abi).unwrap();
 
 
-        let wallet_key = BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
+        let wallet_key = BscSender::read_file_for_secret_key("./bsc-sender/res/accounts.key");
 
         BscSender {
-            web3,
+            // web3,
             contract,
             wallet_key
         }
@@ -42,25 +44,29 @@ impl BscSender {
     }
 }
 
+#[async_trait]
 impl BridgeEvents for BscSender {
-    fn on_transfer_token_to_bsc(&self, to: &H160, value: &u128) {
+    async fn on_transfer_token_to_bsc<'a>(&self, to: &H160, value: &u128) {
         // Convert arguments
         let to: Address = Address::from(to.0);
-        let value = U256::from(*value);
+        let value = U256::from(*value) * 100_000_000;
 
-        let a = self.contract
-            .signed_call_with_confirmations("transfer", (to, value), Default::default(), 1, &self.wallet_key);
+        let result = self.contract
+            .signed_call_with_confirmations("transfer", (to, value), Default::default(), 1, &self.wallet_key)
+            .await;
+
+        match result {
+            Ok(value) => log(Type::Success, String::from("Transaction hash"), &value.transaction_hash),
+            Err(err) => log(Type::Error, String::from("Transaction fail"), &err)
+        }
     }
 
-    fn on_transfer_nft_to_bsc(&self, to: &H160, token_id: &TokenId) {
-
-    }
-
-    fn on_transfer_token_to_realis(&self, to: &runtime::AccountId, value: &u128) {
-
-    }
-
-    fn on_transfer_nft_to_realis(&self, to: &runtime::AccountId, token_id: &U256) {
-
-    }
+    // fn on_transfer_nft_to_bsc<'a>(&self, to: &H160, token_id: &TokenId) {
+    //     // Convert arguments
+    //     let to: Address = Address::from(to.0);
+    //     let value = U256::from(*token_id);
+    //
+    //     // let a = self.contract
+    //     //     .signed_call_with_confirmations("transfer_nft", (to, value), Default::default(), 1, &self.wallet_key).await;
+    // }
 }

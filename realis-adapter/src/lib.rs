@@ -13,6 +13,9 @@ use runtime::Event;
 use runtime::realis_bridge;
 use realis_bridge::TokenId;
 use web3::types::U256;
+use async_trait::async_trait;
+
+use logger::logger::{log, Type};
 
 pub struct RealisAdapter<T: BridgeEvents> {
     events_in: Sender<String>,
@@ -43,49 +46,47 @@ impl<T: BridgeEvents> RealisAdapter<T> {
         return Vec::<system::EventRecord<Event, Hash>>::decode(&mut er_enc).unwrap();
     }
 
-    fn process_event(&self, event: &system::EventRecord<Event, Hash>) {
+    async fn process_event(&self, event: &system::EventRecord<Event, Hash>) {
         match &event.event {
             Event::RealisBridge(bridge_event) => {
                 match bridge_event {
                     realis_bridge::Event::TransferTokenToBSC(from, to, value) => {
-                        self.event_handler.on_transfer_token_to_bsc(&to, value);
-                        println!("From: {:?}", from);
-                        println!("To: {:?}", to);
-                        println!("Value: {:?}", value);
+                        self.event_handler.on_transfer_token_to_bsc(&to, value).await;
+                        log(Type::Info, String::from("From"), &from);
+                        log(Type::Info, String::from("To"), &to);
+                        log(Type::Info, String::from("Value"), &value);
                     }
                     realis_bridge::Event::TransferNftToBSC(from, to, token_id) => {
-                        self.event_handler.on_transfer_nft_to_bsc(&to, &token_id);
-                        println!("From: {:?}", from);
-                        println!("To: {:?}", to);
-                        println!("Value: {:?}", token_id);
+                        // self.event_handler.on_transfer_nft_to_bsc(&to, &token_id);
+                        log(Type::Info, String::from("From"), &from);
+                        log(Type::Info, String::from("To"), &to);
+                        log(Type::Info, String::from("Token id"), &token_id);
                     }
                     realis_bridge::Event::TransferTokenToRealis(from, to, value) => {
-                        self.event_handler.on_transfer_token_to_realis(&to, &value);
-                        println!("From: {:?}", from);
-                        println!("To: {:?}", to);
-                        println!("Value: {:?}", value);
+                        log(Type::Info, String::from("From"), &from);
+                        log(Type::Info, String::from("To"), &to);
+                        log(Type::Info, String::from("Value"), &value);
                     }
                     realis_bridge::Event::TransferNftToRealis(from, to, token_id) => {
-                        self.event_handler.on_transfer_nft_to_realis(&to, &token_id);
-                        println!("From: {:?}", from);
-                        println!("To: {:?}", to);
-                        println!("Value: {:?}", token_id);
+                        log(Type::Info, String::from("From"), &from);
+                        log(Type::Info, String::from("To"), &to);
+                        log(Type::Info, String::from("Token id"), &token_id);
                     }
-                    _ => println!("\x1b[31mUnsupported event!\x1b[0m")
+                    _ => log(Type::Warning, String::from("Unsupported event"), &event.event),
                 }
             }
-            _ => println!("\x1b[31mUnsupported module event:\x1b[0m {:?}", event.event),
+            _ => log(Type::Warning, String::from("Unsupported event"), &event.event),
         }
     }
 
     // Add bsc sender as argument
-    pub fn listener(&self) {
+    pub async fn listener(&self) {
         loop {
             match self.events_out.recv() {
                 Ok(event_str) => {
                     let events = RealisAdapter::<T>::parse_events_str(event_str);
                     for event in &events {
-                        self.process_event(event);
+                        self.process_event(event).await;
                     }
                 }
                 Err(error) => println!("{}", error)
@@ -94,10 +95,8 @@ impl<T: BridgeEvents> RealisAdapter<T> {
     }
 }
 
-
+#[async_trait]
 pub trait BridgeEvents {
-    fn on_transfer_token_to_bsc(&self, to: &H160, value: &u128);
-    fn on_transfer_nft_to_bsc(&self, to: &H160, token_id: &TokenId);
-    fn on_transfer_token_to_realis(&self, to: &runtime::AccountId, value: &u128);
-    fn on_transfer_nft_to_realis(&self, to: &runtime::AccountId, token_id: &U256);
+    async fn on_transfer_token_to_bsc<'a>(&self, to: &H160, value: &u128);
+    // async fn on_transfer_nft_to_bsc<'a>(&self, to: &H160, token_id: &TokenId);
 }
