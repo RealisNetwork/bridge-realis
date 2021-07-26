@@ -580,11 +580,9 @@ checksum = "771fe0050b883fcc3ea2359b1a96bcfbc090b7116eae7c3c512c7a083fdf23d3"
 name = "bsc-adapter"
 version = "0.1.0"
 dependencies = [
- "env_logger",
  "ethabi",
  "hex-literal 0.3.3",
  "logger",
- "secp256k1",
  "tokio 1.9.0",
  "web3",
  "ws",

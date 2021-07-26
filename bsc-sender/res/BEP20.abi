@@ -305,12 +305,12 @@
 			},
 			{
 				"indexed": false,
-				"name": "to",
+				"name": "_to",
 				"type": "bytes32"
 			},
 			{
 				"indexed": false,
-				"name": "value",
+				"name": "_value",
 				"type": "uint256"
 			}
 		],

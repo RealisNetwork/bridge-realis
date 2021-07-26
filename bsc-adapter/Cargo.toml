@@ -4,8 +4,6 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-env_logger = { version = "0.7", optional = true }
-secp256k1 = { version = "0.20", features = ["recovery"], optional = true }
 ws = { version = "0.9.1", optional = true, features = ["ssl"] }
 ethabi = "14.1.0"
 web3 = "0.16.0"
@@ -17,8 +15,6 @@ logger = { version = "0.1.0", path = "../logger" }
 [features]
 default = ["std"]
 std = [
-    "secp256k1",
-    "env_logger",
     "ws",
     "tokio"
 ]

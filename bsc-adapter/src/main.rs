@@ -4,22 +4,27 @@ use web3::contract::Contract;
 use web3::types::{FilterBuilder, U256};
 use std::str::FromStr;
 use web3::contract::tokens::Detokenize;
-use ethabi::{Error, Uint, Address};
-use env_logger;
-use secp256k1::SecretKey;
-use std::path::Path;
-use std::fs;
-
-use hex_literal::hex;
-
+use ethabi::{Error, Uint, Address, Bytes};
 use logger::logger::{log, Type};
+use hex_literal::hex;
 
 #[tokio::main]
 async fn main() {
-    let _ = env_logger::init();
 
-    let wss = web3::transports::WebSocket::new("wss://bsc-ws-node.nariox.org:443").await.unwrap();
-    let web3 = web3::Web3::new(wss);
+    // let url = "wss://bsc-ws-node.nariox.org:443";
+    let url = "wss://data-seed-prebsc-1-s1.binance.org:8545/";
+    let mut wss = WebSocket::new(url).await;
+    loop {
+        match wss {
+            Ok(_) => break,
+            Err(error) => {
+                log(Type::Error, String::from("Cannot connect"), &error);
+                log(Type::Info, String::from("Try to reconnect"), &());
+                wss = WebSocket::new(url).await;
+            }
+        }
+    }
+    let web3 = web3::Web3::new(wss.unwrap());
     let json_abi = include_bytes!("../../bsc-sender/res/BEP20.abi");
     let address: web3::types::H160 = web3::types::H160::from_str("0x987893D34052C07F5959d7e200E9e10fdAf544Ef").unwrap();
     let contract = Contract::from_json(web3.eth(), address, json_abi).unwrap();
@@ -29,7 +34,7 @@ async fn main() {
         // let result: Result<Vec<(Address, Address, Uint)>, Error> =
         //     events(&web3, &contract, "Transfer").await;
 
-        let result: web3::contract::Result<Vec<(Address, Address)>> = contract
+        let result: web3::contract::Result<Vec<(Address, Bytes, Uint)>> = contract
             .events(
                 "TransferToRealis",
                 (),
@@ -43,6 +48,8 @@ async fn main() {
             Ok(value) => log(Type::Info, String::from("Got events"), &value),
             Err(error) => log(Type::Error, String::from("Shit happens"), &error)
         }
+
+
     }
 }
 
