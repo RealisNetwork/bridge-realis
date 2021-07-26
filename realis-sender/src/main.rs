@@ -18,17 +18,21 @@ use async_trait::async_trait;
 use hex_literal::hex;
 use sp_keyring::AccountKeyring;
 use sp_core::Pair;
+use sp_core::sp_std::str::FromStr;
+use substrate_api_client::sp_runtime::AccountId32;
+use std::convert::TryFrom;
 
 fn main() {
     env_logger::init();
     let url = String::from("wss://rpc.realis.network");
 
     // initialize api and set the signer (sender) that is used to sign the extrinsics
-    let from = AccountKeyring::public("5CSxbs1GPGgUZvsHNcFMyFRqu56jykBcBWBXhUBay2SXBsaA".parse().unwrap()).pair();
-    let api = Api::new(url.parse().unwrap()).map(|api| api.set_signer(from)).unwrap();
-
+    let from =
+        Pair::from_phrase("fault pretty bird biology budget table symptom build option wrist time detail", Some("123"))
+        .unwrap();
+    let api = Api::<sr25519::Pair>::new(format!("wss://{}", url)).map(|api| api.set_signer(from)).unwrap();
     // set the recipient
-    let to: AccountId32 = AccountId32::from_str("1aa0d5c594a4581ec17069ec9631cd6225d5fb403fe4d85c8ec8aa51833fdf7f").unwrap();
+    let to: AccountId32 = AccountId32::from_str("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx").unwrap();
 
     // call Balances::transfer
     // the names are given as strings
