@@ -14,27 +14,30 @@ use web3::types::{Address, U256};
 
 pub struct BscSender {
     // web3: web3::Web3<WebSocket>,
-    contract: Contract<WebSocket>,
+    // contract: Contract<WebSocket>,
     wallet_key: SecretKey,
 }
 
 impl BscSender {
-    pub async fn new(url: &str) -> BscSender {
+    pub async fn new() -> BscSender {
+        let wallet_key = BscSender::read_file_for_secret_key("./../bsc-sender/res/accounts.key");
+
+        BscSender {
+            // web3,
+            // contract,
+            wallet_key,
+        }
+    }
+
+    async fn get_connection(url: &str) -> Contract<WebSocket> {
         let wss = WebSocket::new(url).await.unwrap();
         let web3 = web3::Web3::new(wss);
 
         let address: Address =
             Address::from_str("0x0db8499bb62772e805af78fc918ee8c8cd6a2859").unwrap();
         let json_abi = include_bytes!("../res/BEP20.abi");
-        let contract = Contract::from_json(web3.eth(), address, json_abi).unwrap();
 
-        let wallet_key = BscSender::read_file_for_secret_key("./bsc-sender/res/accounts.key");
-
-        BscSender {
-            // web3,
-            contract,
-            wallet_key,
-        }
+        Contract::from_json(web3.eth(), address, json_abi).unwrap()
     }
 
     fn read_file_for_secret_key<P: AsRef<Path>>(path: P) -> SecretKey {
@@ -46,12 +49,12 @@ impl BscSender {
 #[async_trait]
 impl BridgeEvents for BscSender {
     async fn on_transfer_token_to_bsc<'a>(&self, to: &H160, value: &u128) {
+        let contract = BscSender::get_connection("wss://data-seed-prebsc-1-s1.binance.org:8545/").await;
         // Convert arguments
         let to: Address = Address::from(to.0);
         let value = U256::from(*value) * 100_000_000;
 
-        let result = self
-            .contract
+        let result = contract
             .signed_call_with_confirmations(
                 "transfer",
                 (to, value),
@@ -72,14 +75,12 @@ impl BridgeEvents for BscSender {
     }
 
     async fn on_transfer_nft_to_bsc<'a>(&self, to: &H160, token_id: &TokenId) {
+        let contract = BscSender::get_connection("wss://data-seed-prebsc-1-s1.binance.org:8545/").await;
         // Convert arguments
         let to: Address = Address::from(to.0);
         let value = U256::from(token_id);
-        println!("Account BSC: {:?}", to);
-        println!("Value: {:?}", value);
 
-        let result = self
-            .contract
+        let result = contract
             .signed_call_with_confirmations(
                 "transfer",
                 (to, value),
