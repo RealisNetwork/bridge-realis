@@ -1,8 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use substrate_api_client::{Api, UncheckedExtrinsicV4, compose_extrinsic, XtStatus};
+use substrate_api_client::{Api, UncheckedExtrinsicV4, compose_extrinsic, XtStatus, ApiClientError};
 use substrate_api_client::utils::FromHexString;
-use sp_core::sr25519;
+use sp_core::{sr25519, H256};
 pub use sp_runtime::OpaqueExtrinsic as UncheckedExtrinsic;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use codec::Decode;
@@ -24,7 +24,7 @@ use std::convert::TryFrom;
 use std::path::Path;
 use std::fs;
 use sp_core::crypto::SecretStringError;
-
+use logger::logger::{log, Type};
 use bsc_adapter::ContractEvents;
 
 // fn main() {
@@ -102,6 +102,11 @@ impl ContractEvents for RealisSender {
         );
         // Send extrinsic transaction
         let tx_result = self.api
-            .send_extrinsic(xt.hex_encode(), XtStatus::InBlock).unwrap();
+            .send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
+
+        match tx_result {
+            Ok(hash) => log(Type::Success, String::from("Send extrinsic"), &hash),
+            Err(error) => log(Type::Error, String::from("Can`t send extrinsic"), &error)
+        }
     }
 }
