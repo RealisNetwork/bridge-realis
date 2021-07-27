@@ -140,7 +140,8 @@ impl<T: ContractEvents> BSCAdapter<T> {
                         log(Type::Info, String::from("To: "), &account_id);
                         log(Type::Info, String::from("Value: "), value);
                         //
-                        self.event_handler.on_transfer_token_to_realis(account_id, &value.as_u128());
+                        self.event_handler.on_transfer_token_to_realis(account_id, &value.as_u128())
+                            .await;
                     }
                 }
                 Err(error) => log(Type::Error, String::from("Shit happens"), &error)
