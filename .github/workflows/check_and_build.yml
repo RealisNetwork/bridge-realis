@@ -35,7 +35,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly
+          toolchain: nightly-2021-05-10 # Pinned because of compilation error on later version, should unpin later.
           target: wasm32-unknown-unknown
       - run: make build
 
