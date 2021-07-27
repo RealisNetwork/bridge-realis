@@ -52,7 +52,7 @@ impl ContractEvents for RealisSender {
             "Balances",
             "transfer",
             GenericAddress::Id(to),
-            Compact(10_000 as u128)
+            Compact(value)
         );
         // Send extrinsic transaction
         let tx_result = self.api
