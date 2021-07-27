@@ -588,8 +588,10 @@ dependencies = [
 name = "bridge"
 version = "0.1.0"
 dependencies = [
+ "bsc-adapter",
  "bsc-sender",
  "realis-adapter",
+ "realis-sender",
  "tokio 1.9.0",
 ]
 
@@ -5140,6 +5142,7 @@ name = "realis-sender"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "bsc-adapter",
  "env_logger",
  "frame-metadata 14.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
