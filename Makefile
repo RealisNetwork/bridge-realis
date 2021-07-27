@@ -20,7 +20,7 @@ build:
 
 .PHONY: fmt
 fmt:
-	cargo fmt -p realis-adapter -p realis-sender -p bsc-adapter -p bsc-sender
+	cargo fmt -p realis-adapter -p realis-sender -p bsc-adapter -p bsc-sender -p bridge
 
 .PHONY: clippy
 clippy:

@@ -14,6 +14,7 @@ sp-keyring = { git = "https://github.com/paritytech/substrate.git" }
 substrate-api-client = { git = "https://github.com/scs/substrate-api-client.git", rev = "672a5d4ed9f076525235fef6b5af288f666df803" }
 bsc-adapter = { version = "0.1.0", path = "../bsc-adapter" }
 logger = { version = "0.1.0", path = "../logger" }
+primitive-types = { version = "0.9.0", default-features = false }
 
 
 [dependencies.sp-core]

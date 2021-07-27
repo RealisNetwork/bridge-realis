@@ -70,7 +70,7 @@ impl BscSender {
         let web3 = web3::Web3::new(wss.unwrap());
 
         let address: Address =
-            Address::from_str("0x99c88fDFe2ceC22e235dab3f380671269365a6A4").unwrap();
+            Address::from_str("0x8A19360f2EC953b433D92571120bb5ef755b3d17").unwrap();
         let json_abi = include_bytes!("../res/BEP721.abi");
 
         Contract::from_json(web3.eth(), address, json_abi).unwrap()

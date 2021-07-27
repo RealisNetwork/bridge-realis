@@ -4894,6 +4894,7 @@ dependencies = [
  "async-trait",
  "bsc-adapter",
  "logger",
+ "primitive-types 0.9.1",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "sp-keyring 4.0.0-dev (git+https://github.com/paritytech/substrate)",
  "substrate-api-client",
