@@ -67,13 +67,14 @@ async fn main() {
                 // Process all events
                 for event in value {
                     // Unpack event arguments
-                    let (from, to, value) = event;
+                    let (from, to, value) = &event;
                     // Convert argument
                     let account_id = AccountId32::new(<[u8; 32]>::try_from(to.as_slice()).unwrap());
                     // Log arguments
-                    log(Type::Info, String::from("From: "), &from);
+                    log(Type::Success, String::from("Event"), &event);
+                    log(Type::Info, String::from("From: "), from);
                     log(Type::Info, String::from("To: "), &account_id);
-                    log(Type::Info, String::from("Value: "), &value);
+                    log(Type::Info, String::from("Value: "), value);
                 }
             }
             Err(error) => log(Type::Error, String::from("Shit happens"), &error)

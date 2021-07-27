@@ -18,17 +18,26 @@ use async_trait::async_trait;
 use hex_literal::hex;
 use sp_keyring::AccountKeyring;
 use sp_core::Pair;
+use sp_core::sp_std::str::FromStr;
+use substrate_api_client::sp_runtime::AccountId32;
+use std::convert::TryFrom;
 
 fn main() {
     env_logger::init();
-    let url = "rpc.realis.network";
+    let url = String::from("rpc.realis.network");
 
     // initialize api and set the signer (sender) that is used to sign the extrinsics
-    let from = AccountKeyring::public("5CSxbs1GPGgUZvsHNcFMyFRqu56jykBcBWBXhUBay2SXBsaA".parse().unwrap()).pair();
-    let api = Api::new(url.parse().unwrap()).map(|api| api.set_signer(from)).unwrap();
+    let (pair, _seed) =
+    // TODO not push with phrase
+        Pair::from_phrase(
+            "",
+            Some("")
+        ).unwrap();
+
+    let api = Api::<sr25519::Pair>::new(format!("wss://{}", url)).map(|api| api.set_signer(pair)).unwrap();
 
     // set the recipient
-    let to = AccountKeyring::Bob.to_account_id();
+    let to: AccountId32 = AccountId32::from_str("").unwrap();
 
     // call Balances::transfer
     // the names are given as strings
@@ -38,7 +47,7 @@ fn main() {
         "Balances",
         "transfer",
         GenericAddress::Id(to),
-        Compact(42_u128)
+        Compact(10_000 as u128)
     );
 
     println!("[+] Composed Extrinsic:\n {:?}\n", xt);

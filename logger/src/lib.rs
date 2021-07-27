@@ -42,7 +42,7 @@ pub mod logger {
         }
         // TODO split print
         // Log body part
-        println!(" - {} - {:?}", body, tail);
+        println!(" - {:>10} - {:?}", body, tail);
     }
 
     pub enum Type {
