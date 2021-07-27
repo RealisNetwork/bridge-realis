@@ -1,18 +1,10 @@
-use web3::Web3;
 use web3::transports::WebSocket;
 use web3::contract::Contract;
-use web3::types::{FilterBuilder, U256, U128};
 use std::str::FromStr;
-use web3::contract::tokens::Detokenize;
-use ethabi::{Error, Uint, Address, Bytes};
+use ethabi::{Uint, Address, Bytes};
 use logger::logger::{log, Type};
-use hex_literal::hex;
-use web3::signing::Key;
-use ethabi::ethereum_types::H160;
 use tokio::time::{sleep, Duration};
-use std::sync::mpsc::{channel, Receiver, Sender};
 use sp_runtime::AccountId32;
-use runtime::AccountId;
 use async_trait::async_trait;
 use std::convert::TryFrom;
 

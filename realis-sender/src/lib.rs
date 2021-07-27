@@ -1,29 +1,15 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use substrate_api_client::{Api, UncheckedExtrinsicV4, compose_extrinsic, XtStatus, ApiClientError};
-use substrate_api_client::utils::FromHexString;
-use sp_core::{sr25519, H256};
+use substrate_api_client::{Api, UncheckedExtrinsicV4, compose_extrinsic, XtStatus};
+use sp_core::sr25519;
 pub use sp_runtime::OpaqueExtrinsic as UncheckedExtrinsic;
-use std::sync::mpsc::{channel, Receiver, Sender};
-use codec::Decode;
-use sp_core::{H256 as Hash, H160};
 use sp_std::prelude::*;
-use system;
-use runtime::Event;
-use runtime::AccountId;
 use runtime::realis_bridge;
-use realis_bridge::TokenId;
-use web3::types::U256;
 use async_trait::async_trait;
-use hex_literal::hex;
-use sp_keyring::AccountKeyring;
 use sp_core::Pair;
-use sp_core::sp_std::str::FromStr;
 use substrate_api_client::sp_runtime::AccountId32;
-use std::convert::TryFrom;
 use std::path::Path;
 use std::fs;
-use sp_core::crypto::SecretStringError;
 use logger::logger::{log, Type};
 use bsc_adapter::ContractEvents;
 

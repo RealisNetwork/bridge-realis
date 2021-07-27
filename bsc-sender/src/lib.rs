@@ -113,7 +113,7 @@ impl BridgeEvents for BscSender {
     async fn on_transfer_nft_to_bsc<'a>(&self, to: &H160, token_id: &TokenId) {
         let contract = BscSender::get_connection_nft("wss://data-seed-prebsc-1-s1.binance.org:8545/").await;
         // Convert arguments
-        let from: Address = Address::from_str("0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943").unwrap();
+        // let from: Address = Address::from_str("0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943").unwrap();
         let to: Address = Address::from(to.0);
         let value = U256::from(token_id);
 

@@ -5150,6 +5150,7 @@ dependencies = [
  "hex",
  "hex-literal 0.3.3",
  "log",
+ "logger",
  "node-runtime",
  "pallet-balances 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "parity-scale-codec 2.2.0",

@@ -9,16 +9,15 @@ use sp_core::sr25519;
 use sp_core::{H160, H256 as Hash};
 pub use sp_runtime::OpaqueExtrinsic as UncheckedExtrinsic;
 use sp_std::prelude::*;
-use std::sync::mpsc::{channel, Receiver, Sender};
+use std::sync::mpsc::{channel, Receiver};
 use substrate_api_client::utils::FromHexString;
 use substrate_api_client::Api;
 use system;
-use web3::types::U256;
 
 use logger::logger::{log, Type};
 
 pub struct RealisAdapter<T: BridgeEvents> {
-    events_in: Sender<String>,
+    // events_in: Sender<String>,
     events_out: Receiver<String>,
     event_handler: T,
 }
@@ -33,7 +32,7 @@ impl<T: BridgeEvents> RealisAdapter<T> {
         api.subscribe_events(events_in.clone()).unwrap();
 
         RealisAdapter {
-            events_in,
+            // events_in,
             events_out,
             event_handler,
         }
