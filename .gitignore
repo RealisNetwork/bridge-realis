@@ -19,3 +19,4 @@ common.rs
 .local
 /bsc-sender/res/accounts.key
 /bsc-sender/res/LIS.sol
+/realis-sender/res/accounts.key
