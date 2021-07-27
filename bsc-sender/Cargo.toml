@@ -8,15 +8,14 @@ edition = "2018"
 [dependencies]
 async-trait = "0.1.50"
 web3 = "0.16.0"
-secp256k1 = { version = "0.20", features = ["recovery"], optional = true }
-sp-core = { git = "https://github.com/paritytech/substrate.git", package = "sp-core", default-features = false }
-runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "757d331d7af58bd5275ea71ccf13cf0c3f4f5d57", package = "node-runtime", default-features = false }
+secp256k1 = { version = "0.20", features = ["recovery"] }
+sp-core = { git = "https://github.com/paritytech/substrate.git", package = "sp-core" }
+runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "757d331d7af58bd5275ea71ccf13cf0c3f4f5d57", package = "node-runtime" }
 realis-adapter = { version = "0.1.0", path = "../realis-adapter" }
 logger = { path = "../logger" }
 
 [features]
 default = ["std"]
 std = [
-    "secp256k1",
     "runtime/std"
 ]

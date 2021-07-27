@@ -1,10 +1,7 @@
 use substrate_api_client::{Api, UncheckedExtrinsicV4, compose_extrinsic, XtStatus};
-use sp_core::sr25519;
-pub use sp_runtime::OpaqueExtrinsic as UncheckedExtrinsic;
-use sp_std::prelude::*;
-use async_trait::async_trait;
-use sp_core::Pair;
 use substrate_api_client::sp_runtime::AccountId32;
+use sp_core::{sr25519, Pair};
+use async_trait::async_trait;
 use std::path::Path;
 use std::fs;
 use logger::logger::{log, Type};

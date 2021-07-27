@@ -1,5 +1,3 @@
-#![cfg_attr(not(feature = "std"), no_std)]
-
 use async_trait::async_trait;
 use codec::Decode;
 use realis_bridge::TokenId;
@@ -7,13 +5,9 @@ use runtime::realis_bridge;
 use runtime::Event;
 use sp_core::sr25519;
 use sp_core::{H160, H256 as Hash};
-pub use sp_runtime::OpaqueExtrinsic as UncheckedExtrinsic;
-use sp_std::prelude::*;
 use std::sync::mpsc::{channel, Receiver};
 use substrate_api_client::utils::FromHexString;
 use substrate_api_client::Api;
-use system;
-
 use logger::logger::{log, Type};
 
 pub struct RealisAdapter<T: BridgeEvents> {
