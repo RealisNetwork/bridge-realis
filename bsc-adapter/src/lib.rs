@@ -76,8 +76,8 @@ impl<T: ContractEvents> BSCAdapter<T> {
                 }
                 Err(error) => log(Type::Error, String::from("Shit happens"), &error)
             }
-            // Sleep to do not catch same event twice (2500 - magic number)
-            sleep(Duration::from_millis(2500)).await;
+            // Sleep to do not catch same event twice (2100 - magic number)
+            sleep(Duration::from_millis(2100)).await;
         }
     }
 }
