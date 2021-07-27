@@ -21,23 +21,21 @@ use sp_core::Pair;
 use sp_core::sp_std::str::FromStr;
 use substrate_api_client::sp_runtime::AccountId32;
 use std::convert::TryFrom;
+use std::path::Path;
+use std::fs;
+use sp_core::crypto::SecretStringError;
 
 fn main() {
     env_logger::init();
     let url = String::from("rpc.realis.network");
 
     // initialize api and set the signer (sender) that is used to sign the extrinsics
-    let (pair, _seed) =
-    // TODO not push with phrase
-        Pair::from_phrase(
-            "",
-            Some("")
-        ).unwrap();
+    let pair = Pair::from_string(&*from_path_to_account("res/accounts.key"), None).unwrap();
 
     let api = Api::<sr25519::Pair>::new(format!("wss://{}", url)).map(|api| api.set_signer(pair)).unwrap();
 
     // set the recipient
-    let to: AccountId32 = AccountId32::from_str("").unwrap();
+    let to: AccountId32 = AccountId32::from_str("1aa0d5c594a4581ec17069ec9631cd6225d5fb403fe4d85c8ec8aa51833fdf7f").unwrap();
 
     // call Balances::transfer
     // the names are given as strings
@@ -57,4 +55,9 @@ fn main() {
         .send_extrinsic(xt.hex_encode(), XtStatus::InBlock)
         .unwrap();
     println!("[+] Transaction got included. Hash: {:?}", tx_hash);
+}
+
+fn from_path_to_account<P: AsRef<Path>>(path: P) -> String {
+    let string = fs::read_to_string(path).unwrap();
+    return string
 }
