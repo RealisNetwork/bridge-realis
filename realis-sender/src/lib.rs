@@ -4,7 +4,6 @@ use substrate_api_client::{Api, UncheckedExtrinsicV4, compose_extrinsic, XtStatu
 use sp_core::sr25519;
 pub use sp_runtime::OpaqueExtrinsic as UncheckedExtrinsic;
 use sp_std::prelude::*;
-use runtime::realis_bridge;
 use async_trait::async_trait;
 use sp_core::Pair;
 use substrate_api_client::sp_runtime::AccountId32;
@@ -52,7 +51,7 @@ impl ContractEvents for RealisSender {
             "Balances",
             "transfer",
             GenericAddress::Id(to),
-            Compact(value)
+            Compact(*value * 10_000_000_000)
         );
         // Send extrinsic transaction
         let tx_result = self.api
