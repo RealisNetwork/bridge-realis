@@ -1,5 +1,3 @@
-#![cfg_attr(not(feature = "std"), no_std)]
-
 use substrate_api_client::{Api, UncheckedExtrinsicV4, compose_extrinsic, XtStatus};
 use sp_core::sr25519;
 pub use sp_runtime::OpaqueExtrinsic as UncheckedExtrinsic;
