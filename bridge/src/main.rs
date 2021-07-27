@@ -1,8 +1,8 @@
 use std::env;
 use tokio;
 
-mod realis_to_bsc;
 mod bsc_to_realis;
+mod realis_to_bsc;
 
 #[tokio::main]
 async fn main() {
@@ -13,12 +13,10 @@ async fn main() {
 
     match arg {
         None => println!("Specify flag (realis-to-bsc or bsc-to-realis)"),
-        Some(value) => {
-            match value.as_str() {
-                "realis-to-bsc" => realis_to_bsc::run().await,
-                "bsc-to-realis" => bsc_to_realis::run().await,
-                _ => println!("Unknown command!")
-            }
-        }
+        Some(value) => match value.as_str() {
+            "realis-to-bsc" => realis_to_bsc::run().await,
+            "bsc-to-realis" => bsc_to_realis::run().await,
+            _ => println!("Unknown command!"),
+        },
     }
 }

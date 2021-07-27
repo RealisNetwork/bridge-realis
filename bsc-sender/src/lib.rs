@@ -5,13 +5,12 @@ use realis_bridge::TokenId;
 use runtime::realis_bridge;
 use secp256k1::SecretKey;
 use sp_core::H160;
-use std::fs;
-use std::path::Path;
-use std::str::FromStr;
-use web3::contract::Contract;
-use web3::transports::WebSocket;
-use web3::types::{Address, U256};
-
+use std::{fs, path::Path, str::FromStr};
+use web3::{
+    contract::Contract,
+    transports::WebSocket,
+    types::{Address, U256},
+};
 
 pub struct BscSender {
     // web3: web3::Web3<WebSocket>,
@@ -21,7 +20,8 @@ pub struct BscSender {
 
 impl BscSender {
     pub async fn new() -> BscSender {
-        let wallet_key = BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
+        let wallet_key =
+            BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
 
         BscSender {
             // web3,
@@ -47,7 +47,8 @@ impl BscSender {
         let web3 = web3::Web3::new(wss.unwrap());
 
         let address: Address =
-            Address::from_str("0x987893D34052C07F5959d7e200E9e10fdAf544Ef").unwrap();
+            Address::from_str("0x987893D34052C07F5959d7e200E9e10fdAf544Ef")
+                .unwrap();
         let json_abi = include_bytes!("../res/BEP20.abi");
 
         Contract::from_json(web3.eth(), address, json_abi).unwrap()
@@ -70,7 +71,8 @@ impl BscSender {
         let web3 = web3::Web3::new(wss.unwrap());
 
         let address: Address =
-            Address::from_str("0x8A19360f2EC953b433D92571120bb5ef755b3d17").unwrap();
+            Address::from_str("0x8A19360f2EC953b433D92571120bb5ef755b3d17")
+                .unwrap();
         let json_abi = include_bytes!("../res/BEP721.abi");
 
         Contract::from_json(web3.eth(), address, json_abi).unwrap()
@@ -85,7 +87,10 @@ impl BscSender {
 #[async_trait]
 impl BridgeEvents for BscSender {
     async fn on_transfer_token_to_bsc<'a>(&self, to: &H160, value: &u128) {
-        let contract = BscSender::get_connection("wss://data-seed-prebsc-1-s1.binance.org:8545/").await;
+        let contract = BscSender::get_connection(
+            "wss://data-seed-prebsc-1-s1.binance.org:8545/",
+        )
+        .await;
         // Convert arguments
         let to: Address = Address::from(to.0);
         let value = U256::from(*value) * 100_000_000;
@@ -106,14 +111,21 @@ impl BridgeEvents for BscSender {
                 String::from("Transaction hash"),
                 &value.transaction_hash,
             ),
-            Err(err) => log(Type::Error, String::from("Transaction fail"), &err),
+            Err(err) => {
+                log(Type::Error, String::from("Transaction fail"), &err)
+            }
         }
     }
 
     async fn on_transfer_nft_to_bsc<'a>(&self, to: &H160, token_id: &TokenId) {
-        let contract = BscSender::get_connection_nft("wss://data-seed-prebsc-1-s1.binance.org:8545/").await;
+        let contract = BscSender::get_connection_nft(
+            "wss://data-seed-prebsc-1-s1.binance.org:8545/",
+        )
+        .await;
         // Convert arguments
-        // let from: Address = Address::from_str("0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943").unwrap();
+        // let from: Address =
+        // Address::from_str("0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943").
+        // unwrap();
         let to: Address = Address::from(to.0);
         let value = U256::from(token_id);
 
@@ -133,7 +145,9 @@ impl BridgeEvents for BscSender {
                 String::from("Transaction hash"),
                 &value.transaction_hash,
             ),
-            Err(err) => log(Type::Error, String::from("Transaction fail"), &err),
+            Err(err) => {
+                log(Type::Error, String::from("Transaction fail"), &err)
+            }
         }
     }
 }

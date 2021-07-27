@@ -1,18 +1,18 @@
-use web3::transports::WebSocket;
-use web3::contract::Contract;
-use std::str::FromStr;
-use ethabi::{Uint, Address, Bytes};
-use logger::logger::{log, Type};
-use tokio::time::{sleep, Duration};
-use sp_runtime::AccountId32;
 use async_trait::async_trait;
-use std::convert::TryFrom;
-use web3::types::{H160, U256};
-
+use ethabi::{Address, Bytes, Uint};
+use logger::logger::{log, Type};
+use sp_runtime::AccountId32;
+use std::{convert::TryFrom, str::FromStr};
+use tokio::time::{sleep, Duration};
+use web3::{
+    contract::Contract,
+    transports::WebSocket,
+    types::{H160, U256},
+};
 
 pub struct BSCAdapter<T: ContractEvents> {
     contract: Contract<WebSocket>,
-    event_handler: T
+    event_handler: T,
 }
 
 impl<T: ContractEvents> BSCAdapter<T> {
@@ -35,26 +35,23 @@ impl<T: ContractEvents> BSCAdapter<T> {
 
         let json_abi = include_bytes!("../../bsc-sender/res/BEP20.abi");
         // TODO take out into file
-        let address: web3::types::H160 = web3::types::H160::from_str("0x987893D34052C07F5959d7e200E9e10fdAf544Ef").unwrap();
-        let contract = Contract::from_json(web3.eth(), address, json_abi).unwrap();
+        let address: web3::types::H160 = web3::types::H160::from_str(
+            "0x987893D34052C07F5959d7e200E9e10fdAf544Ef",
+        )
+        .unwrap();
+        let contract =
+            Contract::from_json(web3.eth(), address, json_abi).unwrap();
 
         BSCAdapter {
             contract,
-            event_handler
+            event_handler,
         }
     }
 
     pub async fn listen(&self) {
         loop {
-
-            let logs: web3::contract::Result<Vec<(Address, Bytes, Uint)>> = self.contract
-                .events(
-                    "TransferToRealis",
-                    (),
-                    (),
-                    (),
-                )
-                .await;
+            let logs: web3::contract::Result<Vec<(Address, Bytes, Uint)>> =
+                self.contract.events("TransferToRealis", (), (), ()).await;
 
             // result.unwrap();
             match logs {
@@ -66,17 +63,25 @@ impl<T: ContractEvents> BSCAdapter<T> {
                         // Unpack event arguments
                         let (from, to, value) = &event;
                         // Convert argument
-                        let account_id = AccountId32::new(<[u8; 32]>::try_from(to.as_slice()).unwrap());
+                        let account_id = AccountId32::new(
+                            <[u8; 32]>::try_from(to.as_slice()).unwrap(),
+                        );
                         // Log arguments
                         log(Type::Info, String::from("From: "), from);
                         log(Type::Info, String::from("To: "), &account_id);
                         log(Type::Info, String::from("Value: "), value);
                         //
-                        self.event_handler.on_transfer_token_to_realis(account_id, &value.as_u128())
+                        self.event_handler
+                            .on_transfer_token_to_realis(
+                                account_id,
+                                &value.as_u128(),
+                            )
                             .await;
                     }
                 }
-                Err(error) => log(Type::Error, String::from("Shit happens"), &error)
+                Err(error) => {
+                    log(Type::Error, String::from("Shit happens"), &error)
+                }
             }
             // Sleep to do not catch same event twice (2100 - magic number)
             sleep(Duration::from_millis(2050)).await;
@@ -102,25 +107,24 @@ impl<T: ContractEvents> BSCAdapter<T> {
 
         let json_abi = include_bytes!("../../bsc-sender/res/BEP721.abi");
         // TODO take out into file
-        let address: web3::types::H160 = web3::types::H160::from_str("0x81460c30427ee260E06FAecFa17429F56f65423e").unwrap();
-        let contract = Contract::from_json(web3.eth(), address, json_abi).unwrap();
+        let address: web3::types::H160 = web3::types::H160::from_str(
+            "0x81460c30427ee260E06FAecFa17429F56f65423e",
+        )
+        .unwrap();
+        let contract =
+            Contract::from_json(web3.eth(), address, json_abi).unwrap();
 
         BSCAdapter {
             contract,
-            event_handler
+            event_handler,
         }
     }
 
     pub async fn listen_nft(&self) {
         loop {
-
-            let logs: web3::contract::Result<Vec<(Bytes, Uint, u8)>> = self.contract
-                .events(
-                    "TransferNftToRealis",
-                    (),
-                    (),
-                    (),
-                )
+            let logs: web3::contract::Result<Vec<(Bytes, Uint, u8)>> = self
+                .contract
+                .events("TransferNftToRealis", (), (), ())
                 .await;
 
             // result.unwrap();
@@ -133,18 +137,25 @@ impl<T: ContractEvents> BSCAdapter<T> {
                         // Unpack event arguments
                         let (to, value, basic) = &event;
                         // Convert argument
-                        let account_id = AccountId32::new(<[u8; 32]>::try_from(to.as_slice()).unwrap());
+                        let account_id = AccountId32::new(
+                            <[u8; 32]>::try_from(to.as_slice()).unwrap(),
+                        );
                         // Log arguments
                         // log(Type::Info, String::from("From: "), from);
                         log(Type::Info, String::from("To: "), &account_id);
                         log(Type::Info, String::from("Value: "), value);
                         log(Type::Info, String::from("Basic: "), basic);
                         //
-                        self.event_handler.on_transfer_nft_to_realis(account_id, &value, *basic)
+                        self.event_handler
+                            .on_transfer_nft_to_realis(
+                                account_id, &value, *basic,
+                            )
                             .await;
                     }
                 }
-                Err(error) => log(Type::Error, String::from("Event error"), &error)
+                Err(error) => {
+                    log(Type::Error, String::from("Event error"), &error)
+                }
             }
             // Sleep to do not catch same event twice (2100 - magic number)
             sleep(Duration::from_millis(2100)).await;
@@ -152,9 +163,17 @@ impl<T: ContractEvents> BSCAdapter<T> {
     }
 }
 
-
 #[async_trait]
 pub trait ContractEvents {
-    async fn on_transfer_token_to_realis<'a>(&self, to: AccountId32, value: &u128);
-    async fn on_transfer_nft_to_realis<'a>(&self, to: AccountId32, token_id: &U256, basic: u8);
+    async fn on_transfer_token_to_realis<'a>(
+        &self,
+        to: AccountId32,
+        value: &u128,
+    );
+    async fn on_transfer_nft_to_realis<'a>(
+        &self,
+        to: AccountId32,
+        token_id: &U256,
+        basic: u8,
+    );
 }
