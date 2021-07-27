@@ -87,5 +87,5 @@ async fn main() {
 #[async_trait]
 pub trait ContractEvents {
     async fn on_transfer_token_to_realis<'a>(to: AccountId32, value: &u128);
-    // async fn on_transfer_nft_to_bsc<'a>(&self, to: &H160, token_id: &TokenId);
+    // async fn on_transfer_nft_to_realis<'a>(&self, to: &H160, token_id: &U256);
 }
