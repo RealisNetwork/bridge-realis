@@ -14,14 +14,11 @@ pub mod contract {
     use std::str::FromStr;
 
     use web3::{
-        contract::Contract,
-        transports::WebSocket,
-        types::Address,
-        Web3
+        contract::Contract, transports::WebSocket, types::Address, Web3,
     };
 
-    use slog::{error, info};
     use crate::logger;
+    use slog::{error, info};
 
     async fn connect(url: &str) -> Web3<WebSocket> {
         let log = logger::new();
@@ -41,6 +38,9 @@ pub mod contract {
         web3::Web3::new(wss.unwrap())
     }
 
+    /// # Panics
+    ///
+    /// Create new token contract
     pub async fn token_new(url: &str) -> Contract<WebSocket> {
         let web3 = connect(url).await;
         let address: Address =
@@ -52,6 +52,9 @@ pub mod contract {
         Contract::from_json(web3.eth(), address, json_abi).unwrap()
     }
 
+    /// # Panics
+    ///
+    /// Create new nft contract
     pub async fn nft_new(url: &str) -> Contract<WebSocket> {
         let web3 = connect(url).await;
         let address: Address =
@@ -65,9 +68,12 @@ pub mod contract {
 }
 
 pub mod accounts {
-    use std::{fs, path::Path, str::FromStr};
     use secp256k1::SecretKey;
+    use std::{fs, path::Path, str::FromStr};
 
+    /// # Panics
+    ///
+    /// Read private key from file
     pub fn realis<P: AsRef<Path>>(path: P) -> SecretKey {
         let string = fs::read_to_string(&path).unwrap();
         SecretKey::from_str(&string).unwrap()

@@ -2,12 +2,11 @@ use async_trait::async_trait;
 use ethabi::{Address, Bytes, Uint};
 use runtime::AccountId;
 use sp_core::Decode;
-use std::str::FromStr;
 use tokio::time::{sleep, Duration};
 use web3::{contract::Contract, transports::WebSocket, types::U256};
 
 use slog::{error, info};
-use utils::{logger, contract};
+use utils::{contract, logger};
 
 pub struct BSCAdapter<T: ContractEvents> {
     contract: Contract<WebSocket>,
@@ -122,11 +121,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
 
 #[async_trait]
 pub trait ContractEvents {
-    async fn on_transfer_token_to_realis<'a>(
-        &self,
-        to: AccountId,
-        value: u128,
-    );
+    async fn on_transfer_token_to_realis<'a>(&self, to: AccountId, value: u128);
     async fn on_transfer_nft_to_realis<'a>(
         &self,
         to: AccountId,

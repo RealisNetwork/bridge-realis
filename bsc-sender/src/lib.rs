@@ -4,15 +4,10 @@ use realis_bridge::TokenId;
 use runtime::realis_bridge;
 use secp256k1::SecretKey;
 use sp_core::H160;
-use std::{fs, path::Path, str::FromStr};
-use web3::{
-    contract::Contract,
-    transports::WebSocket,
-    types::{Address, U256},
-};
+use web3::types::{Address, U256};
 
 use slog::{error, info};
-use utils::{logger, contract, accounts};
+use utils::{accounts, contract, logger};
 
 pub struct BscSender {
     // web3: web3::Web3<WebSocket>,
@@ -37,7 +32,10 @@ impl BridgeEvents for BscSender {
     async fn on_transfer_token_to_bsc<'a>(&self, to: H160, value: u128) {
         let log = logger::new();
 
-        let contract = contract::token_new("wss://data-seed-prebsc-1-s1.binance.org:8545/").await;
+        let contract = contract::token_new(
+            "wss://data-seed-prebsc-1-s1.binance.org:8545/",
+        )
+        .await;
 
         // Convert arguments
         let to: Address = Address::from(to.0);
@@ -62,7 +60,9 @@ impl BridgeEvents for BscSender {
     async fn on_transfer_nft_to_bsc<'a>(&self, to: H160, token_id: TokenId) {
         let log = logger::new();
 
-        let contract = contract::nft_new("wss://data-seed-prebsc-1-s1.binance.org:8545/").await;
+        let contract =
+            contract::nft_new("wss://data-seed-prebsc-1-s1.binance.org:8545/")
+                .await;
         // Convert arguments
         // let from: Address =
         // Address::from_str("0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943").
