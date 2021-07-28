@@ -13,7 +13,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly-2021-05-10
+          toolchain: nightly-2021-05-11
           components: rustfmt
       - run: make fmt check=yes
 
@@ -24,7 +24,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly-2021-05-10
+          toolchain: nightly-2021-05-11
           components: clippy
       - run: make lint
 
@@ -35,7 +35,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly-2021-05-10 # Pinned because of compilation error on later version, should unpin later.
+          toolchain: nightly-2021-05-11 # Pinned because of compilation error on later version, should unpin later.
           target: wasm32-unknown-unknown
       - run: make build
 
