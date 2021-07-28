@@ -50,7 +50,7 @@ impl ContractEvents for RealisSender {
     async fn on_transfer_token_to_realis<'a>(
         &self,
         to: AccountId,
-        value: &u128,
+        value: u128,
     ) {
         let log = logger::new();
 
@@ -63,7 +63,7 @@ impl ContractEvents for RealisSender {
             self.api.clone().signer.unwrap(),
             Call::RealisBridge(RealisBridgeCall::transfer_token_to_realis(
                 to.clone(),
-                *value * 10_000_000_000
+                value * 10_000_000_000
             )),
             self.api.get_nonce().unwrap(),
             Era::mortal(period, h.number),

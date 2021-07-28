@@ -99,7 +99,7 @@ impl BridgeEvents for BscSender {
         .await;
         // Convert arguments
         let to: Address = Address::from(to.0);
-        let value = U256::from(*value) * 100_000_000;
+        let value = U256::from(value) * 100_000_000;
 
         let result = contract
             .signed_call_with_confirmations(
@@ -129,12 +129,11 @@ impl BridgeEvents for BscSender {
         // Address::from_str("0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943").
         // unwrap();
         let to: Address = Address::from(to.0);
-        let value = U256::from(token_id);
 
         let result = contract
             .signed_call_with_confirmations(
                 "safeMint",
-                (to, value),
+                (to, token_id),
                 web3::contract::Options::default(),
                 1,
                 &self.wallet_key,
