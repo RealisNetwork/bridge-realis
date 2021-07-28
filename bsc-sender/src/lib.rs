@@ -13,8 +13,8 @@ use web3::{
 
 #[macro_use]
 extern crate slog;
-extern crate slog_term;
 extern crate slog_async;
+extern crate slog_term;
 
 use slog::Drain;
 
@@ -105,7 +105,6 @@ impl BridgeEvents for BscSender {
         let drain = slog_term::FullFormat::new(decorator).build().fuse();
         let drain = slog_async::Async::new(drain).build().fuse();
         let log = slog::Logger::root(drain, o!());
-
         let contract = BscSender::get_connection(
             "wss://data-seed-prebsc-1-s1.binance.org:8545/",
         )
@@ -118,7 +117,7 @@ impl BridgeEvents for BscSender {
             .signed_call_with_confirmations(
                 "transfer",
                 (to, value),
-                Default::default(),
+                web3::contract::Options::default(),
                 1,
                 &self.wallet_key,
             )
@@ -126,7 +125,7 @@ impl BridgeEvents for BscSender {
 
         match result {
             Ok(value) => info!(log, "Transaction success {:?}", value),
-            Err(err) => error!(log, "Transaction fail {:?}", err)
+            Err(err) => error!(log, "Transaction fail {:?}", err),
         }
     }
 
@@ -151,7 +150,7 @@ impl BridgeEvents for BscSender {
             .signed_call_with_confirmations(
                 "safeMint",
                 (to, value),
-                Default::default(),
+                web3::contract::Options::default(),
                 1,
                 &self.wallet_key,
             )
@@ -159,7 +158,7 @@ impl BridgeEvents for BscSender {
 
         match result {
             Ok(value) => info!(log, "Transaction success {:?}", value),
-            Err(err) => error!(log, "Transaction fail {:?}", err)
+            Err(err) => error!(log, "Transaction fail {:?}", err),
         }
     }
 }

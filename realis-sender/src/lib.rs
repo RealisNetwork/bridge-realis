@@ -11,18 +11,15 @@ use substrate_api_client::{
 
 #[macro_use]
 extern crate slog;
-extern crate slog_term;
 extern crate slog_async;
+extern crate slog_term;
 
 use slog::Drain;
-
-
 
 pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
 
 fn from_path_to_account<P: AsRef<Path>>(path: P) -> String {
-    let string = fs::read_to_string(path).unwrap();
-    return string;
+    fs::read_to_string(path).unwrap()
 }
 
 #[derive(Clone)]
@@ -31,6 +28,10 @@ pub struct RealisSender {
 }
 
 impl RealisSender {
+    /// # Panics
+    ///
+    /// Conection to Realis.Network for transfers
+    #[must_use]
     pub fn new(url: &str) -> Self {
         // Get private key
         let pair = Pair::from_string(
@@ -72,7 +73,7 @@ impl ContractEvents for RealisSender {
                 *value * 10_000_000_000
             )),
             self.api.get_nonce().unwrap(),
-            Era::mortal(period, h.number.into()),
+            Era::mortal(period, h.number),
             self.api.genesis_hash,
             head,
             self.api.runtime_version.spec_version,
@@ -85,7 +86,7 @@ impl ContractEvents for RealisSender {
 
         match tx_result {
             Ok(hash) => info!(log, "Send extrinsic {:?}", hash),
-            Err(error) => error!(log, "Can`t send extrinsic {:?}", error)
+            Err(error) => error!(log, "Can`t send extrinsic {:?}", error),
         }
     }
 
@@ -104,6 +105,7 @@ impl ContractEvents for RealisSender {
         let h: Header = self.api.get_header(Some(head)).unwrap().unwrap();
         let period = 5;
 
+        #[allow(clippy::redundant_clone)]
         let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
             self.api.clone().signer.unwrap(),
             Call::RealisBridge(RealisBridgeCall::transfer_nft_to_realis(
@@ -112,7 +114,7 @@ impl ContractEvents for RealisSender {
                 basic
             )),
             self.api.get_nonce().unwrap(),
-            Era::mortal(period, h.number.into()),
+            Era::mortal(period, h.number),
             self.api.genesis_hash,
             head,
             self.api.runtime_version.spec_version,
@@ -124,7 +126,7 @@ impl ContractEvents for RealisSender {
 
         match tx_result {
             Ok(hash) => info!(log, "Send extrinsic {:?}", hash),
-            Err(error) => error!(log, "Can`t send extrinsic {:?}", error)
+            Err(error) => error!(log, "Can`t send extrinsic {:?}", error),
         }
     }
 }

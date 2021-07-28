@@ -1,5 +1,4 @@
 use std::env;
-use tokio;
 
 mod bsc_to_realis;
 mod realis_to_bsc;

@@ -4,13 +4,12 @@ use realis_bridge::TokenId;
 use runtime::{realis_bridge, Event};
 use sp_core::{sr25519, H160, H256 as Hash};
 use std::sync::mpsc::{channel, Receiver};
-use substrate_api_client::utils::FromHexString;
-use substrate_api_client::Api;
+use substrate_api_client::{utils::FromHexString, Api};
 
 #[macro_use]
 extern crate slog;
-extern crate slog_term;
 extern crate slog_async;
+extern crate slog_term;
 
 use slog::Drain;
 
@@ -21,13 +20,16 @@ pub struct RealisAdapter<T: BridgeEvents> {
 }
 
 impl<T: BridgeEvents> RealisAdapter<T> {
-    pub fn new(url: String, event_handler: T) -> Self {
+    /// # Panics
+    ///
+    /// Conection to Realis.Network for transfers
+    pub fn new(url: &str, event_handler: T) -> Self {
         // Connect to api
         let api = Api::<sr25519::Pair>::new(format!("wss://{}", url)).unwrap();
         // Create channels
         let (events_in, events_out) = channel();
         // Subscribe on events
-        api.subscribe_events(events_in.clone()).unwrap();
+        api.subscribe_events(events_in).unwrap();
 
         RealisAdapter {
             // events_in,
@@ -41,8 +43,7 @@ impl<T: BridgeEvents> RealisAdapter<T> {
     ) -> Vec<system::EventRecord<Event, Hash>> {
         let unhex = Vec::from_hex(event_str).unwrap();
         let mut er_enc = unhex.as_slice();
-        return Vec::<system::EventRecord<Event, Hash>>::decode(&mut er_enc)
-            .unwrap();
+        Vec::<system::EventRecord<Event, Hash>>::decode(&mut er_enc).unwrap()
     }
 
     async fn process_event(&self, event: &system::EventRecord<Event, Hash>) {
@@ -99,7 +100,7 @@ impl<T: BridgeEvents> RealisAdapter<T> {
                         self.process_event(event).await;
                     }
                 }
-                Err(error) => error!(log, "Error while listen {:?}", error)
+                Err(error) => error!(log, "Error while listen {:?}", error),
             }
         }
     }

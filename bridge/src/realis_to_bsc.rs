@@ -6,7 +6,7 @@ pub async fn run() {
     let sender = BscSender::new().await;
     // Init realis part of relay
     let adapter =
-        RealisAdapter::new(String::from("rpc.realis.network"), sender);
+        RealisAdapter::new(&String::from("rpc.realis.network"), sender);
     // Start listening for events
     adapter.listener().await;
 }

@@ -8,8 +8,8 @@ use web3::{contract::Contract, transports::WebSocket, types::U256};
 
 #[macro_use]
 extern crate slog;
-extern crate slog_term;
 extern crate slog_async;
+extern crate slog_term;
 
 use slog::Drain;
 
@@ -19,6 +19,9 @@ pub struct BSCAdapter<T: ContractEvents> {
 }
 
 impl<T: ContractEvents> BSCAdapter<T> {
+    /// # Panics
+    ///
+    /// Conection to BSC for transfer tokens
     pub async fn new(url: &str, event_handler: T) -> Self {
         let decorator = slog_term::TermDecorator::new().build();
         let drain = slog_term::FullFormat::new(decorator).build().fuse();
@@ -91,13 +94,16 @@ impl<T: ContractEvents> BSCAdapter<T> {
                             .await;
                     }
                 }
-                Err(error) => error!(log, "Error while listen {:?}", error)
+                Err(error) => error!(log, "Error while listen {:?}", error),
             }
             // Sleep to do not catch same event twice (2100 - magic number)
             sleep(Duration::from_millis(2050)).await;
         }
     }
 
+    /// # Panics
+    ///
+    /// Conection to BSC for transfer NFT
     pub async fn new_nft(url: &str, event_handler: T) -> Self {
         let decorator = slog_term::TermDecorator::new().build();
         let drain = slog_term::FullFormat::new(decorator).build().fuse();
@@ -172,7 +178,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
                             .await;
                     }
                 }
-                Err(error) => error!(log, "Error while listen {:?}", error)
+                Err(error) => error!(log, "Error while listen {:?}", error),
             }
             // Sleep to do not catch same event twice (2100 - magic number)
             sleep(Duration::from_millis(2100)).await;
