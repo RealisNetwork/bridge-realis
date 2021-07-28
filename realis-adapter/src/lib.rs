@@ -52,24 +52,24 @@ impl<T: BridgeEvents> RealisAdapter<T> {
                         .on_transfer_token_to_bsc(*to, *value)
                         .await;
                     info!(log, "From {}", from);
-                    info!(log, "From {}", to);
-                    info!(log, "From {}", value);
+                    info!(log, "To {}", to);
+                    info!(log, "Value {}", value);
                 }
                 realis_bridge::Event::TransferNftToBSC(from, to, token_id) => {
                     self.event_handler
                         .on_transfer_nft_to_bsc(*to, *token_id)
                         .await;
                     info!(log, "From {}", from);
-                    info!(log, "From {}", to);
-                    info!(log, "From {}", token_id);
+                    info!(log, "To {}", to);
+                    info!(log, "Token id {}", token_id);
                 }
                 realis_bridge::Event::TransferTokenToRealis(to, value) => {
-                    info!(log, "From {}", to);
-                    info!(log, "From {}", value);
+                    info!(log, "To {}", to);
+                    info!(log, "Value {}", value);
                 }
                 realis_bridge::Event::TransferNftToRealis(to, token_id) => {
-                    info!(log, "From {}", to);
-                    info!(log, "From {}", token_id);
+                    info!(log, "To {}", to);
+                    info!(log, "Token id {}", token_id);
                 }
                 _ => warn!(log, "Unsupported event {:?}", event.event),
             },
