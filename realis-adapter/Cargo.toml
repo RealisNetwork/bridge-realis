@@ -18,16 +18,16 @@ package = "sp-core"
 default-features = false
 features = ["full_crypto"]
 
+[dependencies.system]
+git = "https://github.com/paritytech/substrate.git"
+branch = "master"
+package = "frame-system"
+
 [dependencies.codec]
 package = "parity-scale-codec"
 features = ["derive"]
 version = "2.0.0"
 default-features = false
-
-[dependencies.system]
-git = "https://github.com/paritytech/substrate.git"
-branch = "master"
-package = "frame-system"
 
 [features]
 default = ["std"]

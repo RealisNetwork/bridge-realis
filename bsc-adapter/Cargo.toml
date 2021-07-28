@@ -9,6 +9,14 @@ web3 = "0.16.0"
 tokio = { version = "1.0" }
 async-trait = "0.1.50"
 logger = { version = "0.1.0", path = "../logger" }
+runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "2e70b4b64fca49c6544173c05186c27c665a9103", package = "node-runtime", default-features = false}
+
+[dependencies.sp-core]
+git = "https://github.com/paritytech/substrate.git"
+branch = "master"
+package = "sp-core"
+default-features = false
+features = ["full_crypto"]
 
 [dependencies.sp-runtime]
 git = "https://github.com/paritytech/substrate.git"

@@ -57,21 +57,13 @@ impl<T: BridgeEvents> RealisAdapter<T> {
                     log(Type::Info, String::from("To"), &to);
                     log(Type::Info, String::from("TokenId"), &token_id);
                 }
-                realis_bridge::Event::TransferTokenToRealis(
-                    from,
-                    to,
-                    value,
-                ) => {
-                    log(Type::Info, String::from("From"), &from);
+                realis_bridge::Event::TransferTokenToRealis(to, value) => {
+                    // log(Type::Info, String::from("From"), &from);
                     log(Type::Info, String::from("To"), &to);
                     log(Type::Info, String::from("Value"), &value);
                 }
-                realis_bridge::Event::TransferNftToRealis(
-                    from,
-                    to,
-                    token_id,
-                ) => {
-                    log(Type::Info, String::from("From"), &from);
+                realis_bridge::Event::TransferNftToRealis(to, token_id) => {
+                    // log(Type::Info, String::from("From"), &from);
                     log(Type::Info, String::from("To"), &to);
                     log(Type::Info, String::from("TokenId"), &token_id);
                 }

@@ -9,10 +9,16 @@ edition = "2018"
 async-trait = "0.1.50"
 web3 = "0.16.0"
 secp256k1 = { version = "0.20", features = ["recovery"] }
-sp-core = { git = "https://github.com/paritytech/substrate.git", package = "sp-core" }
-runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "757d331d7af58bd5275ea71ccf13cf0c3f4f5d57", package = "node-runtime" }
+runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "2e70b4b64fca49c6544173c05186c27c665a9103", package = "node-runtime" }
 realis-adapter = { version = "0.1.0", path = "../realis-adapter" }
 logger = { path = "../logger" }
+
+[dependencies.sp-core]
+git = "https://github.com/paritytech/substrate.git"
+branch = "master"
+package = "sp-core"
+default-features = false
+features = ["full_crypto"]
 
 [features]
 default = ["std"]

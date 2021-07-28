@@ -9,8 +9,8 @@ edition = "2018"
 async-trait = "0.1.50"
 ws = { version = "0.9.1", optional = true, features = ["ssl"] }
 web3 = "0.16.0"
-sp-keyring = { git = "https://github.com/paritytech/substrate.git" }
-runtime = {git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "2e70b4b64fca49c6544173c05186c27c665a9103", package = "node-runtime", default-features = false}
+sp-keyring = { git = "https://github.com/paritytech/substrate.git", rev = "03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178", default-features = false }
+runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "2e70b4b64fca49c6544173c05186c27c665a9103", package = "node-runtime", default-features = false}
 
 substrate-api-client = { git = "https://github.com/scs/substrate-api-client.git", rev = "672a5d4ed9f076525235fef6b5af288f666df803" }
 bsc-adapter = { version = "0.1.0", path = "../bsc-adapter" }
@@ -25,10 +25,17 @@ package = "sp-core"
 default-features = false
 features = ["full_crypto"]
 
+[dependencies.sp-runtime]
+git = "https://github.com/paritytech/substrate.git"
+branch = "master"
+package = "sp-runtime"
+default-features=false
+
 [features]
 default = ["std"]
 std = [
     "ws",
+    "sp-core/std",
 ]
 # need to add this for the app_crypto macro
 full_crypto = []

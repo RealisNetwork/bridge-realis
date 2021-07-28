@@ -1,14 +1,11 @@
 use async_trait::async_trait;
 use ethabi::{Address, Bytes, Uint};
 use logger::logger::{log, Type};
-use sp_runtime::AccountId32;
-use std::{convert::TryFrom, str::FromStr};
+use runtime::AccountId;
+use sp_core::Decode;
+use std::str::FromStr;
 use tokio::time::{sleep, Duration};
-use web3::{
-    contract::Contract,
-    transports::WebSocket,
-    types::{H160, U256},
-};
+use web3::{contract::Contract, transports::WebSocket, types::U256};
 
 pub struct BSCAdapter<T: ContractEvents> {
     contract: Contract<WebSocket>,
@@ -63,9 +60,8 @@ impl<T: ContractEvents> BSCAdapter<T> {
                         // Unpack event arguments
                         let (from, to, value) = &event;
                         // Convert argument
-                        let account_id = AccountId32::new(
-                            <[u8; 32]>::try_from(to.as_slice()).unwrap(),
-                        );
+                        let account_id =
+                            AccountId::decode(&mut &to[..]).unwrap_or_default();
                         // Log arguments
                         // log(Type::Info, String::from("From: "), from);
                         // log(Type::Info, String::from("To: "), &account_id);
@@ -137,9 +133,8 @@ impl<T: ContractEvents> BSCAdapter<T> {
                         // Unpack event arguments
                         let (to, value, basic) = &event;
                         // Convert argument
-                        let account_id = AccountId32::new(
-                            <[u8; 32]>::try_from(to.as_slice()).unwrap(),
-                        );
+                        let account_id =
+                            AccountId::decode(&mut &to[..]).unwrap_or_default();
                         // Log arguments
                         // log(Type::Info, String::from("From: "), from);
                         log(Type::Info, String::from("To: "), &account_id);
@@ -167,12 +162,12 @@ impl<T: ContractEvents> BSCAdapter<T> {
 pub trait ContractEvents {
     async fn on_transfer_token_to_realis<'a>(
         &self,
-        to: AccountId32,
+        to: AccountId,
         value: &u128,
     );
     async fn on_transfer_nft_to_realis<'a>(
         &self,
-        to: AccountId32,
+        to: AccountId,
         token_id: &U256,
         basic: u8,
     );

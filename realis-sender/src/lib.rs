@@ -2,14 +2,16 @@ use async_trait::async_trait;
 use bsc_adapter::ContractEvents;
 use logger::logger::{log, Type};
 use primitive_types::U256;
-use runtime::{realis_bridge::Call as RealisBridgeCall, Call, RealisBridge};
-use sp_core::{sr25519, Pair};
+use runtime::{realis_bridge::Call as RealisBridgeCall, AccountId, Call};
+use sp_core::{sr25519, Pair, H256 as Hash};
+use sp_runtime::{generic, traits::BlakeTwo256};
 use std::{fs, path::Path};
 use substrate_api_client::{
-    compose_extrinsic, compose_extrinsic_offline,
-    sp_runtime::{traits::Header, AccountId32},
-    Api, UncheckedExtrinsicV4, XtStatus,
+    compose_extrinsic_offline, Api, BlockNumber, UncheckedExtrinsicV4, XtStatus,
 };
+// use sp_core::crypto::AccountId32;
+
+pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
 
 fn from_path_to_account<P: AsRef<Path>>(path: P) -> String {
     let string = fs::read_to_string(path).unwrap();
@@ -46,12 +48,7 @@ impl ContractEvents for RealisSender {
         to: AccountId,
         value: &u128,
     ) {
-        // let from: AccountId32 =
-        //     AccountId32::from_str("
-        // 1aa0d5c594a4581ec17069ec9631cd6225d5fb403fe4d85c8ec8aa51833fdf7f")
-        //         .unwrap();
-        // Create extrinsic transaction
-        let head = self.api.get_finalized_head().unwrap().unwrap();
+        let head: Hash = self.api.get_finalized_head().unwrap().unwrap();
         let h: Header = self.api.get_header(Some(head)).unwrap().unwrap();
         let period = 5;
 
@@ -59,7 +56,8 @@ impl ContractEvents for RealisSender {
         let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
             self.api.clone().signer.unwrap(),
             Call::RealisBridge(RealisBridgeCall::transfer_token_to_realis(
-                to, *value
+                to.clone(),
+                *value * 10_000_000_000
             )),
             self.api.get_nonce().unwrap(),
             Era::mortal(period, h.number.into()),
@@ -90,28 +88,35 @@ impl ContractEvents for RealisSender {
         token_id: &U256,
         basic: u8,
     ) {
-        // let from: AccountId32 =
-        //     AccountId32::from_str("
-        // 1aa0d5c594a4581ec17069ec9631cd6225d5fb403fe4d85c8ec8aa51833fdf7f")
-        //         .unwrap();
-        // Create extrinsic transaction
-        let xt: UncheckedExtrinsicV4<_> = compose_extrinsic!(
-            self.api.clone(),
-            "RealisBridge",
-            "transfer_nft_to_realis",
-            GenericAddress::Id(to),
-            token_id,
-            basic
+        let head = self.api.get_finalized_head().unwrap().unwrap();
+        let h: Header = self.api.get_header(Some(head)).unwrap().unwrap();
+        let period = 5;
+
+        let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
+            self.api.clone().signer.unwrap(),
+            Call::RealisBridge(RealisBridgeCall::transfer_nft_to_realis(
+                to.clone(),
+                *token_id,
+                basic
+            )),
+            self.api.get_nonce().unwrap(),
+            Era::mortal(period, h.number.into()),
+            self.api.genesis_hash,
+            head,
+            self.api.runtime_version.spec_version,
+            self.api.runtime_version.transaction_version
         );
         // Send extrinsic transaction
         let tx_result =
             self.api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
 
-        println!("{:?}", tx_result);
-
-        // match tx_result {
-        //     Ok(hash) => log(Type::Success, String::from("Send extrinsic"),
-        // &hash),     Err(error) => log(Type::Error,
-        // String::from("Can`t send extrinsic"), &error) }
+        match tx_result {
+            Ok(hash) => {
+                log(Type::Success, String::from("Send extrinsic"), &hash)
+            }
+            Err(error) => {
+                log(Type::Error, String::from("Can`t send extrinsic"), &error)
+            }
+        }
     }
 }

@@ -11,12 +11,11 @@
 /*.iml
 .DS_Store
 common.rs
+**/*.key
 
 # The cache for docker container dependency
 .cargo
 
 # The cache for chain data in container
 .local
-/bsc-sender/res/accounts.key
-/bsc-sender/res/LIS.sol
-/realis-sender/res/accounts.key
+**/*.sol
