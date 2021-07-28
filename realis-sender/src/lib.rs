@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use bsc_adapter::ContractEvents;
-use primitive_types::U256;
+use realis_primitives::TokenId;
 use runtime::{realis_bridge::Call as RealisBridgeCall, AccountId, Call};
 use sp_core::{sr25519, Pair, H256 as Hash};
 use sp_runtime::{generic, traits::BlakeTwo256};
@@ -8,7 +8,6 @@ use std::{fs, path::Path};
 use substrate_api_client::{
     compose_extrinsic_offline, Api, BlockNumber, UncheckedExtrinsicV4, XtStatus,
 };
-use realis_primitives::TokenId;
 
 use slog::{error, info};
 use utils::logger;

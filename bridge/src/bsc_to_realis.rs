@@ -9,13 +9,12 @@ pub async fn run() {
     //     sender.clone(),
     // )
     // .await;
+    // adapter.listen().await;
 
     let adapter_nft = BSCAdapter::new_nft(
         "wss://data-seed-prebsc-1-s1.binance.org:8545/",
         sender,
     )
     .await;
-
     adapter_nft.listen_nft().await;
-    // adapter.listen().await;
 }
