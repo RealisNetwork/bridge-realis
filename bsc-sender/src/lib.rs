@@ -17,7 +17,7 @@ pub struct BscSender {
 
 impl BscSender {
     pub async fn new() -> BscSender {
-        let wallet_key = accounts::realis("bsc-sender/res/accounts.key");
+        let wallet_key = accounts::bsc("bsc-sender/res/accounts.key");
 
         BscSender {
             // web3,
