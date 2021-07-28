@@ -18,7 +18,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
     ///
     /// Conection to BSC for transfer tokens
     pub async fn new(url: &str, event_handler: T) -> Self {
-        let contract = contract::nft_new(url).await;
+        let contract = contract::token_new(url).await;
 
         BSCAdapter {
             contract,
