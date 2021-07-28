@@ -4,6 +4,7 @@ use runtime::AccountId;
 use sp_core::Decode;
 use tokio::time::{sleep, Duration};
 use web3::{contract::Contract, transports::WebSocket, types::U256};
+use realis_primitives::TokenId;
 
 use slog::{error, info};
 use utils::{contract, logger};
@@ -95,9 +96,10 @@ impl<T: ContractEvents> BSCAdapter<T> {
                         info!(log, "Get event {:?}", event);
                         // Unpack event arguments
                         let (to, value, basic) = &event;
-                        // Convert argument
+                        // Convert arguments
                         let account_id =
                             AccountId::decode(&mut &to[..]).unwrap_or_default();
+                        let token_id: TokenId = value.into();
                         // Log arguments
                         // log(Type::Info, String::from("From: "), from);
                         info!(log, "To {:?}", to);
@@ -106,7 +108,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
                         //
                         self.event_handler
                             .on_transfer_nft_to_realis(
-                                account_id, value, *basic,
+                                account_id, token_id, *basic,
                             )
                             .await;
                     }
@@ -125,7 +127,7 @@ pub trait ContractEvents {
     async fn on_transfer_nft_to_realis<'a>(
         &self,
         to: AccountId,
-        token_id: &U256,
+        token_id: TokenId,
         basic: u8,
     );
 }
