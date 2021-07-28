@@ -1,10 +1,15 @@
 use std::env;
 
 mod bsc_to_realis;
+mod logger;
 mod realis_to_bsc;
 
 #[tokio::main]
 async fn main() {
+    let logger = logger::new(std::io::stdout(), std::io::stderr());
+    let _scope_guard = slog_scope::set_global_logger(logger);
+    slog_stdlog::init().unwrap();
+
     // Get command lines arguments
     let args: Vec<String> = env::args().collect();
     // Get command line first argument

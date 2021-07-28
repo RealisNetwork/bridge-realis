@@ -4,15 +4,12 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-ethabi = "14.1.0"
-web3 = "0.16.0"
-tokio = { version = "1.0" }
 async-trait = "0.1.50"
+ethabi = "14.1.0"
+log = "0.4"
 runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "2e70b4b64fca49c6544173c05186c27c665a9103", package = "node-runtime", default-features = false}
-
-slog = "2.7.0"
-slog-term = "2.8.0"
-slog-async = "2.6.0"
+tokio = { version = "1.0" }
+web3 = "0.16.0"
 
 [dependencies.sp-core]
 git = "https://github.com/paritytech/substrate.git"

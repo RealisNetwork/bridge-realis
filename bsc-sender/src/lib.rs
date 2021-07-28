@@ -1,7 +1,7 @@
 use async_trait::async_trait;
+use log::{error, info};
 use realis_adapter::BridgeEvents;
-use realis_bridge::TokenId;
-use runtime::realis_bridge;
+use runtime::realis_bridge::TokenId;
 use secp256k1::SecretKey;
 use sp_core::H160;
 use std::{fs, path::Path, str::FromStr};
@@ -10,13 +10,6 @@ use web3::{
     transports::WebSocket,
     types::{Address, U256},
 };
-
-#[macro_use]
-extern crate slog;
-extern crate slog_async;
-extern crate slog_term;
-
-use slog::Drain;
 
 pub struct BscSender {
     // web3: web3::Web3<WebSocket>,
@@ -37,18 +30,13 @@ impl BscSender {
     }
 
     async fn get_connection(url: &str) -> Contract<WebSocket> {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
         // Connect to bsc
         let mut wss = WebSocket::new(url).await;
         loop {
             match wss {
                 Ok(_) => break,
                 Err(error) => {
-                    error!(log, "Cannot connect {:?}", error);
-                    info!(log, "Try reconnect");
+                    error!("Performing reconnect. Cause: {:?}", error);
                     wss = WebSocket::new(url).await;
                 }
             }
@@ -65,18 +53,13 @@ impl BscSender {
     }
 
     async fn get_connection_nft(url: &str) -> Contract<WebSocket> {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
         // Connect to bsc
         let mut wss = WebSocket::new(url).await;
         loop {
             match wss {
                 Ok(_) => break,
                 Err(error) => {
-                    error!(log, "Cannot connect {:?}", error);
-                    info!(log, "Try reconnect");
+                    error!("Performing reconnect. Cause: {:?}", error);
                     wss = WebSocket::new(url).await;
                 }
             }
@@ -101,10 +84,6 @@ impl BscSender {
 #[async_trait]
 impl BridgeEvents for BscSender {
     async fn on_transfer_token_to_bsc<'a>(&self, to: &H160, value: &u128) {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
         let contract = BscSender::get_connection(
             "wss://data-seed-prebsc-1-s1.binance.org:8545/",
         )
@@ -124,17 +103,12 @@ impl BridgeEvents for BscSender {
             .await;
 
         match result {
-            Ok(value) => info!(log, "Transaction success {:?}", value),
-            Err(err) => error!(log, "Transaction fail {:?}", err),
+            Ok(value) => info!("Transaction success {:?}", value),
+            Err(err) => error!("Transaction fail {:?}", err),
         }
     }
 
     async fn on_transfer_nft_to_bsc<'a>(&self, to: &H160, token_id: &TokenId) {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
-
         let contract = BscSender::get_connection_nft(
             "wss://data-seed-prebsc-1-s1.binance.org:8545/",
         )
@@ -157,8 +131,8 @@ impl BridgeEvents for BscSender {
             .await;
 
         match result {
-            Ok(value) => info!(log, "Transaction success {:?}", value),
-            Err(err) => error!(log, "Transaction fail {:?}", err),
+            Ok(value) => info!("Transaction success {:?}", value),
+            Err(err) => error!("Transaction fail {:?}", err),
         }
     }
 }
