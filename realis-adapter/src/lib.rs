@@ -1,11 +1,18 @@
 use async_trait::async_trait;
 use codec::Decode;
-use logger::logger::{log, Type};
 use realis_bridge::TokenId;
 use runtime::{realis_bridge, Event};
 use sp_core::{sr25519, H160, H256 as Hash};
 use std::sync::mpsc::{channel, Receiver};
-use substrate_api_client::{utils::FromHexString, Api};
+use substrate_api_client::utils::FromHexString;
+use substrate_api_client::Api;
+
+#[macro_use]
+extern crate slog;
+extern crate slog_term;
+extern crate slog_async;
+
+use slog::Drain;
 
 pub struct RealisAdapter<T: BridgeEvents> {
     // events_in: Sender<String>,
@@ -39,50 +46,50 @@ impl<T: BridgeEvents> RealisAdapter<T> {
     }
 
     async fn process_event(&self, event: &system::EventRecord<Event, Hash>) {
+        let decorator = slog_term::TermDecorator::new().build();
+        let drain = slog_term::FullFormat::new(decorator).build().fuse();
+        let drain = slog_async::Async::new(drain).build().fuse();
+        let log = slog::Logger::root(drain, o!());
+
         match &event.event {
             Event::RealisBridge(bridge_event) => match bridge_event {
                 realis_bridge::Event::TransferTokenToBSC(from, to, value) => {
                     self.event_handler
                         .on_transfer_token_to_bsc(&to, value)
                         .await;
-                    log(Type::Info, String::from("From"), &from);
-                    log(Type::Info, String::from("To"), &to);
-                    log(Type::Info, String::from("Value"), &value);
+                    info!(log, "From {}", from);
+                    info!(log, "From {}", to);
+                    info!(log, "From {}", value);
                 }
                 realis_bridge::Event::TransferNftToBSC(from, to, token_id) => {
                     self.event_handler
                         .on_transfer_nft_to_bsc(&to, &token_id)
                         .await;
-                    log(Type::Info, String::from("From"), &from);
-                    log(Type::Info, String::from("To"), &to);
-                    log(Type::Info, String::from("TokenId"), &token_id);
+                    info!(log, "From {}", from);
+                    info!(log, "From {}", to);
+                    info!(log, "From {}", token_id);
                 }
                 realis_bridge::Event::TransferTokenToRealis(to, value) => {
-                    // log(Type::Info, String::from("From"), &from);
-                    log(Type::Info, String::from("To"), &to);
-                    log(Type::Info, String::from("Value"), &value);
+                    info!(log, "From {}", to);
+                    info!(log, "From {}", value);
                 }
                 realis_bridge::Event::TransferNftToRealis(to, token_id) => {
-                    // log(Type::Info, String::from("From"), &from);
-                    log(Type::Info, String::from("To"), &to);
-                    log(Type::Info, String::from("TokenId"), &token_id);
+                    info!(log, "From {}", to);
+                    info!(log, "From {}", token_id);
                 }
-                _ => log(
-                    Type::Warning,
-                    String::from("Unsupported event"),
-                    &event.event,
-                ),
+                _ => warn!(log, "Unsupported event {:?}", event.event),
             },
-            _ => log(
-                Type::Warning,
-                String::from("Unsupported event"),
-                &event.event,
-            ),
+            _ => warn!(log, "Unsupported event {:?}", event.event),
         }
     }
 
     // Add bsc sender as argument
     pub async fn listener(&self) {
+        let decorator = slog_term::TermDecorator::new().build();
+        let drain = slog_term::FullFormat::new(decorator).build().fuse();
+        let drain = slog_async::Async::new(drain).build().fuse();
+        let log = slog::Logger::root(drain, o!());
+
         loop {
             match self.events_out.recv() {
                 Ok(event_str) => {
@@ -92,7 +99,7 @@ impl<T: BridgeEvents> RealisAdapter<T> {
                         self.process_event(event).await;
                     }
                 }
-                Err(error) => println!("{}", error),
+                Err(error) => error!(log, "Error while listen {:?}", error)
             }
         }
     }

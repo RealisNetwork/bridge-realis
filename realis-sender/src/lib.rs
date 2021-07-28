@@ -1,6 +1,5 @@
 use async_trait::async_trait;
 use bsc_adapter::ContractEvents;
-use logger::logger::{log, Type};
 use primitive_types::U256;
 use runtime::{realis_bridge::Call as RealisBridgeCall, AccountId, Call};
 use sp_core::{sr25519, Pair, H256 as Hash};
@@ -9,7 +8,15 @@ use std::{fs, path::Path};
 use substrate_api_client::{
     compose_extrinsic_offline, Api, BlockNumber, UncheckedExtrinsicV4, XtStatus,
 };
-// use sp_core::crypto::AccountId32;
+
+#[macro_use]
+extern crate slog;
+extern crate slog_term;
+extern crate slog_async;
+
+use slog::Drain;
+
+
 
 pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
 
@@ -48,6 +55,11 @@ impl ContractEvents for RealisSender {
         to: AccountId,
         value: &u128,
     ) {
+        let decorator = slog_term::TermDecorator::new().build();
+        let drain = slog_term::FullFormat::new(decorator).build().fuse();
+        let drain = slog_async::Async::new(drain).build().fuse();
+        let log = slog::Logger::root(drain, o!());
+
         let head: Hash = self.api.get_finalized_head().unwrap().unwrap();
         let h: Header = self.api.get_header(Some(head)).unwrap().unwrap();
         let period = 5;
@@ -67,18 +79,13 @@ impl ContractEvents for RealisSender {
             self.api.runtime_version.transaction_version
         );
 
-        println!("[+] Composed Extrinsic:\n {:?}\n", xt);
         // Send extrinsic transaction
         let tx_result =
             self.api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
-        println!("{:?}", tx_result);
+
         match tx_result {
-            Ok(hash) => {
-                log(Type::Success, String::from("Send extrinsic"), &hash)
-            }
-            Err(error) => {
-                log(Type::Error, String::from("Can`t send extrinsic"), &error)
-            }
+            Ok(hash) => info!(log, "Send extrinsic {:?}", hash),
+            Err(error) => error!(log, "Can`t send extrinsic {:?}", error)
         }
     }
 
@@ -88,6 +95,11 @@ impl ContractEvents for RealisSender {
         token_id: &U256,
         basic: u8,
     ) {
+        let decorator = slog_term::TermDecorator::new().build();
+        let drain = slog_term::FullFormat::new(decorator).build().fuse();
+        let drain = slog_async::Async::new(drain).build().fuse();
+        let log = slog::Logger::root(drain, o!());
+
         let head = self.api.get_finalized_head().unwrap().unwrap();
         let h: Header = self.api.get_header(Some(head)).unwrap().unwrap();
         let period = 5;
@@ -111,12 +123,8 @@ impl ContractEvents for RealisSender {
             self.api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
 
         match tx_result {
-            Ok(hash) => {
-                log(Type::Success, String::from("Send extrinsic"), &hash)
-            }
-            Err(error) => {
-                log(Type::Error, String::from("Can`t send extrinsic"), &error)
-            }
+            Ok(hash) => info!(log, "Send extrinsic {:?}", hash),
+            Err(error) => error!(log, "Can`t send extrinsic {:?}", error)
         }
     }
 }

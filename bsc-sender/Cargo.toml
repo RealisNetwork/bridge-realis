@@ -13,6 +13,10 @@ runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "
 realis-adapter = { version = "0.1.0", path = "../realis-adapter" }
 logger = { path = "../logger" }
 
+slog = "2.7.0"
+slog-term = "2.8.0"
+slog-async = "2.6.0"
+
 [dependencies.sp-core]
 git = "https://github.com/paritytech/substrate.git"
 branch = "master"

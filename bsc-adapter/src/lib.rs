@@ -1,11 +1,17 @@
 use async_trait::async_trait;
 use ethabi::{Address, Bytes, Uint};
-use logger::logger::{log, Type};
 use runtime::AccountId;
 use sp_core::Decode;
 use std::str::FromStr;
 use tokio::time::{sleep, Duration};
 use web3::{contract::Contract, transports::WebSocket, types::U256};
+
+#[macro_use]
+extern crate slog;
+extern crate slog_term;
+extern crate slog_async;
+
+use slog::Drain;
 
 pub struct BSCAdapter<T: ContractEvents> {
     contract: Contract<WebSocket>,
@@ -14,6 +20,11 @@ pub struct BSCAdapter<T: ContractEvents> {
 
 impl<T: ContractEvents> BSCAdapter<T> {
     pub async fn new(url: &str, event_handler: T) -> Self {
+        let decorator = slog_term::TermDecorator::new().build();
+        let drain = slog_term::FullFormat::new(decorator).build().fuse();
+        let drain = slog_async::Async::new(drain).build().fuse();
+        let log = slog::Logger::root(drain, o!());
+
         // TODO take out in separate function
         // Connect to bsc by web socket
         let mut wss = WebSocket::new(url).await;
@@ -22,8 +33,8 @@ impl<T: ContractEvents> BSCAdapter<T> {
             match wss {
                 Ok(_) => break,
                 Err(error) => {
-                    log(Type::Error, String::from("Cannot connect"), &error);
-                    log(Type::Info, String::from("Try to reconnect"), &());
+                    error!(log, "Cannot connect {:?}", error);
+                    info!(log, "Try reconnect");
                     wss = WebSocket::new(url).await;
                 }
             }
@@ -46,6 +57,11 @@ impl<T: ContractEvents> BSCAdapter<T> {
     }
 
     pub async fn listen(&self) {
+        let decorator = slog_term::TermDecorator::new().build();
+        let drain = slog_term::FullFormat::new(decorator).build().fuse();
+        let drain = slog_async::Async::new(drain).build().fuse();
+        let log = slog::Logger::root(drain, o!());
+
         loop {
             let logs: web3::contract::Result<Vec<(Address, Bytes, Uint)>> =
                 self.contract.events("TransferToRealis", (), (), ()).await;
@@ -56,16 +72,16 @@ impl<T: ContractEvents> BSCAdapter<T> {
                     // Process all events
                     for event in events {
                         // Log event
-                        log(Type::Success, String::from("Event"), &event);
+                        info!(log, "Get event {:?}", event);
                         // Unpack event arguments
                         let (from, to, value) = &event;
                         // Convert argument
                         let account_id =
                             AccountId::decode(&mut &to[..]).unwrap_or_default();
                         // Log arguments
-                        // log(Type::Info, String::from("From: "), from);
-                        // log(Type::Info, String::from("To: "), &account_id);
-                        // log(Type::Info, String::from("Value: "), value);
+                        info!(log, "From {:?}", from);
+                        info!(log, "To {:?}", to);
+                        info!(log, "Value {:?}", value);
                         //
                         self.event_handler
                             .on_transfer_token_to_realis(
@@ -75,9 +91,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
                             .await;
                     }
                 }
-                Err(error) => {
-                    log(Type::Error, String::from("Shit happens"), &error)
-                }
+                Err(error) => error!(log, "Error while listen {:?}", error)
             }
             // Sleep to do not catch same event twice (2100 - magic number)
             sleep(Duration::from_millis(2050)).await;
@@ -85,6 +99,11 @@ impl<T: ContractEvents> BSCAdapter<T> {
     }
 
     pub async fn new_nft(url: &str, event_handler: T) -> Self {
+        let decorator = slog_term::TermDecorator::new().build();
+        let drain = slog_term::FullFormat::new(decorator).build().fuse();
+        let drain = slog_async::Async::new(drain).build().fuse();
+        let log = slog::Logger::root(drain, o!());
+
         // TODO take out in separate function
         // Connect to bsc by web socket
         let mut wss = WebSocket::new(url).await;
@@ -93,8 +112,8 @@ impl<T: ContractEvents> BSCAdapter<T> {
             match wss {
                 Ok(_) => break,
                 Err(error) => {
-                    log(Type::Error, String::from("Cannot connect"), &error);
-                    log(Type::Info, String::from("Try to reconnect"), &());
+                    error!(log, "Cannot connect {:?}", error);
+                    info!(log, "Try reconnect");
                     wss = WebSocket::new(url).await;
                 }
             }
@@ -117,6 +136,11 @@ impl<T: ContractEvents> BSCAdapter<T> {
     }
 
     pub async fn listen_nft(&self) {
+        let decorator = slog_term::TermDecorator::new().build();
+        let drain = slog_term::FullFormat::new(decorator).build().fuse();
+        let drain = slog_async::Async::new(drain).build().fuse();
+        let log = slog::Logger::root(drain, o!());
+
         loop {
             let logs: web3::contract::Result<Vec<(Bytes, Uint, u8)>> = self
                 .contract
@@ -129,7 +153,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
                     // Process all events
                     for event in events {
                         // Log event
-                        log(Type::Success, String::from("Event"), &event);
+                        info!(log, "Get event {:?}", event);
                         // Unpack event arguments
                         let (to, value, basic) = &event;
                         // Convert argument
@@ -137,9 +161,9 @@ impl<T: ContractEvents> BSCAdapter<T> {
                             AccountId::decode(&mut &to[..]).unwrap_or_default();
                         // Log arguments
                         // log(Type::Info, String::from("From: "), from);
-                        log(Type::Info, String::from("To: "), &account_id);
-                        log(Type::Info, String::from("Value: "), value);
-                        log(Type::Info, String::from("Basic: "), basic);
+                        info!(log, "To {:?}", to);
+                        info!(log, "Value {:?}", value);
+                        info!(log, "Basic {:?}", basic);
                         //
                         self.event_handler
                             .on_transfer_nft_to_realis(
@@ -148,9 +172,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
                             .await;
                     }
                 }
-                Err(error) => {
-                    log(Type::Error, String::from("Event error"), &error)
-                }
+                Err(error) => error!(log, "Error while listen {:?}", error)
             }
             // Sleep to do not catch same event twice (2100 - magic number)
             sleep(Duration::from_millis(2100)).await;

@@ -10,6 +10,9 @@ async-trait = "0.1.50"
 logger = { path = "../logger" }
 substrate-api-client = { git = "https://github.com/scs/substrate-api-client.git", rev = "672a5d4ed9f076525235fef6b5af288f666df803" }
 runtime = {git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "2e70b4b64fca49c6544173c05186c27c665a9103", package = "node-runtime", default-features = false}
+slog = "2.7.0"
+slog-term = "2.8.0"
+slog-async = "2.6.0"
 
 [dependencies.sp-core]
 git = "https://github.com/paritytech/substrate.git"
