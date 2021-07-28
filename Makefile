@@ -1,27 +1,31 @@
-.PHONY: check
+# Checks two given strings for equality.
+eq = $(if $(or $(1),$(2)),$(and $(findstring $(1),$(2)),\
+                                $(findstring $(2),$(1))),1)
+
 check:
-	SKIP_WASM_BUILD=1 cargo check --release
+	SKIP_WASM_BUILD=1 cargo check
 
-.PHONY: test
 test:
-	SKIP_WASM_BUILD=1 cargo test --release --all
+	SKIP_WASM_BUILD=1 cargo test --all
 
-.PHONY: run to-bsc
-run:
+run.to_bsc:
 	 cargo run --release realis-to-bsc
 
-.PHONY: run to-realis
-run:
+run.to_realis:
 	 cargo run --release bsc-to-realis
 
-.PHONY: build
 build:
 	 cargo build --release
 
-.PHONY: fmt
-fmt:
-	cargo fmt -p realis-adapter -p realis-sender -p bsc-adapter -p bsc-sender -p bridge
+# Format Rust sources with rustfmt.
+#
+# Usage:
+#	make fmt [check=(no|yes)]
 
-.PHONY: clippy
-clippy:
-	cargo clippy
+fmt:
+	cargo +nightly fmt --all $(if $(call eq,$(check),yes),-- --check,)
+
+lint:
+	cargo clippy --workspace -- -D clippy::pedantic -D warnings
+
+.PHONY: lint fmt build run.to_bsc run.to_realis test check

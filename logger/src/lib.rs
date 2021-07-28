@@ -1,12 +1,12 @@
 pub mod logger {
-    use colour::{red, yellow, green, blue};
+    use colour::{blue, green, red, yellow};
     use std::fmt::Debug;
 
     pub enum Colour {
         Red,
         Yellow,
         Green,
-        Blue
+        Blue,
     }
 
     fn red(string: String) {
@@ -30,15 +30,20 @@ pub mod logger {
         print!("[+]");
     }
 
-    pub fn raw_log<T: Debug>(head: String, body: String, tail: &T, colour: Colour) {
+    pub fn raw_log<T: Debug>(
+        head: String,
+        body: String,
+        tail: &T,
+        colour: Colour,
+    ) {
         //
         time();
         // Log head part
         match colour {
-            Colour::Red =>      red(head),
-            Colour::Yellow =>   yellow(head),
-            Colour::Green =>    green(head),
-            Colour::Blue =>     blue(head)
+            Colour::Red => red(head),
+            Colour::Yellow => yellow(head),
+            Colour::Green => green(head),
+            Colour::Blue => blue(head),
         }
         // TODO split print
         // Log body part
@@ -49,15 +54,23 @@ pub mod logger {
         Error,
         Warning,
         Success,
-        Info
+        Info,
     }
 
     pub fn log<T: Debug>(params: Type, body: String, tail: &T) {
         match params {
-            Type::Error =>      raw_log(String::from("Error"), body, tail, Colour::Red),
-            Type::Warning =>    raw_log(String::from("Warning"), body, tail, Colour::Yellow),
-            Type::Success =>    raw_log(String::from("Success"), body, tail, Colour::Green),
-            Type::Info =>       raw_log(String::from("Info"), body, tail, Colour::Blue),
+            Type::Error => {
+                raw_log(String::from("Error"), body, tail, Colour::Red)
+            }
+            Type::Warning => {
+                raw_log(String::from("Warning"), body, tail, Colour::Yellow)
+            }
+            Type::Success => {
+                raw_log(String::from("Success"), body, tail, Colour::Green)
+            }
+            Type::Info => {
+                raw_log(String::from("Info"), body, tail, Colour::Blue)
+            }
         }
     }
 }

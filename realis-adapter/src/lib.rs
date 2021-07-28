@@ -1,14 +1,11 @@
 use async_trait::async_trait;
 use codec::Decode;
-use realis_bridge::TokenId;
-use runtime::realis_bridge;
-use runtime::Event;
-use sp_core::sr25519;
-use sp_core::{H160, H256 as Hash};
-use std::sync::mpsc::{channel, Receiver};
-use substrate_api_client::utils::FromHexString;
-use substrate_api_client::Api;
 use logger::logger::{log, Type};
+use realis_bridge::TokenId;
+use runtime::{realis_bridge, Event};
+use sp_core::{sr25519, H160, H256 as Hash};
+use std::sync::mpsc::{channel, Receiver};
+use substrate_api_client::{utils::FromHexString, Api};
 
 pub struct RealisAdapter<T: BridgeEvents> {
     // events_in: Sender<String>,
@@ -32,10 +29,13 @@ impl<T: BridgeEvents> RealisAdapter<T> {
         }
     }
 
-    fn parse_events_str(event_str: String) -> Vec<system::EventRecord<Event, Hash>> {
+    fn parse_events_str(
+        event_str: String,
+    ) -> Vec<system::EventRecord<Event, Hash>> {
         let unhex = Vec::from_hex(event_str).unwrap();
         let mut er_enc = unhex.as_slice();
-        return Vec::<system::EventRecord<Event, Hash>>::decode(&mut er_enc).unwrap();
+        return Vec::<system::EventRecord<Event, Hash>>::decode(&mut er_enc)
+            .unwrap();
     }
 
     async fn process_event(&self, event: &system::EventRecord<Event, Hash>) {
@@ -57,12 +57,20 @@ impl<T: BridgeEvents> RealisAdapter<T> {
                     log(Type::Info, String::from("To"), &to);
                     log(Type::Info, String::from("TokenId"), &token_id);
                 }
-                realis_bridge::Event::TransferTokenToRealis(from, to, value) => {
+                realis_bridge::Event::TransferTokenToRealis(
+                    from,
+                    to,
+                    value,
+                ) => {
                     log(Type::Info, String::from("From"), &from);
                     log(Type::Info, String::from("To"), &to);
                     log(Type::Info, String::from("Value"), &value);
                 }
-                realis_bridge::Event::TransferNftToRealis(from, to, token_id) => {
+                realis_bridge::Event::TransferNftToRealis(
+                    from,
+                    to,
+                    token_id,
+                ) => {
                     log(Type::Info, String::from("From"), &from);
                     log(Type::Info, String::from("To"), &to);
                     log(Type::Info, String::from("TokenId"), &token_id);
@@ -86,7 +94,8 @@ impl<T: BridgeEvents> RealisAdapter<T> {
         loop {
             match self.events_out.recv() {
                 Ok(event_str) => {
-                    let events = RealisAdapter::<T>::parse_events_str(event_str);
+                    let events =
+                        RealisAdapter::<T>::parse_events_str(event_str);
                     for event in &events {
                         self.process_event(event).await;
                     }
