@@ -69,13 +69,21 @@ pub mod contract {
 
 pub mod accounts {
     use secp256k1::SecretKey;
+    // use sp_core::Pair;
     use std::{fs, path::Path, str::FromStr};
 
     /// # Panics
     ///
     /// Read private key from file
-    pub fn realis<P: AsRef<Path>>(path: P) -> SecretKey {
+    pub fn bsc<P: AsRef<Path>>(path: P) -> SecretKey {
         let string = fs::read_to_string(&path).unwrap();
         SecretKey::from_str(&string).unwrap()
     }
+
+    // pub fn realis<P: AsRef<Path>>(path: P, password: Option<&str>) -> Pair {
+    //     Pair::from_string(
+    //         from_path_to_account(path),
+    //         password,
+    //     ).unwrap()
+    // }
 }
