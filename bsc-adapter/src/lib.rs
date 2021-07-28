@@ -67,9 +67,9 @@ impl<T: ContractEvents> BSCAdapter<T> {
                             <[u8; 32]>::try_from(to.as_slice()).unwrap(),
                         );
                         // Log arguments
-                        log(Type::Info, String::from("From: "), from);
-                        log(Type::Info, String::from("To: "), &account_id);
-                        log(Type::Info, String::from("Value: "), value);
+                        // log(Type::Info, String::from("From: "), from);
+                        // log(Type::Info, String::from("To: "), &account_id);
+                        // log(Type::Info, String::from("Value: "), value);
                         //
                         self.event_handler
                             .on_transfer_token_to_realis(

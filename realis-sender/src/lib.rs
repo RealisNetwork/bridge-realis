@@ -43,7 +43,7 @@ impl RealisSender {
 impl ContractEvents for RealisSender {
     async fn on_transfer_token_to_realis<'a>(
         &self,
-        to: AccountId32,
+        to: AccountId,
         value: &u128,
     ) {
         // let from: AccountId32 =
@@ -86,7 +86,7 @@ impl ContractEvents for RealisSender {
 
     async fn on_transfer_nft_to_realis<'a>(
         &self,
-        to: AccountId32,
+        to: AccountId,
         token_id: &U256,
         basic: u8,
     ) {
