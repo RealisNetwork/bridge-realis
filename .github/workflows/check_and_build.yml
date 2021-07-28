@@ -13,7 +13,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly
+          toolchain: nightly-2021-05-10
           components: rustfmt
       - run: make fmt check=yes
 
@@ -24,7 +24,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly
+          toolchain: nightly-2021-05-10
           components: clippy
       - run: make lint
 
