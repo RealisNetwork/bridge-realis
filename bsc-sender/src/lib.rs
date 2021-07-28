@@ -11,12 +11,8 @@ use web3::{
     types::{Address, U256},
 };
 
-#[macro_use]
-extern crate slog;
-extern crate slog_async;
-extern crate slog_term;
-
-use slog::Drain;
+use slog::{error, info};
+use utils::logger;
 
 pub struct BscSender {
     // web3: web3::Web3<WebSocket>,
@@ -37,10 +33,7 @@ impl BscSender {
     }
 
     async fn get_connection(url: &str) -> Contract<WebSocket> {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
+        let log = logger::new();
         // Connect to bsc
         let mut wss = WebSocket::new(url).await;
         loop {
@@ -65,10 +58,7 @@ impl BscSender {
     }
 
     async fn get_connection_nft(url: &str) -> Contract<WebSocket> {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
+        let log = logger::new();
         // Connect to bsc
         let mut wss = WebSocket::new(url).await;
         loop {
@@ -100,11 +90,9 @@ impl BscSender {
 
 #[async_trait]
 impl BridgeEvents for BscSender {
-    async fn on_transfer_token_to_bsc<'a>(&self, to: &H160, value: &u128) {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
+    async fn on_transfer_token_to_bsc<'a>(&self, to: H160, value: u128) {
+        let log = logger::new();
+
         let contract = BscSender::get_connection(
             "wss://data-seed-prebsc-1-s1.binance.org:8545/",
         )
@@ -129,11 +117,8 @@ impl BridgeEvents for BscSender {
         }
     }
 
-    async fn on_transfer_nft_to_bsc<'a>(&self, to: &H160, token_id: &TokenId) {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
+    async fn on_transfer_nft_to_bsc<'a>(&self, to: H160, token_id: TokenId) {
+        let log = logger::new();
 
         let contract = BscSender::get_connection_nft(
             "wss://data-seed-prebsc-1-s1.binance.org:8545/",

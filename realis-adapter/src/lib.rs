@@ -6,12 +6,8 @@ use sp_core::{sr25519, H160, H256 as Hash};
 use std::sync::mpsc::{channel, Receiver};
 use substrate_api_client::{utils::FromHexString, Api};
 
-#[macro_use]
-extern crate slog;
-extern crate slog_async;
-extern crate slog_term;
-
-use slog::Drain;
+use slog::{error, info, warn};
+use utils::logger;
 
 pub struct RealisAdapter<T: BridgeEvents> {
     // events_in: Sender<String>,
@@ -47,16 +43,13 @@ impl<T: BridgeEvents> RealisAdapter<T> {
     }
 
     async fn process_event(&self, event: &system::EventRecord<Event, Hash>) {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
+        let log = logger::new();
 
         match &event.event {
             Event::RealisBridge(bridge_event) => match bridge_event {
                 realis_bridge::Event::TransferTokenToBSC(from, to, value) => {
                     self.event_handler
-                        .on_transfer_token_to_bsc(&to, value)
+                        .on_transfer_token_to_bsc(*to, *value)
                         .await;
                     info!(log, "From {}", from);
                     info!(log, "From {}", to);
@@ -64,7 +57,7 @@ impl<T: BridgeEvents> RealisAdapter<T> {
                 }
                 realis_bridge::Event::TransferNftToBSC(from, to, token_id) => {
                     self.event_handler
-                        .on_transfer_nft_to_bsc(&to, &token_id)
+                        .on_transfer_nft_to_bsc(*to, *token_id)
                         .await;
                     info!(log, "From {}", from);
                     info!(log, "From {}", to);
@@ -86,10 +79,7 @@ impl<T: BridgeEvents> RealisAdapter<T> {
 
     // Add bsc sender as argument
     pub async fn listener(&self) {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
+        let log = logger::new();
 
         loop {
             match self.events_out.recv() {
@@ -108,6 +98,6 @@ impl<T: BridgeEvents> RealisAdapter<T> {
 
 #[async_trait]
 pub trait BridgeEvents {
-    async fn on_transfer_token_to_bsc<'a>(&self, to: &H160, value: &u128);
-    async fn on_transfer_nft_to_bsc<'a>(&self, to: &H160, token_id: &TokenId);
+    async fn on_transfer_token_to_bsc<'a>(&self, to: H160, value: u128);
+    async fn on_transfer_nft_to_bsc<'a>(&self, to: H160, token_id: TokenId);
 }

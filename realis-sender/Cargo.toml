@@ -17,8 +17,7 @@ bsc-adapter = { version = "0.1.0", path = "../bsc-adapter" }
 primitive-types = { version = "0.9.0", default-features = false }
 
 slog = "2.7.0"
-slog-term = "2.8.0"
-slog-async = "2.6.0"
+utils = { path = "../utils" }
 
 [dependencies.sp-core]
 git = "https://github.com/paritytech/substrate.git"

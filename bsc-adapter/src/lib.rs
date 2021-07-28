@@ -6,12 +6,8 @@ use std::str::FromStr;
 use tokio::time::{sleep, Duration};
 use web3::{contract::Contract, transports::WebSocket, types::U256};
 
-#[macro_use]
-extern crate slog;
-extern crate slog_async;
-extern crate slog_term;
-
-use slog::Drain;
+use slog::{error, info};
+use utils::logger;
 
 pub struct BSCAdapter<T: ContractEvents> {
     contract: Contract<WebSocket>,
@@ -23,10 +19,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
     ///
     /// Conection to BSC for transfer tokens
     pub async fn new(url: &str, event_handler: T) -> Self {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
+        let log = logger::new();
 
         // TODO take out in separate function
         // Connect to bsc by web socket
@@ -60,10 +53,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
     }
 
     pub async fn listen(&self) {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
+        let log = logger::new();
 
         loop {
             let logs: web3::contract::Result<Vec<(Address, Bytes, Uint)>> =
@@ -89,7 +79,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
                         self.event_handler
                             .on_transfer_token_to_realis(
                                 account_id,
-                                &value.as_u128(),
+                                value.as_u128(),
                             )
                             .await;
                     }
@@ -105,10 +95,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
     ///
     /// Conection to BSC for transfer NFT
     pub async fn new_nft(url: &str, event_handler: T) -> Self {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
+        let log = logger::new();
 
         // TODO take out in separate function
         // Connect to bsc by web socket
@@ -142,10 +129,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
     }
 
     pub async fn listen_nft(&self) {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
+        let log = logger::new();
 
         loop {
             let logs: web3::contract::Result<Vec<(Bytes, Uint, u8)>> = self
@@ -173,7 +157,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
                         //
                         self.event_handler
                             .on_transfer_nft_to_realis(
-                                account_id, &value, *basic,
+                                account_id, value, *basic,
                             )
                             .await;
                     }
@@ -191,7 +175,7 @@ pub trait ContractEvents {
     async fn on_transfer_token_to_realis<'a>(
         &self,
         to: AccountId,
-        value: &u128,
+        value: u128,
     );
     async fn on_transfer_nft_to_realis<'a>(
         &self,

@@ -11,9 +11,9 @@ web3 = "0.16.0"
 secp256k1 = { version = "0.20", features = ["recovery"] }
 runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "2e70b4b64fca49c6544173c05186c27c665a9103", package = "node-runtime" }
 realis-adapter = { version = "0.1.0", path = "../realis-adapter" }
+
 slog = "2.7.0"
-slog-term = "2.8.0"
-slog-async = "2.6.0"
+utils = { path = "../utils" }
 
 [dependencies.sp-core]
 git = "https://github.com/paritytech/substrate.git"

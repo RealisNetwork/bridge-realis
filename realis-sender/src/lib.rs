@@ -9,12 +9,8 @@ use substrate_api_client::{
     compose_extrinsic_offline, Api, BlockNumber, UncheckedExtrinsicV4, XtStatus,
 };
 
-#[macro_use]
-extern crate slog;
-extern crate slog_async;
-extern crate slog_term;
-
-use slog::Drain;
+use slog::{error, info};
+use utils::logger;
 
 pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
 
@@ -56,10 +52,7 @@ impl ContractEvents for RealisSender {
         to: AccountId,
         value: &u128,
     ) {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
+        let log = logger::new();
 
         let head: Hash = self.api.get_finalized_head().unwrap().unwrap();
         let h: Header = self.api.get_header(Some(head)).unwrap().unwrap();
@@ -96,10 +89,7 @@ impl ContractEvents for RealisSender {
         token_id: &U256,
         basic: u8,
     ) {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
+        let log = logger::new();
 
         let head = self.api.get_finalized_head().unwrap().unwrap();
         let h: Header = self.api.get_header(Some(head)).unwrap().unwrap();

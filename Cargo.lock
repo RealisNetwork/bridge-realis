@@ -586,11 +586,10 @@ dependencies = [
  "ethabi",
  "node-runtime",
  "slog",
- "slog-async",
- "slog-term",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "tokio 1.9.0",
+ "utils",
  "web3",
 ]
 
@@ -603,9 +602,8 @@ dependencies = [
  "realis-adapter",
  "secp256k1",
  "slog",
- "slog-async",
- "slog-term",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "utils",
  "web3",
 ]
 
@@ -4817,10 +4815,9 @@ dependencies = [
  "node-runtime",
  "parity-scale-codec 2.2.0",
  "slog",
- "slog-async",
- "slog-term",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "substrate-api-client",
+ "utils",
 ]
 
 [[package]]
@@ -4894,12 +4891,11 @@ dependencies = [
  "node-runtime",
  "primitive-types 0.9.1",
  "slog",
- "slog-async",
- "slog-term",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "sp-keyring",
  "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "substrate-api-client",
+ "utils",
  "web3",
  "ws",
 ]
@@ -7953,6 +7949,15 @@ dependencies = [
  "idna 0.2.3",
  "matches",
  "percent-encoding 2.1.0",
+]
+
+[[package]]
+name = "utils"
+version = "0.1.0"
+dependencies = [
+ "slog",
+ "slog-async",
+ "slog-term",
 ]
 
 [[package]]
