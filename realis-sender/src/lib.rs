@@ -26,7 +26,7 @@ pub struct RealisSender {
 impl RealisSender {
     /// # Panics
     ///
-    /// Conection to Realis.Network for transfers
+    /// Connect to Realis.Network for transfers
     #[must_use]
     pub fn new(url: &str) -> Self {
         // Get private key

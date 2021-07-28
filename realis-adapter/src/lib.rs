@@ -18,7 +18,7 @@ pub struct RealisAdapter<T: BridgeEvents> {
 impl<T: BridgeEvents> RealisAdapter<T> {
     /// # Panics
     ///
-    /// Conection to Realis.Network for transfers
+    /// Connect to Realis.Network for transfers
     pub fn new(url: &str, event_handler: T) -> Self {
         // Connect to api
         let api = Api::<sr25519::Pair>::new(format!("wss://{}", url)).unwrap();
