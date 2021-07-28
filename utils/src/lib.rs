@@ -58,7 +58,7 @@ pub mod contract {
     pub async fn nft_new(url: &str) -> Contract<WebSocket> {
         let web3 = connect(url).await;
         let address: Address =
-            Address::from_str("0x8A19360f2EC953b433D92571120bb5ef755b3d17")
+            Address::from_str("0x2a5252DA791289485919687c1faD2a6d60311f25")
                 .unwrap();
 
         let json_abi = include_bytes!("./../res/BEP721.abi");
@@ -80,8 +80,8 @@ pub mod accounts {
         SecretKey::from_str(&string).unwrap()
     }
 
-    // pub fn realis<P: AsRef<Path>>(path: P, password: Option<&str>) -> Pair {
-    //     Pair::from_string(
+    // pub fn realis<P: AsRef<Path>>(path: P, password: Option<&str>) -> Pair<>
+    // {     Pair::from_string(
     //         from_path_to_account(path),
     //         password,
     //     ).unwrap()
