@@ -7955,9 +7955,11 @@ dependencies = [
 name = "utils"
 version = "0.1.0"
 dependencies = [
+ "secp256k1",
  "slog",
  "slog-async",
  "slog-term",
+ "web3",
 ]
 
 [[package]]

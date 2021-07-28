@@ -7,7 +7,7 @@ use tokio::time::{sleep, Duration};
 use web3::{contract::Contract, transports::WebSocket, types::U256};
 
 use slog::{error, info};
-use utils::logger;
+use utils::{logger, contract};
 
 pub struct BSCAdapter<T: ContractEvents> {
     contract: Contract<WebSocket>,
@@ -19,32 +19,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
     ///
     /// Conection to BSC for transfer tokens
     pub async fn new(url: &str, event_handler: T) -> Self {
-        let log = logger::new();
-
-        // TODO take out in separate function
-        // Connect to bsc by web socket
-        let mut wss = WebSocket::new(url).await;
-        // Try connect again if connection fail
-        loop {
-            match wss {
-                Ok(_) => break,
-                Err(error) => {
-                    error!(log, "Cannot connect {:?}", error);
-                    info!(log, "Try reconnect");
-                    wss = WebSocket::new(url).await;
-                }
-            }
-        }
-        let web3 = web3::Web3::new(wss.unwrap());
-
-        let json_abi = include_bytes!("../../bsc-sender/res/BEP20.abi");
-        // TODO take out into file
-        let address: web3::types::H160 = web3::types::H160::from_str(
-            "0x987893D34052C07F5959d7e200E9e10fdAf544Ef",
-        )
-        .unwrap();
-        let contract =
-            Contract::from_json(web3.eth(), address, json_abi).unwrap();
+        let contract = contract::nft_new(url).await;
 
         BSCAdapter {
             contract,
@@ -95,32 +70,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
     ///
     /// Conection to BSC for transfer NFT
     pub async fn new_nft(url: &str, event_handler: T) -> Self {
-        let log = logger::new();
-
-        // TODO take out in separate function
-        // Connect to bsc by web socket
-        let mut wss = WebSocket::new(url).await;
-        // Try connect again if connection fail
-        loop {
-            match wss {
-                Ok(_) => break,
-                Err(error) => {
-                    error!(log, "Cannot connect {:?}", error);
-                    info!(log, "Try reconnect");
-                    wss = WebSocket::new(url).await;
-                }
-            }
-        }
-        let web3 = web3::Web3::new(wss.unwrap());
-
-        let json_abi = include_bytes!("../../bsc-sender/res/BEP721.abi");
-        // TODO take out into file
-        let address: web3::types::H160 = web3::types::H160::from_str(
-            "0x81460c30427ee260E06FAecFa17429F56f65423e",
-        )
-        .unwrap();
-        let contract =
-            Contract::from_json(web3.eth(), address, json_abi).unwrap();
+        let contract = contract::nft_new(url).await;
 
         BSCAdapter {
             contract,

@@ -12,7 +12,7 @@ use web3::{
 };
 
 use slog::{error, info};
-use utils::logger;
+use utils::{logger, contract, accounts};
 
 pub struct BscSender {
     // web3: web3::Web3<WebSocket>,
@@ -22,69 +22,13 @@ pub struct BscSender {
 
 impl BscSender {
     pub async fn new() -> BscSender {
-        let wallet_key =
-            BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
+        let wallet_key = accounts::realis("bsc-sender/res/accounts.key");
 
         BscSender {
             // web3,
             // contract,
             wallet_key,
         }
-    }
-
-    async fn get_connection(url: &str) -> Contract<WebSocket> {
-        let log = logger::new();
-        // Connect to bsc
-        let mut wss = WebSocket::new(url).await;
-        loop {
-            match wss {
-                Ok(_) => break,
-                Err(error) => {
-                    error!(log, "Cannot connect {:?}", error);
-                    info!(log, "Try reconnect");
-                    wss = WebSocket::new(url).await;
-                }
-            }
-        }
-
-        let web3 = web3::Web3::new(wss.unwrap());
-
-        let address: Address =
-            Address::from_str("0x987893D34052C07F5959d7e200E9e10fdAf544Ef")
-                .unwrap();
-        let json_abi = include_bytes!("../res/BEP20.abi");
-
-        Contract::from_json(web3.eth(), address, json_abi).unwrap()
-    }
-
-    async fn get_connection_nft(url: &str) -> Contract<WebSocket> {
-        let log = logger::new();
-        // Connect to bsc
-        let mut wss = WebSocket::new(url).await;
-        loop {
-            match wss {
-                Ok(_) => break,
-                Err(error) => {
-                    error!(log, "Cannot connect {:?}", error);
-                    info!(log, "Try reconnect");
-                    wss = WebSocket::new(url).await;
-                }
-            }
-        }
-
-        let web3 = web3::Web3::new(wss.unwrap());
-
-        let address: Address =
-            Address::from_str("0x8A19360f2EC953b433D92571120bb5ef755b3d17")
-                .unwrap();
-        let json_abi = include_bytes!("../res/BEP721.abi");
-
-        Contract::from_json(web3.eth(), address, json_abi).unwrap()
-    }
-
-    fn read_file_for_secret_key<P: AsRef<Path>>(path: P) -> SecretKey {
-        let string = fs::read_to_string(path).unwrap();
-        SecretKey::from_str(&string).unwrap()
     }
 }
 
@@ -93,10 +37,8 @@ impl BridgeEvents for BscSender {
     async fn on_transfer_token_to_bsc<'a>(&self, to: H160, value: u128) {
         let log = logger::new();
 
-        let contract = BscSender::get_connection(
-            "wss://data-seed-prebsc-1-s1.binance.org:8545/",
-        )
-        .await;
+        let contract = contract::token_new("wss://data-seed-prebsc-1-s1.binance.org:8545/").await;
+
         // Convert arguments
         let to: Address = Address::from(to.0);
         let value = U256::from(value) * 100_000_000;
@@ -120,10 +62,7 @@ impl BridgeEvents for BscSender {
     async fn on_transfer_nft_to_bsc<'a>(&self, to: H160, token_id: TokenId) {
         let log = logger::new();
 
-        let contract = BscSender::get_connection_nft(
-            "wss://data-seed-prebsc-1-s1.binance.org:8545/",
-        )
-        .await;
+        let contract = contract::nft_new("wss://data-seed-prebsc-1-s1.binance.org:8545/").await;
         // Convert arguments
         // let from: Address =
         // Address::from_str("0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943").
