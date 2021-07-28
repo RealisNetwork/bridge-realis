@@ -1,10 +1,10 @@
 use async_trait::async_trait;
 use ethabi::{Address, Bytes, Uint};
+use realis_primitives::TokenId;
 use runtime::AccountId;
 use sp_core::Decode;
 use tokio::time::{sleep, Duration};
-use web3::{contract::Contract, transports::WebSocket, types::U256};
-use realis_primitives::TokenId;
+use web3::{contract::Contract, transports::WebSocket};
 
 use slog::{error, info};
 use utils::{contract, logger};

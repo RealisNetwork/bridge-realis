@@ -4890,7 +4890,6 @@ dependencies = [
  "async-trait",
  "bsc-adapter",
  "node-runtime",
- "primitive-types 0.9.1",
  "realis-primitives",
  "slog",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
