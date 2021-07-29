@@ -577,6 +577,7 @@ dependencies = [
  "slog-json",
  "slog-scope",
  "slog-stdlog",
+ "slog-term",
  "tokio 1.9.0",
 ]
 

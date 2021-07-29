@@ -8,6 +8,7 @@ use slog::{
 };
 use slog_async::Async;
 use slog_json::Json;
+use slog_term;
 
 pub mod prelude {
     pub use slog::{slog_debug, slog_error, slog_info, slog_trace, slog_warn};
@@ -30,6 +31,31 @@ where
     let drain = slog_envlogger::new(drain).fuse();
     let drain = Async::new(drain).chan_size(2048).build().fuse();
     let logger = Logger::root(drain, o!());
+
+    logger.new(o!(
+        "msg" => PushFnValue(move |record : &Record, ser| {
+            ser.emit(record.msg())
+        }),
+        "fqn" => PushFnValue(move |record : &Record, ser| {
+             ser.emit(format_args!("{}:{}", record.module(), record.line()))
+        }),
+        "time" => PushFnValue(move |_ : &Record, ser| {
+            ser.emit(Local::now().to_rfc3339())
+        }),
+        "lvl" => FnValue(move |rinfo : &Record| {
+            rinfo.level().as_str()
+        }),
+    ))
+}
+
+pub fn term_new() -> Logger
+{
+    let decorator = slog_term::TermDecorator::new().build();
+    let drain = slog_term::CompactFormat::new(decorator).build().fuse();
+    let drain = slog_async::Async::new(drain).build().fuse();
+
+    let logger = slog::Logger::root(drain, o!());
+
     logger.new(o!(
         "msg" => PushFnValue(move |record : &Record, ser| {
             ser.emit(record.msg())

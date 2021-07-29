@@ -10,7 +10,8 @@ mod realis_to_bsc;
 async fn main() {
     std::env::set_var("RUST_LOG", "INFO"); // TODO: Pass log level via conf.
 
-    let logger = logger::new(std::io::stdout(), std::io::stderr());
+    // let logger = logger::new(std::io::stdout(), std::io::stderr());
+    let logger = logger::term_new();
     let _scope_guard = slog_scope::set_global_logger(logger);
     slog_stdlog::init().unwrap();
 
