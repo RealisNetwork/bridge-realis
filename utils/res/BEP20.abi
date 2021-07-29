@@ -1,6 +1,21 @@
 [
 	{
 		"constant": false,
+		"inputs": [],
+		"name": "allowMinting",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [],
+		"name": "AllowMinting",
+		"type": "event"
+	},
+	{
+		"constant": false,
 		"inputs": [
 			{
 				"name": "_spender",
@@ -26,42 +41,6 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "value",
-				"type": "uint256"
-			}
-		],
-		"name": "burn",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"name": "_from",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "_value",
-				"type": "uint256"
-			}
-		],
-		"name": "Burn",
-		"type": "event"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
 				"name": "_amount",
 				"type": "uint256"
 			},
@@ -80,6 +59,23 @@
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "_freezeAmount",
+				"type": "uint256"
+			}
+		],
+		"name": "FreezeTokens",
+		"type": "event"
 	},
 	{
 		"constant": false,
@@ -151,20 +147,6 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
-		"inputs": [],
-		"name": "mint",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -203,28 +185,6 @@
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"name": "from",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"name": "to",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "value",
-				"type": "uint256"
-			}
-		],
-		"name": "Transfer",
-		"type": "event"
 	},
 	{
 		"constant": false,
@@ -305,12 +265,12 @@
 			},
 			{
 				"indexed": false,
-				"name": "_to",
+				"name": "to",
 				"type": "bytes32"
 			},
 			{
 				"indexed": false,
-				"name": "_value",
+				"name": "value",
 				"type": "uint256"
 			}
 		],
@@ -332,23 +292,6 @@
 			}
 		],
 		"name": "ChangeFreezePermission",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"name": "_owner",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "_freezeAmount",
-				"type": "uint256"
-			}
-		],
-		"name": "FreezeTokens",
 		"type": "event"
 	},
 	{
@@ -405,6 +348,28 @@
 			}
 		],
 		"name": "Approval",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
 		"type": "event"
 	},
 	{

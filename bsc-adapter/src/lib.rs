@@ -1,12 +1,12 @@
 use async_trait::async_trait;
 use ethabi::{Address, Bytes, Uint};
 use log::{error, info};
+use realis_primitives::TokenId;
 use runtime::AccountId;
 use sp_core::Decode;
 use std::str::FromStr;
 use tokio::time::{sleep, Duration};
-use web3::{contract::Contract, transports::WebSocket, types::U256};
-use realis_primitives::TokenId;
+use web3::{contract::Contract, transports::WebSocket};
 
 pub struct BSCAdapter<T: ContractEvents> {
     contract: Contract<WebSocket>,
@@ -36,7 +36,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
         let json_abi = include_bytes!("../../utils/res/BEP20.abi");
         // TODO take out into file
         let address: web3::types::H160 = web3::types::H160::from_str(
-            "0x987893D34052C07F5959d7e200E9e10fdAf544Ef",
+            "0x30a02a714Ea7674F1988ED5d81094F775b28E611",
         )
         .unwrap();
         let contract =
@@ -146,7 +146,9 @@ impl<T: ContractEvents> BSCAdapter<T> {
 
                         self.event_handler
                             .on_transfer_nft_to_realis(
-                                account_id, value.into(), *basic,
+                                account_id,
+                                value.into(),
+                                *basic,
                             )
                             .await;
                     }

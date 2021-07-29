@@ -52,9 +52,14 @@ impl<T: BridgeEvents> RealisAdapter<T> {
                         from, to, value
                     );
                 }
-                realis_bridge::Event::TransferNftToBSC(from, to, token_id) => {
+                realis_bridge::Event::TransferNftToBSC(
+                    from,
+                    to,
+                    token_id,
+                    token_type,
+                ) => {
                     self.event_handler
-                        .on_transfer_nft_to_bsc(&to, &token_id)
+                        .on_transfer_nft_to_bsc(&to, &token_id, *token_type)
                         .await;
                     info!(
                         "Handled TransferNftToBSC: {} => {}, {}",
@@ -100,5 +105,10 @@ impl<T: BridgeEvents> RealisAdapter<T> {
 #[async_trait]
 pub trait BridgeEvents {
     async fn on_transfer_token_to_bsc<'a>(&self, to: &H160, value: &u128);
-    async fn on_transfer_nft_to_bsc<'a>(&self, to: &H160, token_id: &TokenId);
+    async fn on_transfer_nft_to_bsc<'a>(
+        &self,
+        to: &H160,
+        token_id: &TokenId,
+        token_type: u8,
+    );
 }

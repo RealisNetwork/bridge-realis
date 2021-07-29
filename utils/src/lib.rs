@@ -1,6 +1,6 @@
 pub mod contract {
-    use std::str::FromStr;
     use log::{error, info};
+    use std::str::FromStr;
 
     use web3::{
         contract::Contract, transports::WebSocket, types::Address, Web3,

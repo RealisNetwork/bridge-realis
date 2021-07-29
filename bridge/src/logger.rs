@@ -22,8 +22,8 @@ where
     let drain_out = Json::new(w_out).build();
     let drain_err = Json::new(w_err).build();
     let drain = Duplicate(
-        drain_out.filter(|r| !r.level().is_at_least(Level::Warning)),
-        drain_err.filter_level(Level::Warning),
+        drain_out.filter(|r| !r.level().is_at_least(Level::Debug)),
+        drain_err.filter_level(Level::Debug),
     )
     .map(Fuse);
 

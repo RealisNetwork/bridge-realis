@@ -45,7 +45,7 @@ impl BscSender {
         let web3 = web3::Web3::new(wss.unwrap());
 
         let address: Address =
-            Address::from_str("0x987893D34052C07F5959d7e200E9e10fdAf544Ef")
+            Address::from_str("0x30a02a714Ea7674F1988ED5d81094F775b28E611")
                 .unwrap();
         let json_abi = include_bytes!("../../utils/res/BEP20.abi");
 
@@ -112,7 +112,7 @@ impl BridgeEvents for BscSender {
         &self,
         to: &H160,
         token_id: &TokenId,
-        token_type: u8,
+        _token_type: u8,
     ) {
         let contract = BscSender::get_connection_nft(
             "wss://data-seed-prebsc-1-s1.binance.org:8545/",

@@ -1,15 +1,14 @@
 use async_trait::async_trait;
 use bsc_adapter::ContractEvents;
 use log::{error, info};
-use primitive_types::U256;
+use realis_primitives::TokenId;
 use runtime::{realis_bridge::Call as RealisBridgeCall, AccountId, Call};
 use sp_core::{sr25519, Pair, H256 as Hash};
 use sp_runtime::{generic, traits::BlakeTwo256};
 use std::{fs, path::Path};
 use substrate_api_client::{
-    compose_extrinsic, compose_extrinsic_offline, Api, BlockNumber, UncheckedExtrinsicV4, XtStatus,
+    compose_extrinsic_offline, Api, BlockNumber, UncheckedExtrinsicV4, XtStatus,
 };
-use realis_primitives::TokenId;
 
 pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
 
@@ -58,10 +57,12 @@ impl ContractEvents for RealisSender {
         #[allow(clippy::redundant_clone)]
         let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
             self.api.clone().signer.unwrap(),
-            Call::RealisBridge(RealisBridgeCall::transfer_token_to_realis(
-                to.clone(),
-                *value * 10_000_000_000
-            )),
+            Call::RealisBridge(
+                RealisBridgeCall::transfer_token_to_bsc_success(
+                    to.clone(),
+                    *value * 10_000_000_000
+                )
+            ),
             self.api.get_nonce().unwrap(),
             Era::mortal(period, h.number),
             self.api.genesis_hash,
