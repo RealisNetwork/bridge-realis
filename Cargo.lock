@@ -598,6 +598,7 @@ dependencies = [
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "tokio 1.9.0",
+ "utils",
  "web3",
 ]
 
@@ -611,6 +612,7 @@ dependencies = [
  "realis-adapter",
  "secp256k1",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "utils",
  "web3",
 ]
 

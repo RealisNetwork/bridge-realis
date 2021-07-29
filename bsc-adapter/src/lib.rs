@@ -7,6 +7,7 @@ use sp_core::Decode;
 use std::str::FromStr;
 use tokio::time::{sleep, Duration};
 use web3::{contract::Contract, transports::WebSocket};
+use utils::contract;
 
 pub struct BSCAdapter<T: ContractEvents> {
     contract: Contract<WebSocket>,
@@ -18,29 +19,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
     ///
     /// Conection to BSC for transfer tokens
     pub async fn new(url: &str, event_handler: T) -> Self {
-        // TODO take out in separate function
-        // Connect to bsc by web socket
-        let mut wss = WebSocket::new(url).await;
-        // Try connect again if connection fail
-        loop {
-            match wss {
-                Ok(_) => break,
-                Err(error) => {
-                    error!("Performing reconnect. Cause: {:?}", error);
-                    wss = WebSocket::new(url).await;
-                }
-            }
-        }
-        let web3 = web3::Web3::new(wss.unwrap());
-
-        let json_abi = include_bytes!("../../utils/res/BEP20.abi");
-        // TODO take out into file
-        let address: web3::types::H160 = web3::types::H160::from_str(
-            "0x30a02a714Ea7674F1988ED5d81094F775b28E611",
-        )
-        .unwrap();
-        let contract =
-            Contract::from_json(web3.eth(), address, json_abi).unwrap();
+        let contract = contract::token_new(url).await;
 
         BSCAdapter {
             contract,
@@ -90,29 +69,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
     ///
     /// Conection to BSC for transfer NFT
     pub async fn new_nft(url: &str, event_handler: T) -> Self {
-        // TODO take out in separate function
-        // Connect to bsc by web socket
-        let mut wss = WebSocket::new(url).await;
-        // Try connect again if connection fail
-        loop {
-            match wss {
-                Ok(_) => break,
-                Err(error) => {
-                    error!("Performing reconnect. Cause: {:?}", error);
-                    wss = WebSocket::new(url).await;
-                }
-            }
-        }
-        let web3 = web3::Web3::new(wss.unwrap());
-
-        let json_abi = include_bytes!("../../utils/res/BEP721.abi");
-        // TODO take out into file
-        let address: web3::types::H160 = web3::types::H160::from_str(
-            "0x81460c30427ee260E06FAecFa17429F56f65423e",
-        )
-        .unwrap();
-        let contract =
-            Contract::from_json(web3.eth(), address, json_abi).unwrap();
+        let contract = contract::nft_new(url).await;
 
         BSCAdapter {
             contract,
