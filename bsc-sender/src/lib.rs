@@ -47,7 +47,7 @@ impl BscSender {
         let address: Address =
             Address::from_str("0x987893D34052C07F5959d7e200E9e10fdAf544Ef")
                 .unwrap();
-        let json_abi = include_bytes!("../res/BEP20.abi");
+        let json_abi = include_bytes!("../../utils/res/BEP20.abi");
 
         Contract::from_json(web3.eth(), address, json_abi).unwrap()
     }
@@ -70,7 +70,7 @@ impl BscSender {
         let address: Address =
             Address::from_str("0x8A19360f2EC953b433D92571120bb5ef755b3d17")
                 .unwrap();
-        let json_abi = include_bytes!("../res/BEP721.abi");
+        let json_abi = include_bytes!("../../utils/res/BEP721.abi");
 
         Contract::from_json(web3.eth(), address, json_abi).unwrap()
     }
@@ -113,10 +113,7 @@ impl BridgeEvents for BscSender {
             "wss://data-seed-prebsc-1-s1.binance.org:8545/",
         )
         .await;
-        // Convert arguments
-        // let from: Address =
-        // Address::from_str("0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943").
-        // unwrap();
+
         let to: Address = Address::from(to.0);
         let value = U256::from(token_id);
 

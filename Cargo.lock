@@ -8010,6 +8010,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "utils"
+version = "0.1.0"
+dependencies = [
+ "secp256k1",
+ "slog",
+ "slog-async",
+ "slog-term",
+ "web3",
+]
+
+[[package]]
 name = "value-bag"
 version = "1.0.0-alpha.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"

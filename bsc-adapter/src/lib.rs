@@ -32,7 +32,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
         }
         let web3 = web3::Web3::new(wss.unwrap());
 
-        let json_abi = include_bytes!("../../bsc-sender/res/BEP20.abi");
+        let json_abi = include_bytes!("../../utils/res/BEP20.abi");
         // TODO take out into file
         let address: web3::types::H160 = web3::types::H160::from_str(
             "0x987893D34052C07F5959d7e200E9e10fdAf544Ef",
@@ -104,7 +104,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
         }
         let web3 = web3::Web3::new(wss.unwrap());
 
-        let json_abi = include_bytes!("../../bsc-sender/res/BEP721.abi");
+        let json_abi = include_bytes!("../../utils/res/BEP721.abi");
         // TODO take out into file
         let address: web3::types::H160 = web3::types::H160::from_str(
             "0x81460c30427ee260E06FAecFa17429F56f65423e",
