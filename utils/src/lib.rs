@@ -7,7 +7,8 @@ pub mod contract {
         contract::Contract, transports::WebSocket, types::Address, Web3,
     };
 
-    async fn connect(url: &str) -> Web3<WebSocket> {
+    async fn connect() -> Web3<WebSocket> {
+        let url = "wss://data-seed-prebsc-1-s1.binance.org:8545/";
         // Connect to bsc
         let mut wss = WebSocket::new(url).await;
         loop {
@@ -29,8 +30,8 @@ pub mod contract {
     /// # Panics
     ///
     /// Create new token contract
-    pub async fn token_new(url: &str) -> Contract<WebSocket> {
-        let web3 = connect(url).await;
+    pub async fn token_new() -> Contract<WebSocket> {
+        let web3 = connect().await;
         // TODO get from config file
         let address: Address =
             Address::from_str("0x30a02a714Ea7674F1988ED5d81094F775b28E611")
@@ -44,8 +45,8 @@ pub mod contract {
     /// # Panics
     ///
     /// Create new nft contract
-    pub async fn nft_new(url: &str) -> Contract<WebSocket> {
-        let web3 = connect(url).await;
+    pub async fn nft_new() -> Contract<WebSocket> {
+        let web3 = connect().await;
         // TODO get from config file
         let address: Address =
             Address::from_str("0xeabfdb7ab0774d2f887e99f87e9279a6ee5c1431")

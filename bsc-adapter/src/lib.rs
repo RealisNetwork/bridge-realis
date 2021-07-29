@@ -18,9 +18,9 @@ impl<T: ContractEvents> BSCAdapter<T> {
     /// # Panics
     ///
     /// Conection to BSC for transfer tokens
-    pub async fn new(url: &str, event_handler: T) -> Self {
-        let token_contract = contract::token_new(url).await;
-        let nft_contract = contract::nft_new(url).await;
+    pub async fn new(event_handler: T) -> Self {
+        let token_contract = contract::token_new().await;
+        let nft_contract = contract::nft_new().await;
 
         BSCAdapter {
             token_contract,
@@ -29,19 +29,18 @@ impl<T: ContractEvents> BSCAdapter<T> {
         }
     }
 
-    pub async fn listen(&self) {
+    pub async fn listen(&mut self) {
         let token = self.listen_token();
         let nft = self.listen_nft();
 
         join!(token, nft);
     }
 
-    async fn listen_token(&self) {
+    async fn listen_token(&mut self) {
         loop {
             let logs: web3::contract::Result<Vec<(Address, Bytes, Uint)>> =
                 self.token_contract.events("TransferToRealis", (), (), ()).await;
 
-            // result.unwrap();
             match logs {
                 Ok(events) => {
                     // Process all events
@@ -72,7 +71,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
         }
     }
 
-    async fn listen_nft(&self) {
+    async fn listen_nft(&mut self) {
         loop {
             let logs: web3::contract::Result<Vec<(Bytes, Uint, u8)>> = self
                 .nft_contract
