@@ -4,10 +4,9 @@ use log::{error, info};
 use realis_primitives::TokenId;
 use runtime::AccountId;
 use sp_core::Decode;
-use std::str::FromStr;
 use tokio::time::{sleep, Duration};
-use web3::{contract::Contract, transports::WebSocket};
 use utils::contract;
+use web3::{contract::Contract, transports::WebSocket};
 
 pub struct BSCAdapter<T: ContractEvents> {
     contract: Contract<WebSocket>,

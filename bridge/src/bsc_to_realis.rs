@@ -1,6 +1,6 @@
 use bsc_adapter::BSCAdapter;
-use realis_sender::RealisSender;
 use futures::join;
+use realis_sender::RealisSender;
 
 pub async fn run() {
     let sender = RealisSender::new("rpc.realis.network");

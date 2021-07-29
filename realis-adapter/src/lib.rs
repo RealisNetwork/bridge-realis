@@ -45,7 +45,7 @@ impl<T: BridgeEvents> RealisAdapter<T> {
             match bridge_event {
                 realis_bridge::Event::TransferTokenToBSC(from, to, value) => {
                     self.event_handler
-                        .on_transfer_token_to_bsc(&to, value)
+                        .on_transfer_token_to_bsc(to, value)
                         .await;
                     info!(
                         "Handled TransferTokenToBSC: {} => {}, {}",
@@ -59,7 +59,7 @@ impl<T: BridgeEvents> RealisAdapter<T> {
                     token_type,
                 ) => {
                     self.event_handler
-                        .on_transfer_nft_to_bsc(&to, &token_id, *token_type)
+                        .on_transfer_nft_to_bsc(to, token_id, *token_type)
                         .await;
                     info!(
                         "Handled TransferNftToBSC: {} => {}, {}",
@@ -81,7 +81,7 @@ impl<T: BridgeEvents> RealisAdapter<T> {
                 _ => warn!("Unsupported event {:?}", event.event),
             }
         } else {
-            warn!("Unsupported event {:?}", event.event)
+            warn!("Unsupported event {:?}", event.event);
         }
     }
 
