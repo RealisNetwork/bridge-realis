@@ -574,6 +574,7 @@ dependencies = [
  "bsc-adapter",
  "bsc-sender",
  "chrono",
+ "futures 0.3.16",
  "realis-adapter",
  "realis-sender",
  "slog",
