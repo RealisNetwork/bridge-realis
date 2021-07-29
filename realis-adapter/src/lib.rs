@@ -1,13 +1,11 @@
 use async_trait::async_trait;
 use codec::Decode;
+use log::{error, info, warn};
 use realis_bridge::TokenId;
 use runtime::{realis_bridge, Event};
 use sp_core::{sr25519, H160, H256 as Hash};
 use std::sync::mpsc::{channel, Receiver};
 use substrate_api_client::{utils::FromHexString, Api};
-
-use slog::{error, info, warn};
-use utils::logger;
 
 pub struct RealisAdapter<T: BridgeEvents> {
     // events_in: Sender<String>,
@@ -18,7 +16,7 @@ pub struct RealisAdapter<T: BridgeEvents> {
 impl<T: BridgeEvents> RealisAdapter<T> {
     /// # Panics
     ///
-    /// Connect to Realis.Network for transfers
+    /// Conection to Realis.Network for transfers
     pub fn new(url: &str, event_handler: T) -> Self {
         // Connect to api
         let api = Api::<sr25519::Pair>::new(format!("wss://{}", url)).unwrap();
@@ -43,44 +41,47 @@ impl<T: BridgeEvents> RealisAdapter<T> {
     }
 
     async fn process_event(&self, event: &system::EventRecord<Event, Hash>) {
-        let log = logger::new();
-
-        match &event.event {
-            Event::RealisBridge(bridge_event) => match bridge_event {
+        if let Event::RealisBridge(bridge_event) = &event.event {
+            match bridge_event {
                 realis_bridge::Event::TransferTokenToBSC(from, to, value) => {
                     self.event_handler
-                        .on_transfer_token_to_bsc(*to, *value)
+                        .on_transfer_token_to_bsc(&to, value)
                         .await;
-                    info!(log, "From {}", from);
-                    info!(log, "To {}", to);
-                    info!(log, "Value {}", value);
+                    info!(
+                        "Handled TransferTokenToBSC: {} => {}, {}",
+                        from, to, value
+                    );
                 }
                 realis_bridge::Event::TransferNftToBSC(from, to, token_id) => {
                     self.event_handler
-                        .on_transfer_nft_to_bsc(*to, *token_id)
+                        .on_transfer_nft_to_bsc(&to, &token_id)
                         .await;
-                    info!(log, "From {}", from);
-                    info!(log, "To {}", to);
-                    info!(log, "Token id {}", token_id);
+                    info!(
+                        "Handled TransferNftToBSC: {} => {}, {}",
+                        from, to, token_id
+                    );
                 }
                 realis_bridge::Event::TransferTokenToRealis(to, value) => {
-                    info!(log, "To {}", to);
-                    info!(log, "Value {}", value);
+                    info!(
+                        "Handled TransferTokenToRealis: => {}, {}",
+                        to, value
+                    );
                 }
                 realis_bridge::Event::TransferNftToRealis(to, token_id) => {
-                    info!(log, "To {}", to);
-                    info!(log, "Token id {}", token_id);
+                    info!(
+                        "Handled TransferNftToRealis: => {}, {}",
+                        to, token_id
+                    );
                 }
-                _ => warn!(log, "Unsupported event {:?}", event.event),
-            },
-            _ => warn!(log, "Unsupported event {:?}", event.event),
+                _ => warn!("Unsupported event {:?}", event.event),
+            }
+        } else {
+            warn!("Unsupported event {:?}", event.event)
         }
     }
 
     // Add bsc sender as argument
     pub async fn listener(&self) {
-        let log = logger::new();
-
         loop {
             match self.events_out.recv() {
                 Ok(event_str) => {
@@ -90,7 +91,7 @@ impl<T: BridgeEvents> RealisAdapter<T> {
                         self.process_event(event).await;
                     }
                 }
-                Err(error) => error!(log, "Error while listen {:?}", error),
+                Err(error) => error!("Error while listen {:?}", error),
             }
         }
     }
@@ -98,6 +99,6 @@ impl<T: BridgeEvents> RealisAdapter<T> {
 
 #[async_trait]
 pub trait BridgeEvents {
-    async fn on_transfer_token_to_bsc<'a>(&self, to: H160, value: u128);
-    async fn on_transfer_nft_to_bsc<'a>(&self, to: H160, token_id: TokenId);
+    async fn on_transfer_token_to_bsc<'a>(&self, to: &H160, value: &u128);
+    async fn on_transfer_nft_to_bsc<'a>(&self, to: &H160, token_id: &TokenId);
 }
