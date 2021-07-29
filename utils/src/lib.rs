@@ -1,6 +1,7 @@
 pub mod contract {
     use log::{error, info};
     use std::str::FromStr;
+    use tokio::time::{sleep, Duration};
 
     use web3::{
         contract::Contract, transports::WebSocket, types::Address, Web3,
@@ -18,6 +19,8 @@ pub mod contract {
                     wss = WebSocket::new(url).await;
                 }
             }
+            // Wait a bit before reconnect
+            sleep(Duration::from_millis(1000));
         }
 
         web3::Web3::new(wss.unwrap())
@@ -28,6 +31,7 @@ pub mod contract {
     /// Create new token contract
     pub async fn token_new(url: &str) -> Contract<WebSocket> {
         let web3 = connect(url).await;
+        // TODO get from config file
         let address: Address =
             Address::from_str("0x30a02a714Ea7674F1988ED5d81094F775b28E611")
                 .unwrap();
@@ -42,6 +46,7 @@ pub mod contract {
     /// Create new nft contract
     pub async fn nft_new(url: &str) -> Contract<WebSocket> {
         let web3 = connect(url).await;
+        // TODO get from config file
         let address: Address =
             Address::from_str("0xeabfdb7ab0774d2f887e99f87e9279a6ee5c1431")
                 .unwrap();
