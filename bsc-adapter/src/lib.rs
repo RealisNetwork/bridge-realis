@@ -4,12 +4,13 @@ use log::{error, info};
 use realis_primitives::TokenId;
 use runtime::AccountId;
 use sp_core::Decode;
-use tokio::time::{sleep, Duration};
 use utils::contract;
 use web3::{contract::Contract, transports::WebSocket};
+use futures::join;
 
 pub struct BSCAdapter<T: ContractEvents> {
-    contract: Contract<WebSocket>,
+    token_contract: Contract<WebSocket>,
+    nft_contract: Contract<WebSocket>,
     event_handler: T,
 }
 
@@ -18,18 +19,27 @@ impl<T: ContractEvents> BSCAdapter<T> {
     ///
     /// Conection to BSC for transfer tokens
     pub async fn new(url: &str, event_handler: T) -> Self {
-        let contract = contract::token_new(url).await;
+        let token_contract = contract::token_new(url).await;
+        let nft_contract = contract::nft_new(url).await;
 
         BSCAdapter {
-            contract,
+            token_contract,
+            nft_contract,
             event_handler,
         }
     }
 
     pub async fn listen(&self) {
+        let token = self.listen_token();
+        let nft = self.listen_nft();
+
+        join!(token, nft);
+    }
+
+    async fn listen_token(&self) {
         loop {
             let logs: web3::contract::Result<Vec<(Address, Bytes, Uint)>> =
-                self.contract.events("TransferToRealis", (), (), ()).await;
+                self.token_contract.events("TransferToRealis", (), (), ()).await;
 
             // result.unwrap();
             match logs {
@@ -59,27 +69,13 @@ impl<T: ContractEvents> BSCAdapter<T> {
                 }
                 Err(error) => error!("Error while listen {:?}", error),
             }
-            // Sleep to do not catch same event twice (2100 - magic number)
-            sleep(Duration::from_millis(2050)).await;
         }
     }
 
-    /// # Panics
-    ///
-    /// Conection to BSC for transfer NFT
-    pub async fn new_nft(url: &str, event_handler: T) -> Self {
-        let contract = contract::nft_new(url).await;
-
-        BSCAdapter {
-            contract,
-            event_handler,
-        }
-    }
-
-    pub async fn listen_nft(&self) {
+    async fn listen_nft(&self) {
         loop {
             let logs: web3::contract::Result<Vec<(Bytes, Uint, u8)>> = self
-                .contract
+                .nft_contract
                 .events("TransferNftToRealis", (), (), ())
                 .await;
 
@@ -111,8 +107,6 @@ impl<T: ContractEvents> BSCAdapter<T> {
                 }
                 Err(error) => error!("Error while listen {:?}", error),
             }
-            // Sleep to do not catch same event twice (2100 - magic number)
-            sleep(Duration::from_millis(2100)).await;
         }
     }
 }

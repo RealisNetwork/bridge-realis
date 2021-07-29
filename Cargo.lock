@@ -568,7 +568,6 @@ dependencies = [
  "bsc-adapter",
  "bsc-sender",
  "chrono",
- "futures 0.3.16",
  "realis-adapter",
  "realis-sender",
  "slog",
@@ -593,6 +592,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "ethabi",
+ "futures 0.3.16",
  "log",
  "node-runtime",
  "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?rev=2e70b4b64fca49c6544173c05186c27c665a9103)",
@@ -8042,6 +8042,7 @@ version = "0.1.0"
 dependencies = [
  "log",
  "secp256k1",
+ "tokio 1.9.0",
  "web3",
 ]
 
