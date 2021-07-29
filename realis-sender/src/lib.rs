@@ -7,8 +7,9 @@ use sp_core::{sr25519, Pair, H256 as Hash};
 use sp_runtime::{generic, traits::BlakeTwo256};
 use std::{fs, path::Path};
 use substrate_api_client::{
-    compose_extrinsic_offline, Api, BlockNumber, UncheckedExtrinsicV4, XtStatus,
+    compose_extrinsic, compose_extrinsic_offline, Api, BlockNumber, UncheckedExtrinsicV4, XtStatus,
 };
+use realis_primitives::TokenId;
 
 pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
 
@@ -82,7 +83,7 @@ impl ContractEvents for RealisSender {
     async fn on_transfer_nft_to_realis<'a>(
         &self,
         to: AccountId,
-        token_id: &U256,
+        token_id: TokenId,
         basic: u8,
     ) {
         let head = self.api.get_finalized_head().unwrap().unwrap();
@@ -94,7 +95,7 @@ impl ContractEvents for RealisSender {
             self.api.clone().signer.unwrap(),
             Call::RealisBridge(RealisBridgeCall::transfer_nft_to_realis(
                 to.clone(),
-                *token_id,
+                token_id,
                 basic
             )),
             self.api.get_nonce().unwrap(),

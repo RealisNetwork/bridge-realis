@@ -6,6 +6,7 @@ use sp_core::Decode;
 use std::str::FromStr;
 use tokio::time::{sleep, Duration};
 use web3::{contract::Contract, transports::WebSocket, types::U256};
+use realis_primitives::TokenId;
 
 pub struct BSCAdapter<T: ContractEvents> {
     contract: Contract<WebSocket>,
@@ -145,7 +146,7 @@ impl<T: ContractEvents> BSCAdapter<T> {
 
                         self.event_handler
                             .on_transfer_nft_to_realis(
-                                account_id, &value, *basic,
+                                account_id, value.into(), *basic,
                             )
                             .await;
                     }
@@ -168,7 +169,7 @@ pub trait ContractEvents {
     async fn on_transfer_nft_to_realis<'a>(
         &self,
         to: AccountId,
-        token_id: &U256,
+        token_id: TokenId,
         basic: u8,
     );
 }

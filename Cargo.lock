@@ -599,6 +599,7 @@ dependencies = [
  "ethabi",
  "log",
  "node-runtime",
+ "realis-primitives",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "tokio 1.9.0",
@@ -4901,6 +4902,7 @@ dependencies = [
  "log",
  "node-runtime",
  "primitive-types 0.9.1",
+ "realis-primitives",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "sp-keyring",
  "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
@@ -8013,10 +8015,8 @@ dependencies = [
 name = "utils"
 version = "0.1.0"
 dependencies = [
+ "log",
  "secp256k1",
- "slog",
- "slog-async",
- "slog-term",
  "web3",
 ]
 
