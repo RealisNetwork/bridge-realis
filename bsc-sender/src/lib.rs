@@ -36,14 +36,14 @@ impl BscSender {
 
 #[async_trait]
 impl BridgeEvents for BscSender {
-    async fn on_transfer_token_to_bsc<'a>(&self, to: &H160, value: &u128) {
+    async fn on_transfer_token_to_bsc<'a>(&self, to: H160, value: u128) {
         let contract = contract::token_new(
             "wss://data-seed-prebsc-1-s1.binance.org:8545/",
         )
         .await;
         // Convert arguments
         let to: Address = Address::from(to.0);
-        let value = U256::from(*value) * 100_000_000;
+        let value = U256::from(value) * 100_000_000;
 
         let result = contract
             .signed_call_with_confirmations(
@@ -63,8 +63,8 @@ impl BridgeEvents for BscSender {
 
     async fn on_transfer_nft_to_bsc<'a>(
         &self,
-        to: &H160,
-        token_id: &TokenId,
+        to: H160,
+        token_id: TokenId,
         _token_type: u8,
     ) {
         let contract =
@@ -72,12 +72,11 @@ impl BridgeEvents for BscSender {
                 .await;
 
         let to: Address = Address::from(to.0);
-        let value = U256::from(token_id);
 
         let result = contract
             .signed_call_with_confirmations(
                 "safeMint",
-                (to, value),
+                (to, token_id),
                 web3::contract::Options::default(),
                 1,
                 &self.wallet_key,
