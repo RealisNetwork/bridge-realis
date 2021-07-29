@@ -20,7 +20,7 @@ pub mod contract {
                 }
             }
             // Wait a bit before reconnect
-            sleep(Duration::from_millis(1000));
+            sleep(Duration::from_millis(1000)).await;
         }
 
         web3::Web3::new(wss.unwrap())
