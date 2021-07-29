@@ -1,5 +1,6 @@
 use bsc_adapter::BSCAdapter;
 use realis_sender::RealisSender;
+use futures::join;
 
 pub async fn run() {
     let sender = RealisSender::new("rpc.realis.network");
@@ -9,12 +10,14 @@ pub async fn run() {
         sender.clone(),
     )
     .await;
-    adapter.listen().await;
+    let token = adapter.listen();
 
-    // let adapter_nft = BSCAdapter::new_nft(
-    //     "wss://data-seed-prebsc-1-s1.binance.org:8545/",
-    //     sender,
-    // )
-    // .await;
-    // adapter_nft.listen_nft().await;
+    let adapter_nft = BSCAdapter::new_nft(
+        "wss://data-seed-prebsc-1-s1.binance.org:8545/",
+        sender,
+    )
+    .await;
+    let nft = adapter_nft.listen_nft();
+
+    join!(token, nft);
 }
