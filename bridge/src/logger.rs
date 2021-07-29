@@ -8,7 +8,6 @@ use slog::{
 };
 use slog_async::Async;
 use slog_json::Json;
-use slog_term;
 
 pub mod prelude {
     pub use slog::{slog_debug, slog_error, slog_info, slog_trace, slog_warn};
@@ -53,6 +52,7 @@ pub fn term_new() -> Logger
     let decorator = slog_term::TermDecorator::new().build();
     let drain = slog_term::CompactFormat::new(decorator).build().fuse();
     let drain = slog_async::Async::new(drain).build().fuse();
+    let drain = drain.filter_level(Level::Info).fuse();
 
     let logger = slog::Logger::root(drain, o!());
 
