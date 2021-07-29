@@ -29,7 +29,7 @@ pub mod contract {
     pub async fn token_new(url: &str) -> Contract<WebSocket> {
         let web3 = connect(url).await;
         let address: Address =
-            Address::from_str("0x987893D34052C07F5959d7e200E9e10fdAf544Ef")
+            Address::from_str("0x30a02a714Ea7674F1988ED5d81094F775b28E611")
                 .unwrap();
 
         let json_abi = include_bytes!("./../res/BEP20.abi");
@@ -43,7 +43,7 @@ pub mod contract {
     pub async fn nft_new(url: &str) -> Contract<WebSocket> {
         let web3 = connect(url).await;
         let address: Address =
-            Address::from_str("0x2a5252DA791289485919687c1faD2a6d60311f25")
+            Address::from_str("0x530B9AA8FFAb47060599e50140ACe3d8A27BC3d0")
                 .unwrap();
 
         let json_abi = include_bytes!("./../res/BEP721.abi");
