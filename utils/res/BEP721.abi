@@ -69,6 +69,37 @@
 		"anonymous": false,
 		"inputs": [
 			{
+				"indexed": false,
+				"internalType": "bytes32",
+				"name": "_from",
+				"type": "bytes32"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint8",
+				"name": "tokenType",
+				"type": "uint8"
+			}
+		],
+		"name": "MintNftFromRealis",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
 				"indexed": true,
 				"internalType": "address",
 				"name": "from",
@@ -255,6 +286,11 @@
 	},
 	{
 		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_from",
+				"type": "bytes32"
+			},
 			{
 				"internalType": "address",
 				"name": "to",

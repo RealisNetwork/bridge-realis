@@ -1,10 +1,16 @@
-use std::env;
-
 use logger::prelude::*;
 
-mod bsc_to_realis;
 mod logger;
-mod realis_to_bsc;
+
+use realis_adapter::RealisAdapter;
+use bsc_sender::BscSender;
+use bsc_adapter::BSCAdapter;
+use realis_sender::RealisSender;
+use futures::join;
+
+use std::sync::mpsc::{channel, Receiver, Sender, RecvError};
+use std::thread;
+use futures::executor::block_on;
 
 #[tokio::main]
 async fn main() {
@@ -13,19 +19,50 @@ async fn main() {
     // let logger = logger::new(std::io::stdout(), std::io::stderr());
     let logger = logger::term_new();
     let _scope_guard = slog_scope::set_global_logger(logger);
-    slog_stdlog::init().unwrap();
+    // slog_stdlog::init().unwrap();
 
-    // Get command lines arguments
-    let args: Vec<String> = env::args().collect();
-    // Get command line first argument
-    let arg = args.get(1);
 
-    match arg {
-        None => error!("Specify flag (realis-to-bsc or bsc-to-realis)"),
-        Some(value) => match value.as_str() {
-            "realis-to-bsc" => realis_to_bsc::run().await,
-            "bsc-to-realis" => bsc_to_realis::run().await,
-            _ => error!("Unknown command!"),
-        },
-    }
+    let (to_bsc_sender, receiver_to_bsc_sender) = channel();
+    let (to_realis_sender, receiver_to_realis_sender) = channel();
+
+    let realis_adapter =
+        RealisAdapter::new(
+            "rpc.realis.network",
+            to_bsc_sender.clone(),
+            to_realis_sender.clone()
+        );
+    // let bsc_sender =
+    //     BscSender::new(
+    //         receiver_to_bsc_sender
+    //     ).await;
+    // let bsc_adapter =
+    //     BSCAdapter::new(
+    //         to_bsc_sender.clone(),
+    //         to_realis_sender.clone()
+    //     );
+    // let realis_sender =
+    //     RealisSender::new(
+    //         receiver_to_realis_sender
+    //     );
+
+    realis_adapter.listen().await;
+
+
+    // let realis_adapter_thread = thread::spawn(move || {
+    //     block_on(realis_adapter.listen());
+    // });
+    // let bsc_sender_thread = thread::spawn(move || {
+    //     block_on(bsc_sender.listen());
+    // });
+    // let bsc_adapter_thread = thread::spawn(move || {
+    //     block_on(bsc_adapter.listen());
+    // });
+    // let realis_sender_thread = thread::spawn(move || {
+    //     block_on(realis_sender.listen());
+    // });
+
+    // realis_adapter_thread.join().unwrap();
+    // bsc_sender_thread.join().unwrap();
+    // bsc_adapter_thread.join().unwrap();
+    // realis_sender_thread.join().unwrap();
 }

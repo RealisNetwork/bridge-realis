@@ -1,0 +1,9 @@
+[package]
+name = "bridge-events"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+sp-core = { git = "https://github.com/paritytech/substrate", rev = "03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178" }
+realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "2e70b4b64fca49c6544173c05186c27c665a9103" }
+runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "ba89e796139d1cd4c8dfe808736cab71baed32b0", package = "node-runtime" }

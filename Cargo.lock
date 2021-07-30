@@ -568,6 +568,7 @@ dependencies = [
  "bsc-adapter",
  "bsc-sender",
  "chrono",
+ "futures 0.3.16",
  "realis-adapter",
  "realis-sender",
  "slog",
@@ -581,6 +582,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bridge-events"
+version = "0.1.0"
+dependencies = [
+ "node-runtime",
+ "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?rev=2e70b4b64fca49c6544173c05186c27c665a9103)",
+ "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+]
+
+[[package]]
 name = "bs58"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -590,14 +600,13 @@ checksum = "771fe0050b883fcc3ea2359b1a96bcfbc090b7116eae7c3c512c7a083fdf23d3"
 name = "bsc-adapter"
 version = "0.1.0"
 dependencies = [
- "async-trait",
+ "bridge-events",
  "ethabi",
  "futures 0.3.16",
  "log",
  "node-runtime",
  "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?rev=2e70b4b64fca49c6544173c05186c27c665a9103)",
- "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
- "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "tokio 1.9.0",
  "utils",
  "web3",
@@ -608,11 +617,13 @@ name = "bsc-sender"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "bridge-events",
  "log",
  "node-runtime",
- "realis-adapter",
+ "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?rev=2e70b4b64fca49c6544173c05186c27c665a9103)",
  "secp256k1",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "substrate-stellar-sdk",
  "utils",
  "web3",
 ]
@@ -2347,6 +2358,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "index-fixed"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4161ceaf2f41b6cd3f6502f5da085d4ad4393a51e0c70ed2fce1d5698d798fae"
+
+[[package]]
 name = "indexmap"
 version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2558,6 +2575,9 @@ name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
+dependencies = [
+ "spin",
+]
 
 [[package]]
 name = "lazycell"
@@ -4812,6 +4832,8 @@ name = "realis-adapter"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "bridge-events",
+ "bsc-sender",
  "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "log",
  "node-runtime",
@@ -4876,6 +4898,7 @@ dependencies = [
  "impl-trait-for-tuples 0.1.3",
  "parity-scale-codec 2.2.0",
  "primitive-types 0.9.1",
+ "serde",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate.git?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
@@ -4922,7 +4945,7 @@ dependencies = [
 name = "realis-sender"
 version = "0.1.0"
 dependencies = [
- "async-trait",
+ "bridge-events",
  "bsc-adapter",
  "log",
  "node-runtime",
@@ -6128,6 +6151,15 @@ checksum = "765f090f0e423d2b55843402a07915add955e7d60657db13707a159727326cad"
 dependencies = [
  "libc",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "sodalite"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "41784a359d15c58bba298cccb7f30a847a1a42d0620c9bdaa0aa42fdb3c280e0"
+dependencies = [
+ "index-fixed",
 ]
 
 [[package]]
@@ -7427,6 +7459,24 @@ dependencies = [
  "log",
  "prometheus",
  "tokio 0.2.25",
+]
+
+[[package]]
+name = "substrate-stellar-sdk"
+version = "0.2.2"
+source = "git+https://github.com/Daelon02/substrate-stellar.git#d955ada34bcff53f52dd5bacc818530d9e645930"
+dependencies = [
+ "base64 0.13.0",
+ "hex",
+ "lazy_static",
+ "num-rational 0.4.0",
+ "serde",
+ "serde_json",
+ "sha2 0.9.5",
+ "sodalite",
+ "sp-io 4.0.0-dev (git+https://github.com/paritytech/substrate.git?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate.git?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
 ]
 
 [[package]]

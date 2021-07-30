@@ -6,7 +6,6 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-trait = "0.1.50"
 bsc-adapter = { version = "0.1.0", path = "../bsc-adapter" }
 log = "0.4"
 primitive-types = { version = "0.9.0", default-features = false }
@@ -16,6 +15,7 @@ sp-keyring = { git = "https://github.com/paritytech/substrate.git", rev = "03d4d
 substrate-api-client = { git = "https://github.com/scs/substrate-api-client.git", rev = "672a5d4ed9f076525235fef6b5af288f666df803" }
 web3 = "0.16.0"
 ws = { version = "0.9.1", optional = true, features = ["ssl"] }
+bridge-events = { path = "../bridge-events" }
 
 [dependencies.sp-core]
 git = "https://github.com/paritytech/substrate.git"

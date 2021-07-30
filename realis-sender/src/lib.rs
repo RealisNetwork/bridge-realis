@@ -1,118 +1,182 @@
-use async_trait::async_trait;
-use bsc_adapter::ContractEvents;
 use log::{error, info};
-use realis_primitives::TokenId;
-use runtime::{realis_bridge::Call as RealisBridgeCall, AccountId, Call};
+use runtime::{realis_bridge::Call as RealisBridgeCall, Call};
 use sp_core::{sr25519, Pair, H256 as Hash};
 use sp_runtime::{generic, traits::BlakeTwo256};
 use std::{fs, path::Path};
 use substrate_api_client::{
     compose_extrinsic_offline, Api, BlockNumber, UncheckedExtrinsicV4, XtStatus,
 };
+use std::sync::mpsc::{Receiver, Sender};
+use bridge_events::Events;
 
-pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
+type Header = generic::Header<BlockNumber, BlakeTwo256>;
 
 fn from_path_to_account<P: AsRef<Path>>(path: P) -> String {
     fs::read_to_string(path).unwrap()
 }
 
-#[derive(Clone)]
 pub struct RealisSender {
+    // Get messages from realis adapter, bsc adapter, realis sender
+    channel_from: Receiver<Events>,
+    //
+    // channel_to_bsc_sender
     api: Api<sr25519::Pair>,
+
 }
 
 impl RealisSender {
     /// # Panics
     ///
-    /// Conection to Realis.Network for transfers
+    /// Connection to Realis.Network for transfers
     #[must_use]
-    pub fn new(url: &str) -> Self {
+    pub fn new(channel_from: Receiver<Events>) -> Self {
         // Get private key
         let pair = Pair::from_string(
             &*from_path_to_account("./realis-sender/res/accounts.key"),
             None,
         )
         .unwrap();
+        //
+        let url = "rpc.realis.network";
         // Create substrate api with signer
         let api =
             Api::<sr25519::Pair>::new(format!("wss://{}", String::from(url)))
                 .map(|api| api.set_signer(pair))
                 .unwrap();
 
-        RealisSender { api }
-    }
-}
-
-#[async_trait]
-impl ContractEvents for RealisSender {
-    async fn on_transfer_token_to_realis<'a>(
-        &self,
-        to: AccountId,
-        value: &u128,
-    ) {
-        let head: Hash = self.api.get_finalized_head().unwrap().unwrap();
-        let h: Header = self.api.get_header(Some(head)).unwrap().unwrap();
-        let period = 5;
-
-        #[allow(clippy::redundant_clone)]
-        let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
-            self.api.clone().signer.unwrap(),
-            Call::RealisBridge(
-                RealisBridgeCall::transfer_token_to_bsc_success(
-                    to.clone(),
-                    *value * 10_000_000_000
-                )
-            ),
-            self.api.get_nonce().unwrap(),
-            Era::mortal(period, h.number),
-            self.api.genesis_hash,
-            head,
-            self.api.runtime_version.spec_version,
-            self.api.runtime_version.transaction_version
-        );
-
-        // Send extrinsic transaction
-        let tx_result =
-            self.api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
-
-        match tx_result {
-            Ok(hash) => info!("Send extrinsic {:?}", hash),
-            Err(error) => error!("Can`t send extrinsic {:?}", error),
+        RealisSender {
+            channel_from,
+            api
         }
     }
 
-    async fn on_transfer_nft_to_realis<'a>(
-        &self,
-        to: AccountId,
-        token_id: TokenId,
-        basic: u8,
-    ) {
-        let head = self.api.get_finalized_head().unwrap().unwrap();
-        let h: Header = self.api.get_header(Some(head)).unwrap().unwrap();
-        let period = 5;
+    pub async fn listen(&self) {
+        loop {
+            match self.channel_from.recv() {
+                Ok(event) => {
+                    match event {
+                        Events::TokenSuccessOnBsc(from, amount) => {
+                            let head = self.api.get_finalized_head().unwrap().unwrap();
+                            let h: Header = self.api.get_header(Some(head)).unwrap().unwrap();
+                            let period = 5;
 
-        #[allow(clippy::redundant_clone)]
-        let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
-            self.api.clone().signer.unwrap(),
-            Call::RealisBridge(RealisBridgeCall::transfer_nft_to_realis(
-                to.clone(),
-                token_id,
-                basic
-            )),
-            self.api.get_nonce().unwrap(),
-            Era::mortal(period, h.number),
-            self.api.genesis_hash,
-            head,
-            self.api.runtime_version.spec_version,
-            self.api.runtime_version.transaction_version
-        );
-        // Send extrinsic transaction
-        let tx_result =
-            self.api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
+                            #[allow(clippy::redundant_clone)]
+                                let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
+                                self.api.clone().signer.unwrap(),
+                                Call::RealisBridge(RealisBridgeCall::transfer_token_to_bsc_success(
+                                    from.clone(),
+                                    amount * 10_000_000_000
+                                )),
+                                self.api.get_nonce().unwrap(),
+                                Era::mortal(period, h.number),
+                                self.api.genesis_hash,
+                                head,
+                                self.api.runtime_version.spec_version,
+                                self.api.runtime_version.transaction_version
+                            );
+                            // Send extrinsic transaction
+                            let tx_result =
+                                self.api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
 
-        match tx_result {
-            Ok(hash) => info!("Send extrinsic {:?}", hash),
-            Err(error) => error!("Can`t send extrinsic {:?}", error),
+                            match tx_result {
+                                Ok(hash) => println!("Send extrinsic {:?}", hash),
+                                Err(error) => println!("Can`t send extrinsic {:?}", error),
+                            }
+                        }
+                        Events::NftSuccessOnBsc(from, token_id, _) => {
+                            let head = self.api.get_finalized_head().unwrap().unwrap();
+                            let h: Header = self.api.get_header(Some(head)).unwrap().unwrap();
+                            let period = 5;
+
+                            #[allow(clippy::redundant_clone)]
+                                let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
+                                self.api.clone().signer.unwrap(),
+                                Call::RealisBridge(RealisBridgeCall::transfer_nft_to_bsc_success(
+                                    from.clone(),
+                                    token_id
+                                )),
+                                self.api.get_nonce().unwrap(),
+                                Era::mortal(period, h.number),
+                                self.api.genesis_hash,
+                                head,
+                                self.api.runtime_version.spec_version,
+                                self.api.runtime_version.transaction_version
+                            );
+                            // Send extrinsic transaction
+                            let tx_result =
+                                self.api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
+
+                            match tx_result {
+                                Ok(hash) => println!("Send extrinsic {:?}", hash),
+                                Err(error) => println!("Can`t send extrinsic {:?}", error),
+                            }
+                        }
+                        Events::TokenBscToRealis(address, amount) => {
+                            let head: Hash = self.api.get_finalized_head().unwrap().unwrap();
+                            let h: Header = self.api.get_header(Some(head)).unwrap().unwrap();
+                            let period = 5;
+
+                            #[allow(clippy::redundant_clone)]
+                            let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
+                                self.api.clone().signer.unwrap(),
+                                Call::RealisBridge(
+                                    RealisBridgeCall::transfer_token_to_bsc_success(
+                                        address.clone(),
+                                        amount * 10_000_000_000
+                                    )
+                                ),
+                                self.api.get_nonce().unwrap(),
+                                Era::mortal(period, h.number),
+                                self.api.genesis_hash,
+                                head,
+                                self.api.runtime_version.spec_version,
+                                self.api.runtime_version.transaction_version
+                            );
+
+                            // Send extrinsic transaction
+                            let tx_result =
+                                self.api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
+
+                            match tx_result {
+                                Ok(hash) => println!("Send extrinsic {:?}", hash),
+                                Err(error) => println!("Can`t send extrinsic {:?}", error),
+                            }
+                        }
+                        Events::NftBcsToRealis(address, token_id, token_type) => {
+                            let head = self.api.get_finalized_head().unwrap().unwrap();
+                            let h: Header = self.api.get_header(Some(head)).unwrap().unwrap();
+                            let period = 5;
+
+                            #[allow(clippy::redundant_clone)]
+                            let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
+                                self.api.clone().signer.unwrap(),
+                                Call::RealisBridge(RealisBridgeCall::transfer_nft_to_realis(
+                                    address.clone(),
+                                    token_id,
+                                    token_type
+                                )),
+                                self.api.get_nonce().unwrap(),
+                                Era::mortal(period, h.number),
+                                self.api.genesis_hash,
+                                head,
+                                self.api.runtime_version.spec_version,
+                                self.api.runtime_version.transaction_version
+                            );
+                            // Send extrinsic transaction
+                            let tx_result =
+                                self.api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
+
+                            match tx_result {
+                                Ok(hash) => println!("Send extrinsic {:?}", hash),
+                                Err(error) => println!("Can`t send extrinsic {:?}", error),
+                            }
+                        }
+
+                        _ => {}
+                    }
+                }
+                Err(_) => {}
+            }
         }
     }
 }

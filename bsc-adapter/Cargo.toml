@@ -4,24 +4,14 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-async-trait = "0.1.50"
 ethabi = "14.1.0"
 log = "0.4"
-runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "ba89e796139d1cd4c8dfe808736cab71baed32b0", package = "node-runtime", default-features = false}
+runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "ba89e796139d1cd4c8dfe808736cab71baed32b0", package = "node-runtime" }
 realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "2e70b4b64fca49c6544173c05186c27c665a9103", package = "realis-primitives", default-features = false}
 tokio = { version = "1.0" }
 web3 = "0.16.0"
-utils = { path = "../utils" }
 futures = "0.3.16"
+utils = { path = "../utils" }
+bridge-events = { path = "../bridge-events" }
 
-[dependencies.sp-core]
-git = "https://github.com/paritytech/substrate.git"
-branch = "master"
-package = "sp-core"
-default-features = false
-features = ["full_crypto"]
-
-[dependencies.sp-runtime]
-git = "https://github.com/paritytech/substrate.git"
-branch = "master"
-package = "sp-runtime"
+sp-core = { git = "https://github.com/paritytech/substrate", rev = "03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178" }
