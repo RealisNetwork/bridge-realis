@@ -67,16 +67,21 @@ impl<T: BridgeEvents> RealisAdapter<T> {
                     );
                 }
                 realis_bridge::Event::TransferTokenToRealis(to, value) => {
+                    // This event appears when tokens transfer from bsc to realis
+                    // And realis blockchain confirmed this transfer
                     info!(
                         "Handled TransferTokenToRealis: => {}, {}",
                         to, value
                     );
                 }
                 realis_bridge::Event::TransferNftToRealis(to, token_id) => {
+                    // This event appears when nft transfer from bsc to realis
+                    // And realis blockchain confirmed this transfer
                     info!(
                         "Handled TransferNftToRealis: => {}, {}",
                         to, token_id
                     );
+
                 }
                 _ => warn!("Unsupported event {:?}", event.event),
             }
@@ -111,4 +116,5 @@ pub trait BridgeEvents {
         token_id: TokenId,
         token_type: u8,
     );
+
 }

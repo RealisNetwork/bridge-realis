@@ -6,9 +6,7 @@ use secp256k1::SecretKey;
 use sp_core::H160;
 use std::{fs, path::Path, str::FromStr};
 use utils::contract;
-use web3::{
-    types::{Address, U256},
-};
+use web3::types::{Address, U256};
 
 pub struct BscSender {
     // web3: web3::Web3<WebSocket>,
@@ -37,10 +35,7 @@ impl BscSender {
 #[async_trait]
 impl BridgeEvents for BscSender {
     async fn on_transfer_token_to_bsc<'a>(&self, to: H160, value: u128) {
-        let contract = contract::token_new(
-            "wss://data-seed-prebsc-1-s1.binance.org:8545/",
-        )
-        .await;
+        let contract = contract::token_new().await;
         // Convert arguments
         let to: Address = Address::from(to.0);
         let value = U256::from(value) * 100_000_000;
@@ -67,9 +62,7 @@ impl BridgeEvents for BscSender {
         token_id: TokenId,
         _token_type: u8,
     ) {
-        let contract =
-            contract::nft_new("wss://data-seed-prebsc-1-s1.binance.org:8545/")
-                .await;
+        let contract = contract::nft_new().await;
 
         let to: Address = Address::from(to.0);
 

@@ -1,12 +1,12 @@
 use async_trait::async_trait;
 use ethabi::{Address, Bytes, Uint};
+use futures::join;
 use log::{error, info};
 use realis_primitives::TokenId;
 use runtime::AccountId;
 use sp_core::Decode;
 use utils::contract;
 use web3::{contract::Contract, transports::WebSocket};
-use futures::join;
 
 pub struct BSCAdapter<T: ContractEvents> {
     token_contract: Contract<WebSocket>,
@@ -29,17 +29,18 @@ impl<T: ContractEvents> BSCAdapter<T> {
         }
     }
 
-    pub async fn listen(&mut self) {
+    pub async fn listen(&self) {
         let token = self.listen_token();
         let nft = self.listen_nft();
 
         join!(token, nft);
     }
 
-    async fn listen_token(&mut self) {
+    async fn listen_token(&self) {
+        let mut token_contract = contract::token_new().await;
+
         loop {
-            let logs: web3::contract::Result<Vec<(Address, Bytes, Uint)>> =
-                self.token_contract.events("TransferToRealis", (), (), ()).await;
+            let logs: web3::contract::Result<Vec<(Address, Bytes, Uint)>> = token_contract.events("TransferToRealis", (), (), ()).await;
 
             match logs {
                 Ok(events) => {
@@ -66,17 +67,19 @@ impl<T: ContractEvents> BSCAdapter<T> {
                             .await;
                     }
                 }
-                Err(error) => error!("Error while listen {:?}", error),
+                Err(error) => {
+                    error!("Error while listen {:?}", error);
+                    token_contract = contract::token_new().await;
+                }
             }
         }
     }
 
-    async fn listen_nft(&mut self) {
+    async fn listen_nft(&self) {
+        let mut nft_contract = contract::nft_new().await;
         loop {
-            let logs: web3::contract::Result<Vec<(Bytes, Uint, u8)>> = self
-                .nft_contract
-                .events("TransferNftToRealis", (), (), ())
-                .await;
+            let logs: web3::contract::Result<Vec<(Bytes, Uint, u8)>> =
+                nft_contract.events("TransferNftToRealis", (), (), ()).await;
 
             match logs {
                 Ok(events) => {
@@ -104,7 +107,10 @@ impl<T: ContractEvents> BSCAdapter<T> {
                             .await;
                     }
                 }
-                Err(error) => error!("Error while listen {:?}", error),
+                Err(error) => {
+                    error!("Error while listen {:?}", error);
+                    nft_contract = contract::nft_new().await;
+                }
             }
         }
     }
