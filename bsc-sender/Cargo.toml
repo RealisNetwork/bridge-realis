@@ -8,12 +8,12 @@ edition = "2018"
 [dependencies]
 async-trait = "0.1.50"
 log = "0.4"
-runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "ba89e796139d1cd4c8dfe808736cab71baed32b0", package = "node-runtime" }
+runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "87951f610cda60dd01881dd66ef792992bfa3133", package = "node-runtime" }
 realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "2e70b4b64fca49c6544173c05186c27c665a9103", package = "realis-primitives", default-features = false}
 secp256k1 = { version = "0.20", features = ["recovery"] }
 web3 = "0.16.0"
 utils = { path = "../utils" }
-bridge-events = { path = "../bridge-events" }
+
 substrate-stellar-sdk = { git = "https://github.com/Daelon02/substrate-stellar.git" }
 
 [dependencies.sp-core]

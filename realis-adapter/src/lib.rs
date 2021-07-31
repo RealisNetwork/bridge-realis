@@ -11,15 +11,13 @@ use bsc_sender::BscSender;
 
 pub struct RealisAdapter {
     channel_from_realis:        Receiver<String>,
-    channel_to_bsc_sender:      Sender<Events>,
-    channel_to_realis_sender:   Sender<Events>,
 }
 
 impl RealisAdapter {
     /// # Panics
     ///
     /// Conection to Realis.Network for transfers
-    pub fn new(url: &str, channel_to_bsc_sender: Sender<Events>, channel_to_realis_sender: Sender<Events>) -> Self {
+    pub fn new(url: &str) -> Self {
         // Connect to api
         let api = Api::<sr25519::Pair>::new(format!("wss://{}", url)).unwrap();
         // Create channels
@@ -29,8 +27,6 @@ impl RealisAdapter {
 
         RealisAdapter {
             channel_from_realis,
-            channel_to_bsc_sender,
-            channel_to_realis_sender
         }
     }
 
@@ -78,7 +74,7 @@ impl RealisAdapter {
                     );
                     // TODO impl
                 }
-                _ => println!("Unsupported event {:?}", event.event),
+                _ => println!("Unsupported event in Bridge-pallet {:?}", event.event),
             }
         } else {
             println!("Unsupported event {:?}", event.event);

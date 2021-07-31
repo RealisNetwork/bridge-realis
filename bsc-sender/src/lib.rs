@@ -7,7 +7,6 @@ use sp_core::Encode;
 use std::{fs, path::Path, str::FromStr};
 use web3::types::{Address, U256, Bytes};
 use utils::contract;
-use substrate_stellar_sdk;
 
 pub struct BscSender {}
 
@@ -32,7 +31,6 @@ impl BscSender {
         // Convert arguments
         let to: Address = Address::from(to.0);
         let value = U256::from(amount) * 100_000_000;
-        let account_id = substrate_stellar_sdk::IntoAccountId::into_encoding(from);
 
         // Send transaction
         let result = contract
@@ -65,12 +63,11 @@ impl BscSender {
                 .await;
 
         let to: Address = Address::from(to.0);
-        let account_id = substrate_stellar_sdk::IntoAccountId::into_encoding(from);
 
         let result = contract
             .signed_call_with_confirmations(
                 "safeMint",
-                (account_id, to, token_id, token_type),
+                (to, token_id, token_type),
                 web3::contract::Options::default(),
                 1,
                 &wallet_key,

@@ -1,3 +1,4 @@
+use std::env;
 use logger::prelude::*;
 
 mod logger;
@@ -21,48 +22,26 @@ async fn main() {
     let _scope_guard = slog_scope::set_global_logger(logger);
     // slog_stdlog::init().unwrap();
 
+    // Get command lines arguments
+    let args: Vec<String> = env::args().collect();
+    // Get command line first argument
+    let arg = args.get(1);
 
-    let (to_bsc_sender, receiver_to_bsc_sender) = channel();
-    let (to_realis_sender, receiver_to_realis_sender) = channel();
+    match arg {
+        None => println!("Specify flag (realis-to-bsc or bsc-to-realis)"),
+        Some(value) => match value.as_str() {
+            "realis-to-bsc" => {
+                let realis_adapter =
+                    RealisAdapter::new(
+                        "rpc.realis.network",
+                    );
 
-    let realis_adapter =
-        RealisAdapter::new(
-            "rpc.realis.network",
-            to_bsc_sender.clone(),
-            to_realis_sender.clone()
-        );
-    // let bsc_sender =
-    //     BscSender::new(
-    //         receiver_to_bsc_sender
-    //     ).await;
-    // let bsc_adapter =
-    //     BSCAdapter::new(
-    //         to_bsc_sender.clone(),
-    //         to_realis_sender.clone()
-    //     );
-    // let realis_sender =
-    //     RealisSender::new(
-    //         receiver_to_realis_sender
-    //     );
-
-    realis_adapter.listen().await;
-
-
-    // let realis_adapter_thread = thread::spawn(move || {
-    //     block_on(realis_adapter.listen());
-    // });
-    // let bsc_sender_thread = thread::spawn(move || {
-    //     block_on(bsc_sender.listen());
-    // });
-    // let bsc_adapter_thread = thread::spawn(move || {
-    //     block_on(bsc_adapter.listen());
-    // });
-    // let realis_sender_thread = thread::spawn(move || {
-    //     block_on(realis_sender.listen());
-    // });
-
-    // realis_adapter_thread.join().unwrap();
-    // bsc_sender_thread.join().unwrap();
-    // bsc_adapter_thread.join().unwrap();
-    // realis_sender_thread.join().unwrap();
+                realis_adapter.listen().await;
+            }
+            "bsc-to-realis" => {
+                BSCAdapter::listen().await;
+            }
+            _ => println!("Unknown command!"),
+        },
+    }
 }
