@@ -40,7 +40,7 @@ impl RealisSender {
     ///
     /// Tranfer token from BSC to Realis.Network
     pub async fn send_token_to_realis(
-        _from: H160,
+        from: H160,
         to: AccountId,
         amount: u128,
     ) {
@@ -54,6 +54,7 @@ impl RealisSender {
         let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
             api.clone().signer.unwrap(),
             Call::RealisBridge(RealisBridgeCall::transfer_token_to_realis(
+                from.clone(),
                 to.clone(),
                 amount * 10_000_000_000
             )),
@@ -78,7 +79,7 @@ impl RealisSender {
     ///
     /// Tranfer nft from BSC to Realis.Network
     pub async fn send_nft_to_realis(
-        _from: H160,
+        from: H160,
         to: AccountId,
         token_id: TokenId,
         token_type: Basic,
@@ -93,6 +94,7 @@ impl RealisSender {
         let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
             api.clone().signer.unwrap(),
             Call::RealisBridge(RealisBridgeCall::transfer_nft_to_realis(
+                from.clone(),
                 to.clone(),
                 token_id,
                 token_type

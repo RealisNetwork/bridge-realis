@@ -68,25 +68,25 @@ impl RealisAdapter {
                     )
                     .await;
                 }
-                realis_bridge::Event::TransferTokenToRealis(to, value) => {
+                realis_bridge::Event::TransferTokenToRealis(from, to, amount) => {
                     // This event appears when tokens transfer from bsc to
                     // realis And realis blockchain
                     // confirmed this transfer
                     println!(
-                      "Realis-adapter handled TransferTokenToRealis: => {}, {}",
-                      to, value
+                        "Realis-adapter handled TransferTokenToRealis: {} => {}, {}",
+                        from, to, amount
                     );
-                    // TODO impl
+                    BscSender::send_token_approve_from_realis_to_bsc(*from, *amount).await;
                 }
                 // TODO receive token_type
                 realis_bridge::Event::TransferNftToRealis(to, token_id) => {
                     // This event appears when nft transfer from bsc to realis
                     // And realis blockchain confirmed this transfer
                     println!(
-                        "Realis-adapter handled TransferNftToRealis: => {}, {}",
-                        to, token_id
+                        "Realis-adapter handled TransferNftToRealis: {} => {}, {}",
+                        from, to, token_id
                     );
-                    // TODO impl
+                    BscSender::send_nft_approve_from_realis_to_bsc(*from, *token_id, *token_type).await;
                 }
                 _ => println!(
                     "Unsupported event in Bridge-pallet {:?}",

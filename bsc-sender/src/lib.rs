@@ -28,8 +28,9 @@ impl BscSender {
         let contract = contract::token_new().await;
 
         // Convert arguments
+        let from = from.to_string();
         let to: Address = Address::from(to.0);
-        let value = U256::from(amount) * 100_000_000;
+        let value = U256::from(amount);
 
         // Send transaction
         let result = contract
@@ -65,12 +66,14 @@ impl BscSender {
 
         let contract = contract::nft_new().await;
 
+        // Convert arguments
+        let from: String = from.to_string();
         let to: Address = Address::from(to.0);
 
         let result = contract
             .signed_call_with_confirmations(
                 "safeMint",
-                (to, token_id, token_type),
+                (from, to, token_id, token_type),
                 web3::contract::Options::default(),
                 1,
                 &wallet_key,
