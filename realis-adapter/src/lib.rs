@@ -1,22 +1,23 @@
+// use bridge_events::Events;
 use codec::Decode;
-use log::{error, info, warn};
-use realis_bridge::TokenId;
+// use log::{error, info, warn};
+// use realis_bridge::TokenId;
 use runtime::{realis_bridge, Event};
-use sp_core::{sr25519, H160, H256 as Hash};
-use std::sync::mpsc::{channel, Receiver, Sender};
+use sp_core::{sr25519, H256 as Hash};
+use std::sync::mpsc::{channel, Receiver};
 use substrate_api_client::{utils::FromHexString, Api};
-use bridge_events::Events;
 
 use bsc_sender::BscSender;
 
 pub struct RealisAdapter {
-    channel_from_realis:        Receiver<String>,
+    channel_from_realis: Receiver<String>,
 }
 
 impl RealisAdapter {
     /// # Panics
     ///
     /// Conection to Realis.Network for transfers
+    #[must_use]
     pub fn new(url: &str) -> Self {
         // Connect to api
         let api = Api::<sr25519::Pair>::new(format!("wss://{}", url)).unwrap();
@@ -43,24 +44,37 @@ impl RealisAdapter {
             match bridge_event {
                 realis_bridge::Event::TransferTokenToBSC(from, to, value) => {
                     println!(
-                        "Realis-adapter handled TransferTokenToBSC: {} => {}, {}",
-                        from, to, value
+                      "Realis-adapter handled TransferTokenToBSC: {} => {}, {}",
+                      from, to, value
                     );
-                    BscSender::send_token_to_bsc(from.clone(), *to, *value).await;
+                    BscSender::send_token_to_bsc(from.clone(), *to, *value)
+                        .await;
                 }
-                realis_bridge::Event::TransferNftToBSC(from, to, token_id, token_type) => {
+                realis_bridge::Event::TransferNftToBSC(
+                    from,
+                    to,
+                    token_id,
+                    token_type,
+                ) => {
                     println!(
                         "Realis-adapter handled TransferNftToBSC: {} => {}, {}",
                         from, to, token_id
                     );
-                    BscSender::send_nft_to_bsc(from.clone(), *to, *token_id, *token_type).await;
+                    BscSender::send_nft_to_bsc(
+                        from.clone(),
+                        *to,
+                        *token_id,
+                        *token_type,
+                    )
+                    .await;
                 }
                 realis_bridge::Event::TransferTokenToRealis(to, value) => {
-                    // This event appears when tokens transfer from bsc to realis
-                    // And realis blockchain confirmed this transfer
+                    // This event appears when tokens transfer from bsc to
+                    // realis And realis blockchain
+                    // confirmed this transfer
                     println!(
-                        "Realis-adapter handled TransferTokenToRealis: => {}, {}",
-                        to, value
+                      "Realis-adapter handled TransferTokenToRealis: => {}, {}",
+                      to, value
                     );
                     // TODO impl
                 }
@@ -74,7 +88,10 @@ impl RealisAdapter {
                     );
                     // TODO impl
                 }
-                _ => println!("Unsupported event in Bridge-pallet {:?}", event.event),
+                _ => println!(
+                    "Unsupported event in Bridge-pallet {:?}",
+                    event.event
+                ),
             }
         } else {
             println!("Unsupported event {:?}", event.event);
@@ -85,8 +102,7 @@ impl RealisAdapter {
         loop {
             match self.channel_from_realis.recv() {
                 Ok(event_str) => {
-                    let events =
-                        RealisAdapter::parse_events_str(event_str);
+                    let events = RealisAdapter::parse_events_str(event_str);
                     for event in &events {
                         self.process_event(event).await;
                     }

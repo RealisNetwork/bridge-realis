@@ -1,6 +1,6 @@
-use sp_core::H160;
-use realis_primitives::{TokenId, Basic};
+use realis_primitives::{Basic, TokenId};
 use runtime::AccountId;
+use sp_core::H160;
 
 pub enum Events {
     TokenRealisToBsc(AccountId, H160, u128),
@@ -11,8 +11,6 @@ pub enum Events {
 
     TokenErrorOnBsc(AccountId, H160, u128),
     NftErrorOnBsc(AccountId, H160, TokenId, Basic),
-
-
 
     TokenBscToRealis(AccountId, u128),
     NftBcsToRealis(AccountId, TokenId, Basic),

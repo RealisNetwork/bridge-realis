@@ -1,12 +1,11 @@
-use log::{error, info};
-use realis_primitives::{TokenId, Basic};
+// use log::{error, info};
+use realis_primitives::{Basic, TokenId};
 use runtime::AccountId;
 use secp256k1::SecretKey;
 use sp_core::H160;
-use sp_core::Encode;
 use std::{fs, path::Path, str::FromStr};
-use web3::types::{Address, U256, Bytes};
 use utils::contract;
+use web3::types::{Address, U256};
 
 pub struct BscSender {}
 
@@ -22,11 +21,11 @@ impl BscSender {
             from, to, amount
         );
 
-        let wallet_key =
-            BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
+        let wallet_key = BscSender::read_file_for_secret_key(
+            "./bsc-sender/res/accounts.key",
+        );
 
-        let contract = contract::token_new()
-            .await;
+        let contract = contract::token_new().await;
 
         // Convert arguments
         let to: Address = Address::from(to.0);
@@ -36,7 +35,7 @@ impl BscSender {
         let result = contract
             .signed_call_with_confirmations(
                 "transferToRealis",
-                (account_id, to, value), // TODO add from and change contract
+                (to, value), // TODO add from and change contract
                 web3::contract::Options::default(),
                 1,
                 &wallet_key,
@@ -49,7 +48,12 @@ impl BscSender {
         }
     }
 
-    pub async fn send_nft_to_bsc(from: AccountId, to: H160, token_id: TokenId, token_type: Basic) {
+    pub async fn send_nft_to_bsc(
+        from: AccountId,
+        to: H160,
+        token_id: TokenId,
+        token_type: Basic,
+    ) {
         println!(
             "Bsc-sender send_nft_to_bsc: {} => {}, ({}, {})",
             from, to, token_id, token_type
@@ -58,9 +62,7 @@ impl BscSender {
         let wallet_key =
             BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
 
-        let contract =
-            contract::nft_new()
-                .await;
+        let contract = contract::nft_new().await;
 
         let to: Address = Address::from(to.0);
 
@@ -81,19 +83,12 @@ impl BscSender {
     }
 
     pub async fn send_token_approve_to_bsc(to: H160, amount: u128) {
-        println!(
-            "Bsc-sender send_token_approve_to_bsc {}, ({})",
-            to, amount
-        );
+        println!("Bsc-sender send_token_approve_to_bsc {}, ({})", to, amount);
 
         let wallet_key =
             BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
 
-        let wallet_key =
-            BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
-
-        let contract = contract::token_new()
-            .await;
+        let contract = contract::token_new().await;
 
         // Convert arguments
         let to: Address = Address::from(to.0);
@@ -115,7 +110,11 @@ impl BscSender {
         }
     }
 
-    pub async fn send_nft_approve_to_bsc(to: H160, token_id: TokenId, token_type: Basic) {
+    pub async fn send_nft_approve_to_bsc(
+        to: H160,
+        token_id: TokenId,
+        token_type: Basic,
+    ) {
         println!(
             "Bsc-sender send_nft_to_bsc: {}, ({}, {})",
             to, token_id, token_type
@@ -124,9 +123,7 @@ impl BscSender {
         let wallet_key =
             BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
 
-        let contract =
-            contract::nft_new()
-                .await;
+        let contract = contract::nft_new().await;
 
         let to: Address = Address::from(to.0);
 

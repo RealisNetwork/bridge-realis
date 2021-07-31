@@ -1,17 +1,19 @@
+// use logger::prelude::*;
 use std::env;
-use logger::prelude::*;
 
 mod logger;
 
-use realis_adapter::RealisAdapter;
-use bsc_sender::BscSender;
 use bsc_adapter::BSCAdapter;
-use realis_sender::RealisSender;
-use futures::join;
+// use bsc_sender::BscSender;
+// use futures::join;
+use realis_adapter::RealisAdapter;
+// use realis_sender::RealisSender;
 
-use std::sync::mpsc::{channel, Receiver, Sender, RecvError};
-use std::thread;
-use futures::executor::block_on;
+// use futures::executor::block_on;
+// use std::{
+//     sync::mpsc::{channel, Receiver, RecvError, Sender},
+//     thread,
+// };
 
 #[tokio::main]
 async fn main() {
@@ -31,10 +33,7 @@ async fn main() {
         None => println!("Specify flag (realis-to-bsc or bsc-to-realis)"),
         Some(value) => match value.as_str() {
             "realis-to-bsc" => {
-                let realis_adapter =
-                    RealisAdapter::new(
-                        "rpc.realis.network",
-                    );
+                let realis_adapter = RealisAdapter::new("rpc.realis.network");
 
                 realis_adapter.listen().await;
             }
