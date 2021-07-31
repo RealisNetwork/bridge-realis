@@ -8,7 +8,7 @@ edition = "2018"
 [dependencies]
 async-trait = "0.1.50"
 log = "0.4"
-runtime = {git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "e447d2124a9a04b18dbccf89079bd91eabdfe49a", package = "node-runtime", default-features = false}
+runtime = {git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4a6a9aab72b90260f4588b0a770d6fb763ae24b1", package = "node-runtime", default-features = false}
 substrate-api-client = { git = "https://github.com/scs/substrate-api-client.git", rev = "672a5d4ed9f076525235fef6b5af288f666df803" }
 bridge-events = { path = "../bridge-events" }
 bsc-sender = { path = "../bsc-sender" }

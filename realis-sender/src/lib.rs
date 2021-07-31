@@ -23,9 +23,11 @@ impl RealisSender {
     #[must_use]
     fn api() -> Api<sr25519::Pair> {
         // Get private key
-        let pair =
-            Pair::from_string(&*from_path_to_account("res/accounts.key"), None)
-                .unwrap();
+        let pair = Pair::from_string(
+            &*from_path_to_account("./realis-sender/res/accounts.key"),
+            None,
+        )
+        .unwrap();
         //
         let url = "rpc.realis.network";
         // Create substrate api with signer
@@ -51,12 +53,10 @@ impl RealisSender {
         #[allow(clippy::redundant_clone)]
         let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
             api.clone().signer.unwrap(),
-            Call::RealisBridge(
-                RealisBridgeCall::transfer_token_to_bsc_success(
-                    to.clone(),
-                    amount * 10_000_000_000
-                )
-            ),
+            Call::RealisBridge(RealisBridgeCall::transfer_token_to_realis(
+                to.clone(),
+                amount * 10_000_000_000
+            )),
             api.get_nonce().unwrap(),
             Era::mortal(period, h.number),
             api.genesis_hash,
@@ -108,7 +108,10 @@ impl RealisSender {
         let tx_result = api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
 
         match tx_result {
-            Ok(hash) => println!("Send extrinsic {:?}", hash),
+            Ok(hash) => {
+                println!("Send extrinsic {:?}", hash);
+                Self::send_nft_approve_to_realis(to, token_id).await;
+            }
             Err(error) => println!("Can`t send extrinsic {:?}", error),
         }
     }

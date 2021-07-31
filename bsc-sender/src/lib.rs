@@ -59,8 +59,9 @@ impl BscSender {
             from, to, token_id, token_type
         );
 
-        let wallet_key =
-            BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
+        let wallet_key = BscSender::read_file_for_secret_key(
+            "./bsc-sender/res/accounts.key",
+        );
 
         let contract = contract::nft_new().await;
 
@@ -85,8 +86,9 @@ impl BscSender {
     pub async fn send_token_approve_to_bsc(to: H160, amount: u128) {
         println!("Bsc-sender send_token_approve_to_bsc {}, ({})", to, amount);
 
-        let wallet_key =
-            BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
+        let wallet_key = BscSender::read_file_for_secret_key(
+            "./bsc-sender/res/accounts.key",
+        );
 
         let contract = contract::token_new().await;
 
@@ -120,8 +122,9 @@ impl BscSender {
             to, token_id, token_type
         );
 
-        let wallet_key =
-            BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
+        let wallet_key = BscSender::read_file_for_secret_key(
+            "./bsc-sender/res/accounts.key",
+        );
 
         let contract = contract::nft_new().await;
 
