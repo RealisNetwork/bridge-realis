@@ -1,202 +1,177 @@
-use async_trait::async_trait;
-use ethabi::{Address, Bytes, Uint};
+use ethabi::{Address, Uint};
+use futures::join;
+// use log::{error, info};
+use realis_primitives::TokenId;
+use realis_sender::RealisSender;
 use runtime::AccountId;
-use sp_core::Decode;
-use std::str::FromStr;
-use tokio::time::{sleep, Duration};
-use web3::{contract::Contract, transports::WebSocket, types::U256};
+use sp_core::{crypto::Ss58Codec, H160};
+use utils::contract;
+use web3::{contract::Contract, transports::WebSocket};
 
-#[macro_use]
-extern crate slog;
-extern crate slog_async;
-extern crate slog_term;
-
-use slog::Drain;
-
-pub struct BSCAdapter<T: ContractEvents> {
+// TODO from struct to functions??? or find better solution
+struct BSCListener {
     contract: Contract<WebSocket>,
-    event_handler: T,
 }
 
-impl<T: ContractEvents> BSCAdapter<T> {
-    /// # Panics
-    ///
-    /// Conection to BSC for transfer tokens
-    pub async fn new(url: &str, event_handler: T) -> Self {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
-
-        // TODO take out in separate function
-        // Connect to bsc by web socket
-        let mut wss = WebSocket::new(url).await;
-        // Try connect again if connection fail
-        loop {
-            match wss {
-                Ok(_) => break,
-                Err(error) => {
-                    error!(log, "Cannot connect {:?}", error);
-                    info!(log, "Try reconnect");
-                    wss = WebSocket::new(url).await;
-                }
-            }
-        }
-        let web3 = web3::Web3::new(wss.unwrap());
-
-        let json_abi = include_bytes!("../../bsc-sender/res/BEP20.abi");
-        // TODO take out into file
-        let address: web3::types::H160 = web3::types::H160::from_str(
-            "0x987893D34052C07F5959d7e200E9e10fdAf544Ef",
-        )
-        .unwrap();
-        let contract =
-            Contract::from_json(web3.eth(), address, json_abi).unwrap();
-
-        BSCAdapter {
-            contract,
-            event_handler,
-        }
+impl BSCListener {
+    pub fn new(contract: Contract<WebSocket>) -> Self {
+        BSCListener { contract }
     }
 
-    pub async fn listen(&self) {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
-
+    pub async fn listen_token(&self) {
         loop {
-            let logs: web3::contract::Result<Vec<(Address, Bytes, Uint)>> =
+            let logs: web3::contract::Result<Vec<(Address, String, Uint)>> =
                 self.contract.events("TransferToRealis", (), (), ()).await;
-
-            // result.unwrap();
             match logs {
                 Ok(events) => {
                     // Process all events
                     for event in events {
                         // Log event
-                        info!(log, "Get event {:?}", event);
+                        println!("Get event {:?}", event);
                         // Unpack event arguments
                         let (from, to, value) = &event;
                         // Convert argument
-                        let account_id =
-                            AccountId::decode(&mut &to[..]).unwrap_or_default();
+                        let account_id = AccountId::from_ss58check(to).unwrap();
                         // Log arguments
-                        info!(log, "From {:?}", from);
-                        info!(log, "To {:?}", to);
-                        info!(log, "Value {:?}", value);
-                        //
-                        self.event_handler
-                            .on_transfer_token_to_realis(
-                                account_id,
-                                &value.as_u128(),
-                            )
-                            .await;
+                        println!(
+                            "TransferTokenToRealis: {:?} => {:?}, {:?}",
+                            from, to, value
+                        );
+                        RealisSender::send_token_to_realis(
+                            H160::from(from.0),
+                            account_id,
+                            value.as_u128(),
+                        )
+                        .await;
                     }
                 }
-                Err(error) => error!(log, "Error while listen {:?}", error),
-            }
-            // Sleep to do not catch same event twice (2100 - magic number)
-            sleep(Duration::from_millis(2050)).await;
-        }
-    }
-
-    /// # Panics
-    ///
-    /// Conection to BSC for transfer NFT
-    pub async fn new_nft(url: &str, event_handler: T) -> Self {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
-
-        // TODO take out in separate function
-        // Connect to bsc by web socket
-        let mut wss = WebSocket::new(url).await;
-        // Try connect again if connection fail
-        loop {
-            match wss {
-                Ok(_) => break,
                 Err(error) => {
-                    error!(log, "Cannot connect {:?}", error);
-                    info!(log, "Try reconnect");
-                    wss = WebSocket::new(url).await;
+                    println!("Error while listen {:?}", error);
                 }
             }
-        }
-        let web3 = web3::Web3::new(wss.unwrap());
-
-        let json_abi = include_bytes!("../../bsc-sender/res/BEP721.abi");
-        // TODO take out into file
-        let address: web3::types::H160 = web3::types::H160::from_str(
-            "0x81460c30427ee260E06FAecFa17429F56f65423e",
-        )
-        .unwrap();
-        let contract =
-            Contract::from_json(web3.eth(), address, json_abi).unwrap();
-
-        BSCAdapter {
-            contract,
-            event_handler,
         }
     }
 
     pub async fn listen_nft(&self) {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
-
         loop {
-            let logs: web3::contract::Result<Vec<(Bytes, Uint, u8)>> = self
-                .contract
-                .events("TransferNftToRealis", (), (), ())
-                .await;
+            let logs: web3::contract::Result<Vec<(Address, String, Uint, u8)>> =
+                self.contract
+                    .events("TransferNftToRealis", (), (), ())
+                    .await;
 
-            // result.unwrap();
             match logs {
                 Ok(events) => {
                     // Process all events
                     for event in events {
                         // Log event
-                        info!(log, "Get event {:?}", event);
+                        println!("Get event {:?}", event);
                         // Unpack event arguments
-                        let (to, value, basic) = &event;
-                        // Convert argument
-                        let account_id =
-                            AccountId::decode(&mut &to[..]).unwrap_or_default();
+                        let (from, to, token_id, basic) = &event;
+                        // Convert arguments
+                        let tokenid_to_realis = TokenId::from(token_id);
+                        let account_id = AccountId::from_ss58check(to).unwrap();
                         // Log arguments
-                        // log(Type::Info, String::from("From: "), from);
-                        info!(log, "To {:?}", to);
-                        info!(log, "Value {:?}", value);
-                        info!(log, "Basic {:?}", basic);
-                        //
-                        self.event_handler
-                            .on_transfer_nft_to_realis(
-                                account_id, &value, *basic,
-                            )
-                            .await;
+                        println!(
+                            "TransferNftToRealis: {:?}, {:?}, {:?}",
+                            to, token_id, basic
+                        );
+                        RealisSender::send_nft_to_realis(
+                            H160::from(from.0),
+                            account_id,
+                            tokenid_to_realis,
+                            *basic,
+                        )
+                        .await;
                     }
                 }
-                Err(error) => error!(log, "Error while listen {:?}", error),
+                Err(error) => {
+                    println!("Error while listen {:?}", error);
+                }
             }
-            // Sleep to do not catch same event twice (2100 - magic number)
-            sleep(Duration::from_millis(2100)).await;
+        }
+    }
+
+    pub async fn listen_token_success(&self) {
+        loop {
+            let logs: web3::contract::Result<
+                Vec<(Address, String, Address, Uint)>,
+            > = self.contract.events("TransferFromRealis", (), (), ()).await;
+            match logs {
+                Ok(events) => {
+                    // Process all events
+                    for event in events {
+                        println!("Get event {:?}", event);
+                        // Unpack event arguments
+                        let (_, from, to, amount) = &event;
+                        // Convert argument
+                        let account_id =
+                            AccountId::from_ss58check(from).unwrap();
+                        // Log arguments
+                        println!(
+                            "TokenSuccessOnBsc: {:?} => {:?}, {:?}",
+                            account_id, to, amount
+                        );
+                        RealisSender::send_token_approve_to_realis(
+                            account_id,
+                            amount.as_u128(),
+                        )
+                        .await;
+                    }
+                }
+                Err(error) => {
+                    println!("Error while listen {:?}", error);
+                }
+            }
+        }
+    }
+
+    pub async fn listen_nft_success(&self) {
+        loop {
+            let logs: web3::contract::Result<Vec<(String, Address, Uint, u8)>> =
+                self.contract.events("MintNftFromRealis", (), (), ()).await;
+            match logs {
+                Ok(events) => {
+                    // Process all events
+                    for event in events {
+                        println!("Get event {:?}", event);
+                        // Unpack event arguments
+                        let (from, to, token_id, basic) = &event;
+                        // Convert argument
+                        let account_id =
+                            AccountId::from_ss58check(from).unwrap();
+                        println!(
+                            "TransferNftToRealis: {:?} => {:?}, {:?}, {:?}",
+                            account_id, to, token_id, basic
+                        );
+                        RealisSender::send_nft_approve_to_realis_from_bsc(
+                            account_id, *token_id,
+                        )
+                        .await;
+                    }
+                }
+                Err(error) => {
+                    println!("Error while listen {:?}", error);
+                }
+            }
         }
     }
 }
 
-#[async_trait]
-pub trait ContractEvents {
-    async fn on_transfer_token_to_realis<'a>(
-        &self,
-        to: AccountId,
-        value: &u128,
-    );
-    async fn on_transfer_nft_to_realis<'a>(
-        &self,
-        to: AccountId,
-        token_id: &U256,
-        basic: u8,
-    );
+pub struct BSCAdapter {}
+
+impl BSCAdapter {
+    pub async fn listen() {
+        let token_listener = BSCListener::new(contract::token_new().await);
+        let nft_listener = BSCListener::new(contract::nft_new().await);
+        let token_listener_success =
+            BSCListener::new(contract::token_new().await);
+        let nft_listener_success = BSCListener::new(contract::nft_new().await);
+
+        join!(
+            token_listener.listen_token(),
+            nft_listener.listen_nft(),
+            token_listener_success.listen_token_success(),
+            nft_listener_success.listen_nft_success()
+        );
+    }
 }

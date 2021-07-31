@@ -5,23 +5,14 @@ edition = "2018"
 
 [dependencies]
 ethabi = "14.1.0"
-web3 = "0.16.0"
+log = "0.4"
+runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4d2092476407611865f37f412f96093c84c51c80", package = "node-runtime" }
+substrate-stellar-sdk = { git = "https://github.com/Daelon02/substrate-stellar.git" }
+realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4d2092476407611865f37f412f96093c84c51c80", package = "realis-primitives", default-features = false}
 tokio = { version = "1.0" }
-async-trait = "0.1.50"
-runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "2e70b4b64fca49c6544173c05186c27c665a9103", package = "node-runtime", default-features = false}
+web3 = "0.16.0"
+futures = "0.3.16"
+utils = { path = "../utils" }
+realis-sender = { path = "../realis-sender" }
 
-slog = "2.7.0"
-slog-term = "2.8.0"
-slog-async = "2.6.0"
-
-[dependencies.sp-core]
-git = "https://github.com/paritytech/substrate.git"
-branch = "master"
-package = "sp-core"
-default-features = false
-features = ["full_crypto"]
-
-[dependencies.sp-runtime]
-git = "https://github.com/paritytech/substrate.git"
-branch = "master"
-package = "sp-runtime"
+sp-core = { git = "https://github.com/paritytech/substrate", rev = "03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178" }

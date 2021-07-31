@@ -257,6 +257,60 @@
 		"constant": false,
 		"inputs": [
 			{
+				"name": "ss58",
+				"type": "string"
+			},
+			{
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"name": "_value",
+				"type": "uint256"
+			}
+		],
+		"name": "transferFromRealis",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "ss58",
+				"type": "string"
+			},
+			{
+				"indexed": true,
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "TransferFromRealis",
+		"type": "event"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
 				"name": "_newOwner",
 				"type": "address"
 			}
@@ -277,7 +331,7 @@
 		"inputs": [
 			{
 				"name": "_to",
-				"type": "bytes32"
+				"type": "string"
 			},
 			{
 				"name": "_value",
@@ -305,12 +359,12 @@
 			},
 			{
 				"indexed": false,
-				"name": "_to",
-				"type": "bytes32"
+				"name": "to",
+				"type": "string"
 			},
 			{
 				"indexed": false,
-				"name": "_value",
+				"name": "value",
 				"type": "uint256"
 			}
 		],

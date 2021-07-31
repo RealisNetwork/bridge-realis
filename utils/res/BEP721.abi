@@ -69,6 +69,37 @@
 		"anonymous": false,
 		"inputs": [
 			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "_from",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint8",
+				"name": "tokenType",
+				"type": "uint8"
+			}
+		],
+		"name": "MintNftFromRealis",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
 				"indexed": true,
 				"internalType": "address",
 				"name": "from",
@@ -95,9 +126,15 @@
 		"inputs": [
 			{
 				"indexed": false,
-				"internalType": "bytes32",
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
 				"name": "to",
-				"type": "bytes32"
+				"type": "string"
 			},
 			{
 				"indexed": false,
@@ -108,12 +145,25 @@
 			{
 				"indexed": false,
 				"internalType": "uint8",
-				"name": "basic",
+				"name": "tokenType",
 				"type": "uint8"
 			}
 		],
 		"name": "TransferNftToRealis",
 		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "_owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
 	},
 	{
 		"inputs": [
@@ -230,6 +280,24 @@
 	{
 		"inputs": [
 			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "safeBurn",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_from",
+				"type": "string"
+			},
+			{
 				"internalType": "address",
 				"name": "to",
 				"type": "address"
@@ -238,16 +306,15 @@
 				"internalType": "uint256",
 				"name": "tokenId",
 				"type": "uint256"
+			},
+			{
+				"internalType": "uint8",
+				"name": "tokenType",
+				"type": "uint8"
 			}
 		],
 		"name": "safeMint",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
+		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
@@ -397,23 +464,37 @@
 	{
 		"inputs": [
 			{
-				"internalType": "bytes32",
-				"name": "to",
-				"type": "bytes32"
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "transferNftToRealisApproved",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "toRealisAddress",
+				"type": "string"
 			},
 			{
 				"internalType": "uint256",
 				"name": "tokenId",
 				"type": "uint256"
-			},
-			{
-				"internalType": "uint8",
-				"name": "basic",
-				"type": "uint8"
 			}
 		],
-		"name": "transferNftToRealis",
-		"outputs": [],
+		"name": "transferToRealis",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	}

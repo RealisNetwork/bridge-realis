@@ -6,6 +6,8 @@ members = [
     "bsc-sender",
     "realis-adapter",
     "realis-sender",
+    "utils",
+    "bridge-events",
 ]
 
 [patch.'https://github.com//paritytech/substrate']

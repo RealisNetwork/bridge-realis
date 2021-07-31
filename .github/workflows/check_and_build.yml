@@ -13,7 +13,8 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly-2021-05-11
+          toolchain: nightly
+          target: wasm32-unknown-unknown
           components: rustfmt
       - run: make fmt check=yes
 
@@ -24,7 +25,8 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly-2021-05-11
+          toolchain: nightly
+          target: wasm32-unknown-unknown
           components: clippy
       - run: make lint
 

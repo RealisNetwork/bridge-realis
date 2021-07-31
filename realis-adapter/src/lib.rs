@@ -1,40 +1,33 @@
-use async_trait::async_trait;
+// use bridge_events::Events;
 use codec::Decode;
-use realis_bridge::TokenId;
+// use log::{error, info, warn};
+// use realis_bridge::TokenId;
 use runtime::{realis_bridge, Event};
-use sp_core::{sr25519, H160, H256 as Hash};
+use sp_core::{sr25519, H256 as Hash};
 use std::sync::mpsc::{channel, Receiver};
 use substrate_api_client::{utils::FromHexString, Api};
 
-#[macro_use]
-extern crate slog;
-extern crate slog_async;
-extern crate slog_term;
+use bsc_sender::BscSender;
 
-use slog::Drain;
-
-pub struct RealisAdapter<T: BridgeEvents> {
-    // events_in: Sender<String>,
-    events_out: Receiver<String>,
-    event_handler: T,
+pub struct RealisAdapter {
+    channel_from_realis: Receiver<String>,
 }
 
-impl<T: BridgeEvents> RealisAdapter<T> {
+impl RealisAdapter {
     /// # Panics
     ///
     /// Conection to Realis.Network for transfers
-    pub fn new(url: &str, event_handler: T) -> Self {
+    #[must_use]
+    pub fn new(url: &str) -> Self {
         // Connect to api
         let api = Api::<sr25519::Pair>::new(format!("wss://{}", url)).unwrap();
         // Create channels
-        let (events_in, events_out) = channel();
+        let (events_in, channel_from_realis) = channel();
         // Subscribe on events
         api.subscribe_events(events_in).unwrap();
 
         RealisAdapter {
-            // events_in,
-            events_out,
-            event_handler,
+            channel_from_realis,
         }
     }
 
@@ -47,67 +40,91 @@ impl<T: BridgeEvents> RealisAdapter<T> {
     }
 
     async fn process_event(&self, event: &system::EventRecord<Event, Hash>) {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
-
-        match &event.event {
-            Event::RealisBridge(bridge_event) => match bridge_event {
+        if let Event::RealisBridge(bridge_event) = &event.event {
+            match bridge_event {
                 realis_bridge::Event::TransferTokenToBSC(from, to, value) => {
-                    self.event_handler
-                        .on_transfer_token_to_bsc(&to, value)
+                    println!(
+                      "Realis-adapter handled TransferTokenToBSC: {} => {}, {}",
+                      from, to, value
+                    );
+                    BscSender::send_token_to_bsc(from.clone(), *to, *value)
                         .await;
-                    info!(log, "From {}", from);
-                    info!(log, "From {}", to);
-                    info!(log, "From {}", value);
                 }
-                realis_bridge::Event::TransferNftToBSC(from, to, token_id) => {
-                    self.event_handler
-                        .on_transfer_nft_to_bsc(&to, &token_id)
-                        .await;
-                    info!(log, "From {}", from);
-                    info!(log, "From {}", to);
-                    info!(log, "From {}", token_id);
+                realis_bridge::Event::TransferNftToBSC(
+                    from,
+                    to,
+                    token_id,
+                    token_type,
+                ) => {
+                    println!(
+                        "Realis-adapter handled TransferNftToBSC: {} => {}, {}",
+                        from, to, token_id
+                    );
+                    BscSender::send_nft_to_bsc(
+                        from.clone(),
+                        *to,
+                        *token_id,
+                        *token_type,
+                    )
+                    .await;
                 }
-                realis_bridge::Event::TransferTokenToRealis(to, value) => {
-                    info!(log, "From {}", to);
-                    info!(log, "From {}", value);
+                realis_bridge::Event::TransferTokenToRealis(
+                    from,
+                    to,
+                    amount,
+                ) => {
+                    // This event appears when tokens transfer from bsc to
+                    // realis And realis blockchain
+                    // confirmed this transfer
+                    println!(
+                  "Realis-adapter handled TransferTokenToRealis: {} => {}, {}",
+                  from, to, amount
+              );
+                    BscSender::send_token_approve_from_realis_to_bsc(
+                        *from, *amount,
+                    )
+                    .await;
                 }
-                realis_bridge::Event::TransferNftToRealis(to, token_id) => {
-                    info!(log, "From {}", to);
-                    info!(log, "From {}", token_id);
+                realis_bridge::Event::TransferNftToRealis(
+                    from,
+                    to,
+                    token_id,
+                    token_type,
+                ) => {
+                    // This event appears when nft transfer from bsc to realis
+                    // And realis blockchain confirmed this transfer
+                    println!(
+                 "Realis-adapter handled TransferNftToRealis: {} => {}, {}",
+                 from, to, token_id
+             );
+                    BscSender::send_nft_approve_from_realis_to_bsc(
+                        *from,
+                        *token_id,
+                        *token_type,
+                    )
+                    .await;
                 }
-                _ => warn!(log, "Unsupported event {:?}", event.event),
-            },
-            _ => warn!(log, "Unsupported event {:?}", event.event),
+                _ => println!(
+                    "Unsupported event in Bridge-pallet {:?}",
+                    event.event
+                ),
+            }
+        } else {
+            println!("Unsupported event {:?}", event.event);
         }
     }
 
-    // Add bsc sender as argument
-    pub async fn listener(&self) {
-        let decorator = slog_term::TermDecorator::new().build();
-        let drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let drain = slog_async::Async::new(drain).build().fuse();
-        let log = slog::Logger::root(drain, o!());
-
+    pub async fn listen(&self) {
         loop {
-            match self.events_out.recv() {
+            match self.channel_from_realis.recv() {
                 Ok(event_str) => {
-                    let events =
-                        RealisAdapter::<T>::parse_events_str(event_str);
+                    let events = RealisAdapter::parse_events_str(event_str);
                     for event in &events {
                         self.process_event(event).await;
                     }
                 }
-                Err(error) => error!(log, "Error while listen {:?}", error),
+                Err(error) => println!("Error while listen {:?}", error),
             }
         }
     }
-}
-
-#[async_trait]
-pub trait BridgeEvents {
-    async fn on_transfer_token_to_bsc<'a>(&self, to: &H160, value: &u128);
-    async fn on_transfer_nft_to_bsc<'a>(&self, to: &H160, token_id: &TokenId);
 }
