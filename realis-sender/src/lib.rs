@@ -39,11 +39,7 @@ impl RealisSender {
     /// # Panics
     ///
     /// Tranfer token from BSC to Realis.Network
-    pub async fn send_token_to_realis(
-        from: H160,
-        to: AccountId,
-        amount: u128,
-    ) {
+    pub async fn send_token_to_realis(from: H160, to: AccountId, amount: u128) {
         let api = RealisSender::api();
 
         let head: Hash = api.get_finalized_head().unwrap().unwrap();
@@ -54,7 +50,7 @@ impl RealisSender {
         let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
             api.clone().signer.unwrap(),
             Call::RealisBridge(RealisBridgeCall::transfer_token_to_realis(
-                from.clone(),
+                from,
                 to.clone(),
                 amount * 10_000_000_000
             )),
@@ -94,7 +90,7 @@ impl RealisSender {
         let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
             api.clone().signer.unwrap(),
             Call::RealisBridge(RealisBridgeCall::transfer_nft_to_realis(
-                from.clone(),
+                from,
                 to.clone(),
                 token_id,
                 token_type
@@ -110,10 +106,7 @@ impl RealisSender {
         let tx_result = api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
 
         match tx_result {
-            Ok(hash) => {
-                println!("Send extrinsic {:?}", hash);
-                Self::send_nft_approve_to_realis(to, token_id).await;
-            }
+            Ok(hash) => println!("Send extrinsic {:?}", hash),
             Err(error) => println!("Can`t send extrinsic {:?}", error),
         }
     }
@@ -134,7 +127,7 @@ impl RealisSender {
             Call::RealisBridge(
                 RealisBridgeCall::transfer_token_to_bsc_success(
                     from.clone(),
-                    amount * 10_000_000_000
+                    amount
                 )
             ),
             api.get_nonce().unwrap(),
@@ -149,14 +142,16 @@ impl RealisSender {
 
         match tx_result {
             Ok(hash) => println!("Send extrinsic {:?}", hash),
-            Err(error) => println!("Can`t send extrinsic {:?}", error),
+            Err(error) => {
+                println!("Can`t send extrinsic {:?}", error)
+            }
         }
     }
 
     /// # Panics
     ///
     /// Approve send NFT from BSC to Realis.Network
-    pub async fn send_nft_approve_to_realis(
+    pub async fn send_nft_approve_to_realis_from_bsc(
         from: AccountId,
         token_id: TokenId,
     ) {

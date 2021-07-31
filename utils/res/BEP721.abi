@@ -70,9 +70,9 @@
 		"inputs": [
 			{
 				"indexed": false,
-				"internalType": "bytes32",
+				"internalType": "string",
 				"name": "_from",
-				"type": "bytes32"
+				"type": "string"
 			},
 			{
 				"indexed": false,
@@ -293,9 +293,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "bytes32",
+				"internalType": "string",
 				"name": "_from",
-				"type": "bytes32"
+				"type": "string"
 			},
 			{
 				"internalType": "address",

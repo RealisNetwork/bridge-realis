@@ -1,7 +1,7 @@
 use ethabi::{Address, Uint};
 use futures::join;
 // use log::{error, info};
-// use realis_primitives::TokenId;
+use realis_primitives::TokenId;
 use realis_sender::RealisSender;
 use runtime::AccountId;
 use sp_core::{crypto::Ss58Codec, H160};
@@ -67,7 +67,8 @@ impl BSCListener {
                         println!("Get event {:?}", event);
                         // Unpack event arguments
                         let (from, to, token_id, basic) = &event;
-                        // Convert argument
+                        // Convert arguments
+                        let tokenid_to_realis = TokenId::from(token_id);
                         let account_id = AccountId::from_ss58check(to).unwrap();
                         // Log arguments
                         println!(
@@ -77,7 +78,7 @@ impl BSCListener {
                         RealisSender::send_nft_to_realis(
                             H160::from(from.0),
                             account_id,
-                            *token_id,
+                            tokenid_to_realis,
                             *basic,
                         )
                         .await;
@@ -91,65 +92,68 @@ impl BSCListener {
     }
 
     pub async fn listen_token_success(&self) {
-        // loop {
-        //     let logs: web3::contract::Result<Vec<(Bytes, Address, Uint)>> =
-        // self.contract.events("Transfer", (), (), ()).await;     match
-        // logs {         Ok(events) => {
-        //             // Process all events
-        //             for event in events {
-        //                 // Log event
-        //                 println!("Get event {:?}", event);
-        //                 // Unpack event arguments
-        //                 let (from, to, amount) = &event;
-        //                 // Convert argument
-        //                 let account_id =
-        //                     AccountId::decode(&mut
-        // &from[..]).unwrap_or_default();                 // Log
-        // arguments                 println!(
-        //                     "TokenSuccessOnBsc: {:?} => {:?}, {:?}",
-        //                     account_id, to, amount
-        //                 );
-
-        // RealisSender::send_token_approve_to_realis(account_id,
-        // amount.as_u128()).await;             }
-        //         }
-        //         Err(error) => {
-        //             println!("Error while listen {:?}", error);
-        //         }
-        //     }
-        // }
+        loop {
+            let logs: web3::contract::Result<
+                Vec<(Address, String, Address, Uint)>,
+            > = self.contract.events("TransferFromRealis", (), (), ()).await;
+            match logs {
+                Ok(events) => {
+                    // Process all events
+                    for event in events {
+                        println!("Get event {:?}", event);
+                        // Unpack event arguments
+                        let (_, from, to, amount) = &event;
+                        // Convert argument
+                        let account_id =
+                            AccountId::from_ss58check(from).unwrap();
+                        // Log arguments
+                        println!(
+                            "TokenSuccessOnBsc: {:?} => {:?}, {:?}",
+                            account_id, to, amount
+                        );
+                        RealisSender::send_token_approve_to_realis(
+                            account_id,
+                            amount.as_u128(),
+                        )
+                        .await;
+                    }
+                }
+                Err(error) => {
+                    println!("Error while listen {:?}", error);
+                }
+            }
+        }
     }
 
     pub async fn listen_nft_success(&self) {
-        // loop {
-        //     let logs: web3::contract::Result<Vec<(Bytes, Address, Uint, u8)>>
-        // =         self.contract.events("MintNftFromRealis", (), (),
-        // ()).await;
-        //
-        //     match logs {
-        //         Ok(events) => {
-        //             // Process all events
-        //             for event in events {
-        //                 // Log event
-        //                 println!("Get event {:?}", event);
-        //                 // Unpack event arguments
-        //                 let (from, to, token_id, basic) = &event;
-        //                 // Convert argument
-        //                 let account_id =
-        //                     AccountId::decode(&mut
-        // &from[..]).unwrap_or_default();                 // Log
-        // arguments                 println!(
-        //                     "TransferNftToRealis: {:?} => {:?}, {:?}, {:?}",
-        //                     account_id, to, token_id, basic
-        //                 );
-        //                 RealisSender::send_nft_approve_to_realis(account_id,
-        // *token_id).await;             }
-        //         }
-        //         Err(error) => {
-        //             println!("Error while listen {:?}", error);
-        //         }
-        //     }
-        // }
+        loop {
+            let logs: web3::contract::Result<Vec<(String, Address, Uint, u8)>> =
+                self.contract.events("MintNftFromRealis", (), (), ()).await;
+            match logs {
+                Ok(events) => {
+                    // Process all events
+                    for event in events {
+                        println!("Get event {:?}", event);
+                        // Unpack event arguments
+                        let (from, to, token_id, basic) = &event;
+                        // Convert argument
+                        let account_id =
+                            AccountId::from_ss58check(from).unwrap();
+                        println!(
+                            "TransferNftToRealis: {:?} => {:?}, {:?}, {:?}",
+                            account_id, to, token_id, basic
+                        );
+                        RealisSender::send_nft_approve_to_realis_from_bsc(
+                            account_id, *token_id,
+                        )
+                        .await;
+                    }
+                }
+                Err(error) => {
+                    println!("Error while listen {:?}", error);
+                }
+            }
+        }
     }
 }
 

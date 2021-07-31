@@ -8,8 +8,8 @@ edition = "2018"
 [dependencies]
 async-trait = "0.1.50"
 log = "0.4"
-runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4a6a9aab72b90260f4588b0a770d6fb763ae24b1", package = "node-runtime" }
-realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4a6a9aab72b90260f4588b0a770d6fb763ae24b1", package = "realis-primitives", default-features = false}
+runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4d2092476407611865f37f412f96093c84c51c80", package = "node-runtime" }
+realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4d2092476407611865f37f412f96093c84c51c80", package = "realis-primitives", default-features = false}
 secp256k1 = { version = "0.20", features = ["recovery"] }
 web3 = "0.16.0"
 utils = { path = "../utils" }

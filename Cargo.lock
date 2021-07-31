@@ -3431,7 +3431,7 @@ dependencies = [
 [[package]]
 name = "node-runtime"
 version = "3.0.0-dev"
-source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=4a6a9aab72b90260f4588b0a770d6fb763ae24b1#4a6a9aab72b90260f4588b0a770d6fb763ae24b1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80#4d2092476407611865f37f412f96093c84c51c80"
 dependencies = [
  "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "frame-election-provider-support",
@@ -3971,7 +3971,7 @@ dependencies = [
 [[package]]
 name = "pallet-nft"
 version = "0.0.2"
-source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=4a6a9aab72b90260f4588b0a770d6fb763ae24b1#4a6a9aab72b90260f4588b0a770d6fb763ae24b1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80#4d2092476407611865f37f412f96093c84c51c80"
 dependencies = [
  "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
@@ -4069,7 +4069,7 @@ dependencies = [
 [[package]]
 name = "pallet-staking"
 version = "0.0.2"
-source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=4a6a9aab72b90260f4588b0a770d6fb763ae24b1#4a6a9aab72b90260f4588b0a770d6fb763ae24b1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80#4d2092476407611865f37f412f96093c84c51c80"
 dependencies = [
  "frame-election-provider-support",
  "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
@@ -4846,7 +4846,7 @@ dependencies = [
 [[package]]
 name = "realis-bridge"
 version = "0.0.1"
-source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=4a6a9aab72b90260f4588b0a770d6fb763ae24b1#4a6a9aab72b90260f4588b0a770d6fb763ae24b1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80#4d2092476407611865f37f412f96093c84c51c80"
 dependencies = [
  "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
@@ -4867,7 +4867,7 @@ dependencies = [
 [[package]]
 name = "realis-game-api"
 version = "0.0.1"
-source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=4a6a9aab72b90260f4588b0a770d6fb763ae24b1#4a6a9aab72b90260f4588b0a770d6fb763ae24b1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80#4d2092476407611865f37f412f96093c84c51c80"
 dependencies = [
  "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "frame-election-provider-support",
@@ -4891,7 +4891,7 @@ dependencies = [
 [[package]]
 name = "realis-primitives"
 version = "0.0.2"
-source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=4a6a9aab72b90260f4588b0a770d6fb763ae24b1#4a6a9aab72b90260f4588b0a770d6fb763ae24b1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80#4d2092476407611865f37f412f96093c84c51c80"
 dependencies = [
  "ethereum",
  "ethereum-types",
@@ -5090,7 +5090,7 @@ dependencies = [
 [[package]]
 name = "runtime-common"
 version = "0.0.1"
-source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=4a6a9aab72b90260f4588b0a770d6fb763ae24b1#4a6a9aab72b90260f4588b0a770d6fb763ae24b1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80#4d2092476407611865f37f412f96093c84c51c80"
 dependencies = [
  "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",

@@ -35,8 +35,8 @@ impl BscSender {
         // Send transaction
         let result = contract
             .signed_call_with_confirmations(
-                "transferToRealis",
-                (to, value), // TODO add from and change contract
+                "transferFromRealis",
+                (from, to, value),
                 web3::contract::Options::default(),
                 1,
                 &wallet_key,
@@ -86,7 +86,7 @@ impl BscSender {
         }
     }
 
-    pub async fn send_token_approve_to_bsc(to: H160, amount: u128) {
+    pub async fn send_token_approve_from_realis_to_bsc(to: H160, amount: u128) {
         println!("Bsc-sender send_token_approve_to_bsc {}, ({})", to, amount);
 
         let wallet_key = BscSender::read_file_for_secret_key(
@@ -115,7 +115,7 @@ impl BscSender {
         }
     }
 
-    pub async fn send_nft_approve_to_bsc(
+    pub async fn send_nft_approve_from_realis_to_bsc(
         to: H160,
         token_id: TokenId,
         token_type: Basic,
@@ -131,12 +131,12 @@ impl BscSender {
 
         let contract = contract::nft_new().await;
 
-        let to: Address = Address::from(to.0);
+        let _to: Address = Address::from(to.0);
 
         let result = contract
             .signed_call_with_confirmations(
-                "",
-                (to, token_id),
+                "transferNftToRealisApproved",
+                (token_id,),
                 web3::contract::Options::default(),
                 1,
                 &wallet_key,

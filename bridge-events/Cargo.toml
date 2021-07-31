@@ -5,5 +5,5 @@ edition = "2018"
 
 [dependencies]
 sp-core = { git = "https://github.com/paritytech/substrate", rev = "03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178" }
-realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4a6a9aab72b90260f4588b0a770d6fb763ae24b1" }
-runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4a6a9aab72b90260f4588b0a770d6fb763ae24b1", package = "node-runtime" }
+realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4d2092476407611865f37f412f96093c84c51c80" }
+runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4d2092476407611865f37f412f96093c84c51c80", package = "node-runtime" }
