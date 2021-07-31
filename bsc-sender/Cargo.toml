@@ -14,6 +14,7 @@ secp256k1 = { version = "0.20", features = ["recovery"] }
 web3 = "0.16.0"
 utils = { path = "../utils" }
 bridge-events = { path = "../bridge-events" }
+substrate-stellar-sdk = { git = "https://github.com/Daelon02/substrate-stellar.git" }
 
 [dependencies.sp-core]
 git = "https://github.com/paritytech/substrate.git"
