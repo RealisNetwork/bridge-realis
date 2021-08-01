@@ -582,15 +582,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bridge-events"
-version = "0.1.0"
-dependencies = [
- "node-runtime",
- "realis-primitives",
- "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
-]
-
-[[package]]
 name = "bs58"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4833,7 +4824,6 @@ name = "realis-adapter"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "bridge-events",
  "bsc-sender",
  "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "log",
