@@ -77,9 +77,9 @@ impl RealisAdapter {
                     // realis And realis blockchain
                     // confirmed this transfer
                     println!(
-                  "Realis-adapter handled TransferTokenToRealis: {} => {}, {}",
-                  from, to, amount
-              );
+                        "Realis-adapter handled TransferTokenToRealis: {} => {}, {}",
+                        from, to, amount
+                    );
                     BscSender::send_token_approve_from_realis_to_bsc(
                         *from, *amount,
                     )
@@ -94,9 +94,9 @@ impl RealisAdapter {
                     // This event appears when nft transfer from bsc to realis
                     // And realis blockchain confirmed this transfer
                     println!(
-                 "Realis-adapter handled TransferNftToRealis: {} => {}, {}",
-                 from, to, token_id
-             );
+                        "Realis-adapter handled TransferNftToRealis: {} => {}, {}",
+                        from, to, token_id
+                    );
                     BscSender::send_nft_approve_from_realis_to_bsc(
                         *from,
                         *token_id,
@@ -104,13 +104,15 @@ impl RealisAdapter {
                     )
                     .await;
                 }
-                _ => println!(
-                    "Unsupported event in Bridge-pallet {:?}",
-                    event.event
-                ),
+                _ => {
+                    // println!(
+                    //     "Unsupported event in Bridge-pallet {:?}",
+                    //     event.event
+                    // )
+                }
             }
         } else {
-            println!("Unsupported event {:?}", event.event);
+            // println!("Unsupported event {:?}", event.event);
         }
     }
 

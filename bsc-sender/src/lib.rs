@@ -121,7 +121,7 @@ impl BscSender {
         token_type: Basic,
     ) {
         println!(
-            "Bsc-sender send_nft_to_bsc: {}, ({}, {})",
+            "Bsc-sender send_nft_approve_to_bsc: {}, ({}, {})",
             to, token_id, token_type
         );
 
@@ -136,7 +136,7 @@ impl BscSender {
         let result = contract
             .signed_call_with_confirmations(
                 "transferNftToRealisApproved",
-                (token_id,),
+                token_id,
                 web3::contract::Options::default(),
                 1,
                 &wallet_key,
