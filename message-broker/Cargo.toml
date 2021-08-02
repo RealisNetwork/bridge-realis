@@ -9,6 +9,8 @@ edition = "2018"
 ratsio = "0.3.0-alpha.1"
 env_logger = {version="^0.7"}
 tokio = { version = "0.2.25", features = [ "net", "time", "io-util", "macros", "sync"] }
+runtime = {git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4d2092476407611865f37f412f96093c84c51c80", package = "node-runtime", default-features = false}
+sp-core = { git = "https://github.com/paritytech/substrate", rev = "03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178" }
 tokio-util = { version = "0.6.7", features = ["codec"] }
 native-tls = { version = "^0.2", optional = true }
 tokio-native-tls = { version = "0.3.0", optional = true }
@@ -18,3 +20,12 @@ futures-core = "^0.3"
 futures-timer = "^2.0"
 log = "^0.4"
 ctrlc = "3.1"
+web3 = "0.16.0"
+realis-sender = { version = "0.1.0", path = "../realis-sender"}
+bsc-sender = { version = "0.1.0", path = "../bsc-sender"}
+
+[features]
+default = ["std"]
+std = [
+    "runtime/std",
+]

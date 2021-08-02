@@ -3321,6 +3321,7 @@ name = "message-broker"
 version = "0.1.0"
 dependencies = [
  "async-std",
+ "bsc-sender",
  "ctrlc",
  "env_logger",
  "futures 0.3.16",
@@ -3328,10 +3329,14 @@ dependencies = [
  "futures-timer 2.0.2",
  "log",
  "native-tls",
+ "node-runtime",
  "ratsio",
+ "realis-sender",
+ "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "tokio 0.2.25",
  "tokio-native-tls",
  "tokio-util 0.6.7",
+ "web3",
 ]
 
 [[package]]
