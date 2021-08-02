@@ -143,7 +143,7 @@ impl RealisSender {
         match tx_result {
             Ok(hash) => println!("Send extrinsic {:?}", hash),
             Err(error) => {
-                println!("Can`t send extrinsic {:?}", error)
+                println!("Can`t send extrinsic {:?}", error);
             }
         }
     }
