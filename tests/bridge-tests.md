@@ -19,18 +19,18 @@ To add bnb on account use this [site](https://testnet.binance.org/faucet-smart),
 ### 1. Simple token transfer
 - Transfer 1 token from A-realis account to A-bsc account.
 ### 2. Transfer some tokens
-- Transfer 100 000 tokens from A-realis account to A-bsc account.
+- Transfer 1 000 tokens from A-realis account to A-bsc account.
 ### 3. Transfer some tokens, than use them (1)
-- Transfer 100 000 tokens from A-realis account to A-bsc account;
-- Transfer 100 000 tokens from A-bsc account to B-bsc account.
+- Transfer 1 000 tokens from A-realis account to A-bsc account;
+- Transfer 1 000 tokens from A-bsc account to B-bsc account.
 ### 4. Transfer some tokens, than use them (2)
-- Transfer 100 000 tokens from A-realis account to A-bsc account;
-- Transfer 30 000 tokens from A-bsc account to B-bsc account;
-- Transfer 30 000 tokens from A-bsc account to C-bsc account.
+- Transfer 1 000 tokens from A-realis account to A-bsc account;
+- Transfer 300 tokens from A-bsc account to B-bsc account;
+- Transfer 300 tokens from A-bsc account to C-bsc account.
 ### 5. Transfer some tokens, than use them (3)
-- Transfer 100 000 tokens from A-realis account to A-bsc account;
-- Transfer 70 000 tokens from A-bsc account to B-bsc account;
-- Transfer 40 000 tokens from B-bsc to C-bsc account.
+- Transfer 1 000 tokens from A-realis account to A-bsc account;
+- Transfer 700 tokens from A-bsc account to B-bsc account;
+- Transfer 400 tokens from B-bsc to C-bsc account.
 
 ## Nft from Realis to BSC
 
@@ -59,18 +59,18 @@ To add bnb on account use this [site](https://testnet.binance.org/faucet-smart),
 ### 1. Simple token transfer
 - Transfer 1 token from A-bsc account to A-realis account.
 ### 2. Transfer some tokens
-- Transfer 100 000 tokens from A-bsc account to A-realis account.
+- Transfer 1 000 tokens from A-bsc account to A-realis account.
 ### 3. Transfer some tokens, than use them (1)
-- Transfer 100 000 tokens from A-bsc account to A-realis account;
-- Transfer 100 000 tokens from A-realis account to B-realis account.
+- Transfer 1 000 tokens from A-bsc account to A-realis account;
+- Transfer 1 000 tokens from A-realis account to B-realis account.
 ### 4. Transfer some tokens, than use them (2)
-- Transfer 100 000 tokens from A-bsc account to A-realis account;
-- Transfer 30 000 tokens from A-realis account to B-realis account;
-- Transfer 30 000 tokens from A-realis account to C-realis account.
+- Transfer 1 000 tokens from A-bsc account to A-realis account;
+- Transfer 300 tokens from A-realis account to B-realis account;
+- Transfer 300 tokens from A-realis account to C-realis account.
 ### 5. Transfer some tokens, than use them (3)
-- Transfer 100 000 tokens from A-bsc account to A-realis account;
-- Transfer 70 000 tokens from A-realis account to B-realis account;
-- Transfer 40 000 tokens from B-realis to C-realis account.
+- Transfer 1 000 tokens from A-bsc account to A-realis account;
+- Transfer 700 tokens from A-realis account to B-realis account;
+- Transfer 400 tokens from B-realis to C-realis account.
 
 ## Nft from BSC to Realis
 
