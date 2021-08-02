@@ -1,7 +1,5 @@
-// use bridge_events::Events;
 use codec::Decode;
 // use log::{error, info, warn};
-// use realis_bridge::TokenId;
 use runtime::{realis_bridge, Event};
 use sp_core::{sr25519, H256 as Hash};
 use std::sync::mpsc::{channel, Receiver};
