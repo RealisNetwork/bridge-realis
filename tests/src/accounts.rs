@@ -63,8 +63,8 @@ pub mod realis {
 
 pub mod bsc {
     use web3::types::Address;
-    use secp256k1::SecretKey;
     use std::str::FromStr;
+    use secp256k1::SecretKey;
 
     pub fn sudo() -> (Address, SecretKey) {
         let public = Address::from_str("0x79abf92F6640B6D6540B116d4e7eA99ace932236")
