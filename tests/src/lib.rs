@@ -19,6 +19,7 @@ mod tests {
     type Header = generic::Header<BlockNumber, BlakeTwo256>;
 
     fn api(signer: sr25519::Pair) -> Api<sr25519::Pair> {
+        // Url to realis blockchain
         let url = "rpc.realis.network";
         // Create substrate api with signer
         Api::<sr25519::Pair>::new(format!("wss://{}", String::from(url)))
@@ -33,11 +34,11 @@ mod tests {
         amount: u128,
     ) {
         let api = api(signer);
-
+        // Create some parameters for transaction
         let head: Hash = api.get_finalized_head().unwrap().unwrap();
         let h: Header = api.get_header(Some(head)).unwrap().unwrap();
         let period = 5;
-
+        // Create transaction
         #[allow(clippy::redundant_clone)]
         let xt = compose_extrinsic_offline!(
             api.clone().signer.unwrap(),
@@ -53,14 +54,8 @@ mod tests {
             api.runtime_version.spec_version,
             api.runtime_version.transaction_version
         );
-
         // Send extrinsic transaction
         let tx_result = api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
-
-        match tx_result {
-            Ok(hash) => println!("Send extrinsic {:?}", hash),
-            Err(error) => println!("Can`t send extrinsic {:?}", error),
-        }
     }
 
     async fn transfer_token_in_bsc(
