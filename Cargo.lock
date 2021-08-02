@@ -598,7 +598,6 @@ dependencies = [
  "realis-primitives",
  "realis-sender",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
- "substrate-stellar-sdk",
  "tokio 1.9.0",
  "utils",
  "web3",
@@ -608,7 +607,6 @@ dependencies = [
 name = "bsc-sender"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "log",
  "node-runtime",
  "realis-primitives",
@@ -2349,12 +2347,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "index-fixed"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4161ceaf2f41b6cd3f6502f5da085d4ad4393a51e0c70ed2fce1d5698d798fae"
-
-[[package]]
 name = "indexmap"
 version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2566,9 +2558,6 @@ name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
-dependencies = [
- "spin",
-]
 
 [[package]]
 name = "lazycell"
@@ -4822,7 +4811,6 @@ checksum = "60a357793950651c4ed0f3f52338f53b2f809f32d83a07f72909fa13e4c6c1e3"
 name = "realis-adapter"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "bsc-sender",
  "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "log",
@@ -4902,10 +4890,8 @@ version = "0.1.0"
 dependencies = [
  "log",
  "node-runtime",
- "primitive-types 0.9.1",
  "realis-primitives",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
- "sp-keyring",
  "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "substrate-api-client",
 ]
@@ -6142,15 +6128,6 @@ checksum = "765f090f0e423d2b55843402a07915add955e7d60657db13707a159727326cad"
 dependencies = [
  "libc",
  "winapi 0.3.9",
-]
-
-[[package]]
-name = "sodalite"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41784a359d15c58bba298cccb7f30a847a1a42d0620c9bdaa0aa42fdb3c280e0"
-dependencies = [
- "index-fixed",
 ]
 
 [[package]]
@@ -7452,24 +7429,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "substrate-stellar-sdk"
-version = "0.2.2"
-source = "git+https://github.com/Daelon02/substrate-stellar.git#d955ada34bcff53f52dd5bacc818530d9e645930"
-dependencies = [
- "base64 0.13.0",
- "hex",
- "lazy_static",
- "num-rational 0.4.0",
- "serde",
- "serde_json",
- "sha2 0.9.5",
- "sodalite",
- "sp-io 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
- "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
- "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
-]
-
-[[package]]
 name = "substrate-wasm-builder"
 version = "5.0.0-dev"
 source = "git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178#03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178"
@@ -7582,6 +7541,7 @@ dependencies = [
  "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "substrate-api-client",
  "tokio 1.9.0",
+ "utils",
  "web3",
 ]
 
