@@ -6,3 +6,22 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+tokio = { version = "1.0", optional = true, features = ["full"] }
+runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "node-runtime" }
+substrate-api-client = { git = "https://github.com/scs/substrate-api-client.git", rev = "672a5d4ed9f076525235fef6b5af288f666df803" }
+sp-core = { git = "https://github.com/paritytech/substrate", rev = "03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178" }
+web3 = "0.16.0"
+secp256k1 = { version = "0.20", features = ["recovery"] }
+
+[dependencies.sp-runtime]
+git = "https://github.com/paritytech/substrate.git"
+branch = "master"
+package = "sp-runtime"
+default-features=false
+
+[features]
+default = ["std"]
+std = [
+    "tokio",
+    "sp-core/std",
+]
