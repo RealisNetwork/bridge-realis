@@ -3,15 +3,18 @@ mod accounts;
 #[cfg(test)]
 mod tests {
     use self::super::accounts;
-    use runtime::{AccountId, realis_bridge::Call as RealisBridgeCall, Call};
-    use substrate_api_client::{Api, compose_extrinsic_offline, XtStatus, BlockNumber};
-    use substrate_api_client::sp_runtime::app_crypto::{sr25519, Pair};
-    use web3::types::Address;
-    use sp_core::{H256 as Hash, H160};
-    use sp_runtime::{generic, traits::BlakeTwo256};
+    use runtime::{realis_bridge::Call as RealisBridgeCall, AccountId, Call};
     use secp256k1::SecretKey;
-    use utils;
+    use sp_core::{H160, H256 as Hash};
+    use sp_runtime::{generic, traits::BlakeTwo256};
+    use substrate_api_client::{
+        compose_extrinsic_offline,
+        sp_runtime::app_crypto::{sr25519, Pair},
+        Api, BlockNumber, XtStatus,
+    };
     use tokio::time::{sleep, Duration};
+    use utils;
+    use web3::types::Address;
 
     type Header = generic::Header<BlockNumber, BlakeTwo256>;
 
@@ -23,7 +26,12 @@ mod tests {
             .unwrap()
     }
 
-    fn send_token_from_realis_to_bsc(signer: sr25519::Pair, from: AccountId, to: Address, amount: u128) {
+    fn send_token_from_realis_to_bsc(
+        signer: sr25519::Pair,
+        from: AccountId,
+        to: Address,
+        amount: u128,
+    ) {
         let api = api(signer);
 
         let head: Hash = api.get_finalized_head().unwrap().unwrap();
@@ -55,17 +63,24 @@ mod tests {
         }
     }
 
-    async fn transfer_token_in_bsc(signer: SecretKey, _from: Address, to: Address, amount: u128) {
+    async fn transfer_token_in_bsc(
+        signer: SecretKey,
+        _from: Address,
+        to: Address,
+        amount: u128,
+    ) {
         // Connect to bsc smart contract
         let contract = utils::contract::token_new().await;
         // Send transaction
-        contract.signed_call_with_confirmations(
-            "transfer",
-            (to, amount * 10_000_000_000),
-            web3::contract::Options::default(),
-            1,
-            &signer,
-        ).await;
+        contract
+            .signed_call_with_confirmations(
+                "transfer",
+                (to, amount * 10_000_000_000),
+                web3::contract::Options::default(),
+                1,
+                &signer,
+            )
+            .await;
     }
 
     #[test]
@@ -97,11 +112,17 @@ mod tests {
         // Get Bob-bsc account
         let (bob_address, _) = accounts::bsc::bob();
         // A-realis transfer 1000 tokens to A-bsc
-        send_token_from_realis_to_bsc(private_realis, account_id, alice_address, 1000);
+        send_token_from_realis_to_bsc(
+            private_realis,
+            account_id,
+            alice_address,
+            1000,
+        );
         //
         sleep(Duration::from_millis(10_000)).await;
         // A-bsc transfer 1000 tokens to B-bsc
-        transfer_token_in_bsc(private_bsc, alice_address, bob_address, 1000).await;
+        transfer_token_in_bsc(private_bsc, alice_address, bob_address, 1000)
+            .await;
     }
 
     #[tokio::test]
@@ -115,15 +136,22 @@ mod tests {
         // Get Cindy-bsc account
         let (cindy_address, _) = accounts::bsc::cindy();
         // A-realis transfer 1000 tokens to A-bsc
-        send_token_from_realis_to_bsc(private_realis, account_id, alice_address, 1000);
+        send_token_from_realis_to_bsc(
+            private_realis,
+            account_id,
+            alice_address,
+            1000,
+        );
         // Wait for transaction end
         sleep(Duration::from_millis(10_000)).await;
         // A-bsc transfer 300 tokens to B-bsc
-        transfer_token_in_bsc(private_bsc, alice_address, bob_address, 300).await;
+        transfer_token_in_bsc(private_bsc, alice_address, bob_address, 300)
+            .await;
         // Wait for transaction end
         sleep(Duration::from_millis(10_000)).await;
         // A-bsc transfer 300 tokens to C-bsc
-        transfer_token_in_bsc(private_bsc, alice_address, cindy_address, 300).await;
+        transfer_token_in_bsc(private_bsc, alice_address, cindy_address, 300)
+            .await;
     }
 
     #[tokio::test]
@@ -137,14 +165,26 @@ mod tests {
         // Get Cindy-bsc account
         let (cindy_address, _) = accounts::bsc::cindy();
         // A-realis transfer 1000 tokens to A-bsc
-        send_token_from_realis_to_bsc(private_realis, account_id, alice_address, 1000);
+        send_token_from_realis_to_bsc(
+            private_realis,
+            account_id,
+            alice_address,
+            1000,
+        );
         // Wait for transaction end
         sleep(Duration::from_millis(10_000)).await;
         // A-bsc transfer 700 tokens to B-bsc
-        transfer_token_in_bsc(private_alice_bsc, alice_address, bob_address, 700).await;
+        transfer_token_in_bsc(
+            private_alice_bsc,
+            alice_address,
+            bob_address,
+            700,
+        )
+        .await;
         // Wait for transaction end
         sleep(Duration::from_millis(10_000)).await;
         // A-bsc transfer 400 tokens to C-bsc
-        transfer_token_in_bsc(private_bob_bsc, bob_address, cindy_address, 400).await;
+        transfer_token_in_bsc(private_bob_bsc, bob_address, cindy_address, 400)
+            .await;
     }
 }
