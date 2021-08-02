@@ -8,6 +8,7 @@ members = [
     "realis-sender",
     "utils",
     "bridge-events",
+    "message-broker",
 ]
 
 [patch.'https://github.com//paritytech/substrate']
