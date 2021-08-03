@@ -4,7 +4,7 @@ mod accounts;
 #[cfg(test)]
 mod tests {
     use self::super::accounts;
-    use realis_primitives::{Account, TokenId};
+    use realis_primitives::TokenId;
     use runtime::{
         realis_bridge::Call as RealisBridgeCall,
         pallet_balances::Call as PalletBalancesCall,
@@ -955,7 +955,7 @@ mod tests {
             account_id.clone(),
             address,
             TokenId::from(61),
-        );
+        ).await;
         // Transfer nft-61 from Alice-bsc account to Alice-realis account
         send_nft_from_bsc_to_realis(
             private_bsc,
@@ -986,6 +986,6 @@ mod tests {
             account_id.clone(),
             address,
             TokenId::from(62),
-        );
+        ).await;
     }
 }
