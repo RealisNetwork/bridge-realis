@@ -1,91 +1,147 @@
-use async_trait::async_trait;
-use log::{error, info};
-use realis_adapter::BridgeEvents;
-use runtime::realis_bridge::TokenId;
+// use log::{error, info};
+use realis_primitives::{Basic, TokenId};
+use runtime::AccountId;
 use secp256k1::SecretKey;
 use sp_core::H160;
 use std::{fs, path::Path, str::FromStr};
 use utils::contract;
-use web3::{
-    types::{Address, U256},
-};
+use web3::types::{Address, U256};
 
-pub struct BscSender {
-    // web3: web3::Web3<WebSocket>,
-    // contract: Contract<WebSocket>,
-    wallet_key: SecretKey,
-}
+pub struct BscSender {}
 
 impl BscSender {
-    pub async fn new() -> BscSender {
-        let wallet_key =
-            BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
-
-        BscSender {
-            // web3,
-            // contract,
-            wallet_key,
-        }
-    }
-
     fn read_file_for_secret_key<P: AsRef<Path>>(path: P) -> SecretKey {
         let string = fs::read_to_string(path).unwrap();
         SecretKey::from_str(&string).unwrap()
     }
-}
 
-#[async_trait]
-impl BridgeEvents for BscSender {
-    async fn on_transfer_token_to_bsc<'a>(&self, to: H160, value: u128) {
-        let contract = contract::token_new(
-            "wss://data-seed-prebsc-1-s1.binance.org:8545/",
-        )
-        .await;
+    pub async fn send_token_to_bsc(from: AccountId, to: H160, amount: u128) {
+        println!(
+            "Bsc-sender send_token_to_bsc: {} => {}, ({})",
+            from, to, amount
+        );
+
+        let wallet_key =
+            BscSender::read_file_for_secret_key("./bsc-sender/res/accounts.key");
+
+        let contract = contract::token_new().await;
+
+        // Convert arguments
+        let from = from.to_string();
+        let to: Address = Address::from(to.0);
+        let value = U256::from(amount);
+
+        // Send transaction
+        let result = contract
+            .signed_call_with_confirmations(
+                "transferFromRealis",
+                (from, to, value),
+                web3::contract::Options::default(),
+                1,
+                &wallet_key,
+            )
+            .await;
+        // View on result
+        match result {
+            Ok(value) => println!("Transaction success {:?}", value),
+            Err(err) => println!("Transaction fail {:?}", err),
+        }
+    }
+
+    pub async fn send_nft_to_bsc(
+        from: AccountId,
+        to: H160,
+        token_id: TokenId,
+        token_type: Basic,
+    ) {
+        println!(
+            "Bsc-sender send_nft_to_bsc: {} => {}, ({}, {})",
+            from, to, token_id, token_type
+        );
+
+        let wallet_key =
+            BscSender::read_file_for_secret_key("./bsc-sender/res/accounts.key");
+
+        let contract = contract::nft_new().await;
+
+        // Convert arguments
+        let from: String = from.to_string();
+        let to: Address = Address::from(to.0);
+
+        let result = contract
+            .signed_call_with_confirmations(
+                "safeMint",
+                (from, to, token_id, token_type),
+                web3::contract::Options::default(),
+                1,
+                &wallet_key,
+            )
+            .await;
+
+        match result {
+            Ok(value) => println!("Transaction success {:?}", value),
+            Err(err) => println!("Transaction fail {:?}", err),
+        }
+    }
+
+    pub async fn send_token_approve_from_realis_to_bsc(to: H160, amount: u128) {
+        println!("Bsc-sender send_token_approve_to_bsc {}, ({})", to, amount);
+
+        let wallet_key =
+            BscSender::read_file_for_secret_key("./bsc-sender/res/accounts.key");
+
+        let contract = contract::token_new().await;
+
         // Convert arguments
         let to: Address = Address::from(to.0);
-        let value = U256::from(value) * 100_000_000;
-
+        let value = U256::from(amount) * 100_000_000;
+        // Send transaction
         let result = contract
             .signed_call_with_confirmations(
                 "transfer",
                 (to, value),
                 web3::contract::Options::default(),
                 1,
-                &self.wallet_key,
+                &wallet_key,
             )
             .await;
-
+        // View on result
         match result {
-            Ok(value) => info!("Transaction success {:?}", value),
-            Err(err) => error!("Transaction fail {:?}", err),
+            Ok(value) => println!("Transaction success {:?}", value),
+            Err(err) => println!("Transaction fail {:?}", err),
         }
     }
 
-    async fn on_transfer_nft_to_bsc<'a>(
-        &self,
+    pub async fn send_nft_approve_from_realis_to_bsc(
         to: H160,
         token_id: TokenId,
-        _token_type: u8,
+        token_type: Basic,
     ) {
-        let contract =
-            contract::nft_new("wss://data-seed-prebsc-1-s1.binance.org:8545/")
-                .await;
+        println!(
+            "Bsc-sender send_nft_approve_to_bsc: {}, ({}, {})",
+            to, token_id, token_type
+        );
 
-        let to: Address = Address::from(to.0);
+        let wallet_key =
+            BscSender::read_file_for_secret_key("./bsc-sender/res/accounts.key");
+
+        let contract = contract::nft_new().await;
+
+        let _to: Address = Address::from(to.0);
 
         let result = contract
             .signed_call_with_confirmations(
-                "safeMint",
-                (to, token_id),
+                "transferNftToRealisApproved",
+                token_id,
                 web3::contract::Options::default(),
                 1,
-                &self.wallet_key,
+                &wallet_key,
             )
             .await;
 
         match result {
-            Ok(value) => info!("Transaction success {:?}", value),
-            Err(err) => error!("Transaction fail {:?}", err),
+            Ok(value) => println!("Transaction success {:?}", value),
+            Err(err) => println!("Transaction fail {:?}", err),
         }
     }
 }

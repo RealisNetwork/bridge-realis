@@ -1,12 +1,12 @@
 pub mod contract {
     use log::{error, info};
     use std::str::FromStr;
+    use tokio::time::{delay_for, Duration};
 
-    use web3::{
-        contract::Contract, transports::WebSocket, types::Address, Web3,
-    };
+    use web3::{contract::Contract, transports::WebSocket, types::Address, Web3};
 
-    async fn connect(url: &str) -> Web3<WebSocket> {
+    async fn connect() -> Web3<WebSocket> {
+        let url = "wss://data-seed-prebsc-1-s1.binance.org:8545/";
         // Connect to bsc
         let mut wss = WebSocket::new(url).await;
         loop {
@@ -18,6 +18,8 @@ pub mod contract {
                     wss = WebSocket::new(url).await;
                 }
             }
+            // Wait a bit before reconnect
+            delay_for(Duration::from_millis(1000)).await;
         }
 
         web3::Web3::new(wss.unwrap())
@@ -26,10 +28,11 @@ pub mod contract {
     /// # Panics
     ///
     /// Create new token contract
-    pub async fn token_new(url: &str) -> Contract<WebSocket> {
-        let web3 = connect(url).await;
+    pub async fn token_new() -> Contract<WebSocket> {
+        let web3 = connect().await;
+        // TODO get from config file
         let address: Address =
-            Address::from_str("0x30a02a714Ea7674F1988ED5d81094F775b28E611")
+            Address::from_str("0x23c18bE4466364a4D1654119BfB69Fd717d190dE")
                 .unwrap();
 
         let json_abi = include_bytes!("./../res/BEP20.abi");
@@ -40,10 +43,11 @@ pub mod contract {
     /// # Panics
     ///
     /// Create new nft contract
-    pub async fn nft_new(url: &str) -> Contract<WebSocket> {
-        let web3 = connect(url).await;
+    pub async fn nft_new() -> Contract<WebSocket> {
+        let web3 = connect().await;
+        // TODO get from config file
         let address: Address =
-            Address::from_str("0xeabfdb7ab0774d2f887e99f87e9279a6ee5c1431")
+            Address::from_str("0xEE428156F420B5a5b152E64D90C091CF987D5163")
                 .unwrap();
 
         let json_abi = include_bytes!("./../res/BEP721.abi");

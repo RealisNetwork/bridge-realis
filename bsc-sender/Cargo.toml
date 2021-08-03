@@ -6,20 +6,14 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-trait = "0.1.50"
 log = "0.4"
-realis-adapter = { version = "0.1.0", path = "../realis-adapter" }
-runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "ba89e796139d1cd4c8dfe808736cab71baed32b0", package = "node-runtime" }
+runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "node-runtime" }
+realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "realis-primitives", default-features = false }
+sp-core = { git = "https://github.com/paritytech/substrate.git", branch = "master", package = "sp-core" }
 secp256k1 = { version = "0.20", features = ["recovery"] }
 web3 = "0.16.0"
 utils = { path = "../utils" }
-
-[dependencies.sp-core]
-git = "https://github.com/paritytech/substrate.git"
-branch = "master"
-package = "sp-core"
-default-features = false
-features = ["full_crypto"]
+tokio = { version = "^1", features = ["full"]}
 
 [features]
 default = ["std"]

@@ -6,28 +6,13 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-trait = "0.1.50"
 log = "0.4"
-runtime = {git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "ba89e796139d1cd4c8dfe808736cab71baed32b0", package = "node-runtime", default-features = false}
+runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "node-runtime" }
 substrate-api-client = { git = "https://github.com/scs/substrate-api-client.git", rev = "672a5d4ed9f076525235fef6b5af288f666df803" }
-
-[dependencies.sp-core]
-git = "https://github.com/paritytech/substrate.git"
-branch = "master"
-package = "sp-core"
-default-features = false
-features = ["full_crypto"]
-
-[dependencies.system]
-git = "https://github.com/paritytech/substrate.git"
-branch = "master"
-package = "frame-system"
-
-[dependencies.codec]
-package = "parity-scale-codec"
-features = ["derive"]
-version = "2.0.0"
-default-features = false
+bsc-sender = { path = "../bsc-sender" }
+sp-core = { git = "https://github.com/paritytech/substrate.git", branch = "master", package = "sp-core" }
+system = { git = "https://github.com/paritytech/substrate.git", branch = "master", package = "frame-system" }
+codec = { package = "parity-scale-codec", features = ["derive"], version = "2.0.0", default-features = false }
 
 [features]
 default = ["std"]
@@ -35,5 +20,3 @@ std = [
     "codec/std",
     "runtime/std",
 ]
-# need to add this for the app_crypto macro
-full_crypto = []
