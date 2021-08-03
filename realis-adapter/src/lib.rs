@@ -44,11 +44,10 @@ impl RealisAdapter {
             match bridge_event {
                 realis_bridge::Event::TransferTokenToBSC(from, to, value) => {
                     println!(
-                      "Realis-adapter handled TransferTokenToBSC: {} => {}, {}",
-                      from, to, value
+                        "Realis-adapter handled TransferTokenToBSC: {} => {}, {}",
+                        from, to, value
                     );
-                    BscSender::send_token_to_bsc(from.clone(), *to, *value)
-                        .await;
+                    BscSender::send_token_to_bsc(from.clone(), *to, *value).await;
                 }
                 realis_bridge::Event::TransferNftToBSC(
                     from,
@@ -68,11 +67,7 @@ impl RealisAdapter {
                     )
                     .await;
                 }
-                realis_bridge::Event::TransferTokenToRealis(
-                    from,
-                    to,
-                    amount,
-                ) => {
+                realis_bridge::Event::TransferTokenToRealis(from, to, amount) => {
                     // This event appears when tokens transfer from bsc to
                     // realis And realis blockchain
                     // confirmed this transfer

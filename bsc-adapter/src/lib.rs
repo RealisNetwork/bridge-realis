@@ -104,8 +104,7 @@ impl BSCListener {
                         // Unpack event arguments
                         let (_, from, to, amount) = &event;
                         // Convert argument
-                        let account_id =
-                            AccountId::from_ss58check(from).unwrap();
+                        let account_id = AccountId::from_ss58check(from).unwrap();
                         // Log arguments
                         println!(
                             "TokenSuccessOnBsc: {:?} => {:?}, {:?}",
@@ -137,8 +136,7 @@ impl BSCListener {
                         // Unpack event arguments
                         let (from, to, token_id, basic) = &event;
                         // Convert argument
-                        let account_id =
-                            AccountId::from_ss58check(from).unwrap();
+                        let account_id = AccountId::from_ss58check(from).unwrap();
                         println!(
                             "TransferNftToRealis: {:?} => {:?}, {:?}, {:?}",
                             account_id, to, token_id, basic

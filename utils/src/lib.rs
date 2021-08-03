@@ -3,9 +3,7 @@ pub mod contract {
     use std::str::FromStr;
     use tokio::time::{delay_for, Duration};
 
-    use web3::{
-        contract::Contract, transports::WebSocket, types::Address, Web3,
-    };
+    use web3::{contract::Contract, transports::WebSocket, types::Address, Web3};
 
     async fn connect() -> Web3<WebSocket> {
         let url = "wss://data-seed-prebsc-1-s1.binance.org:8545/";

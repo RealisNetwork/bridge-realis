@@ -44,7 +44,7 @@ async fn main() {
                 BSCAdapter::listen().await;
             }
             "message-broker" => {
-                message_broker::listen().await;
+                message_broker::message_broker().await;
             }
             _ => println!("Unknown command!"),
         },
