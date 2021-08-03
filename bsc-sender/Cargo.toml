@@ -13,6 +13,7 @@ realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git
 secp256k1 = { version = "0.20", features = ["recovery"] }
 web3 = "0.16.0"
 utils = { path = "../utils" }
+tokio = { version = "^1", features = ["full"]}
 
 substrate-stellar-sdk = { git = "https://github.com/Daelon02/substrate-stellar.git" }
 

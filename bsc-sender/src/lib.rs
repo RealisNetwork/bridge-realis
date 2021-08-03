@@ -22,7 +22,7 @@ impl BscSender {
         );
 
         let wallet_key = BscSender::read_file_for_secret_key(
-            "./bsc-sender/res/accounts.key",
+            "./../bsc-sender/res/accounts.key",
         );
 
         let contract = contract::token_new().await;

@@ -6,6 +6,7 @@ mod logger;
 use bsc_adapter::BSCAdapter;
 // use bsc_sender::BscSender;
 // use futures::join;
+use message_broker;
 use realis_adapter::RealisAdapter;
 // use realis_sender::RealisSender;
 
@@ -30,7 +31,9 @@ async fn main() {
     let arg = args.get(1);
 
     match arg {
-        None => println!("Specify flag (realis-to-bsc or bsc-to-realis)"),
+        None => println!(
+            "Specify flag (realis-to-bsc or bsc-to-realis or message-broker)"
+        ),
         Some(value) => match value.as_str() {
             "realis-to-bsc" => {
                 let realis_adapter = RealisAdapter::new("rpc.realis.network");
@@ -39,6 +42,9 @@ async fn main() {
             }
             "bsc-to-realis" => {
                 BSCAdapter::listen().await;
+            }
+            "message-broker" => {
+                message_broker::listen().await;
             }
             _ => println!("Unknown command!"),
         },
