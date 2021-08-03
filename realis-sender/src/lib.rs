@@ -124,12 +124,10 @@ impl RealisSender {
         #[allow(clippy::redundant_clone)]
         let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
             api.clone().signer.unwrap(),
-            Call::RealisBridge(
-                RealisBridgeCall::transfer_token_to_bsc_success(
-                    from.clone(),
-                    amount
-                )
-            ),
+            Call::RealisBridge(RealisBridgeCall::transfer_token_to_bsc_success(
+                from.clone(),
+                amount
+            )),
             api.get_nonce().unwrap(),
             Era::mortal(period, h.number),
             api.genesis_hash,
