@@ -52,7 +52,7 @@ mod tests {
             Call::RealisBridge(RealisBridgeCall::transfer_token_to_bsc(
                 from.clone(),
                 H160::from(to.0),
-                amount * 10_000_000_000
+                amount
             )),
             api.get_nonce().unwrap(),
             Era::mortal(period, h.number),
@@ -448,7 +448,7 @@ mod tests {
         let _ = contract
             .signed_call_with_confirmations(
                 "transferToRealis",
-                (to.to_string(), U256::from(amount) * 100_000_000),
+                (to.to_string(), U256::from(amount)),
                 web3::contract::Options::default(),
                 1,
                 &signer,
