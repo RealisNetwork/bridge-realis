@@ -52,7 +52,7 @@ impl RealisSender {
             Call::RealisBridge(RealisBridgeCall::transfer_token_to_realis(
                 from,
                 to.clone(),
-                amount * 10_000_000_000
+                amount
             )),
             api.get_nonce().unwrap(),
             Era::mortal(period, h.number),

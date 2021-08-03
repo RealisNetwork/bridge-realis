@@ -32,7 +32,7 @@ pub mod contract {
         let web3 = connect().await;
         // TODO get from config file
         let address: Address =
-            Address::from_str("0x23c18bE4466364a4D1654119BfB69Fd717d190dE")
+            Address::from_str("0xEd7895f5e18302a68904D4109BAa6F7ad70467Da")
                 .unwrap();
 
         let json_abi = include_bytes!("./../res/BEP20.abi");

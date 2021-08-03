@@ -4,7 +4,7 @@ mod accounts;
 #[cfg(test)]
 mod tests {
     use self::super::accounts;
-    use realis_primitives::{Account, TokenId};
+    use realis_primitives::TokenId;
     use runtime::{
         realis_bridge::Call as RealisBridgeCall,
         pallet_balances::Call as PalletBalancesCall,
@@ -52,7 +52,7 @@ mod tests {
             Call::RealisBridge(RealisBridgeCall::transfer_token_to_bsc(
                 from.clone(),
                 H160::from(to.0),
-                amount * 10_000_000_000
+                amount
             )),
             api.get_nonce().unwrap(),
             Era::mortal(period, h.number),
@@ -448,7 +448,7 @@ mod tests {
         let _ = contract
             .signed_call_with_confirmations(
                 "transferToRealis",
-                (to.to_string(), U256::from(amount) * 100_000_000),
+                (to.to_string(), U256::from(amount)),
                 web3::contract::Options::default(),
                 1,
                 &signer,
@@ -489,7 +489,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn simple_token_transfer_to_bsc() {
+    async fn simple_token_transfer_to_realis() {
         // Get Alice-realis account
         let (account_id, _) = accounts::realis::alice();
         // Get Alice-bsc account
@@ -500,7 +500,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn transfer_some_tokens_to_bsc() {
+    async fn transfer_some_tokens_to_realis() {
         // Get Alice-realis account
         let (account_id, _) = accounts::realis::alice();
         // Get Alice-bsc account
@@ -516,7 +516,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn transfer_some_tokens_to_bsc_than_use_them_1() {
+    async fn transfer_some_tokens_to_realis_than_use_them_1() {
         // Get Alice-realis account
         let (alice_account_id, private_alice_realis) =
             accounts::realis::alice();
@@ -550,7 +550,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn transfer_some_tokens_to_bsc_than_use_them_2() {
+    async fn transfer_some_tokens_to_realis_than_use_them_2() {
         // Get Alice-realis account
         let (alice_account_id, private_alice_realis) =
             accounts::realis::alice();
@@ -601,7 +601,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn transfer_some_tokens_to_bsc_than_use_them_3() {
+    async fn transfer_some_tokens_to_realis_than_use_them_3() {
         // Get Alice-realis account
         let (alice_account_id, private_alice_realis) =
             accounts::realis::alice();
@@ -955,7 +955,7 @@ mod tests {
             account_id.clone(),
             address,
             TokenId::from(61),
-        );
+        ).await;
         // Transfer nft-61 from Alice-bsc account to Alice-realis account
         send_nft_from_bsc_to_realis(
             private_bsc,
@@ -986,6 +986,6 @@ mod tests {
             account_id.clone(),
             address,
             TokenId::from(62),
-        );
+        ).await;
     }
 }
