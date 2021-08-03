@@ -1,11 +1,9 @@
 pub mod contract {
     use log::{error, info};
     use std::str::FromStr;
-    use tokio::time::{sleep, Duration};
+    use tokio::time::{delay_for, Duration};
 
-    use web3::{
-        contract::Contract, transports::WebSocket, types::Address, Web3,
-    };
+    use web3::{contract::Contract, transports::WebSocket, types::Address, Web3};
 
     async fn connect() -> Web3<WebSocket> {
         let url = "wss://data-seed-prebsc-1-s1.binance.org:8545/";
@@ -21,7 +19,7 @@ pub mod contract {
                 }
             }
             // Wait a bit before reconnect
-            sleep(Duration::from_millis(1000)).await;
+            delay_for(Duration::from_millis(1000)).await;
         }
 
         web3::Web3::new(wss.unwrap())
@@ -34,7 +32,7 @@ pub mod contract {
         let web3 = connect().await;
         // TODO get from config file
         let address: Address =
-            Address::from_str("0xFF1643d2bdb75F8FB7A22E403E3C88aC3A4A183F")
+            Address::from_str("0x23c18bE4466364a4D1654119BfB69Fd717d190dE")
                 .unwrap();
 
         let json_abi = include_bytes!("./../res/BEP20.abi");
@@ -49,7 +47,7 @@ pub mod contract {
         let web3 = connect().await;
         // TODO get from config file
         let address: Address =
-            Address::from_str("0x57F890bDF1c3622d23Cd81A6133EdCE3128f6dCD")
+            Address::from_str("0xEE428156F420B5a5b152E64D90C091CF987D5163")
                 .unwrap();
 
         let json_abi = include_bytes!("./../res/BEP721.abi");

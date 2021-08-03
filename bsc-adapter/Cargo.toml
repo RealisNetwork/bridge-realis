@@ -6,13 +6,10 @@ edition = "2018"
 [dependencies]
 ethabi = "14.1.0"
 log = "0.4"
-runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4d2092476407611865f37f412f96093c84c51c80", package = "node-runtime" }
-substrate-stellar-sdk = { git = "https://github.com/Daelon02/substrate-stellar.git" }
-realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4d2092476407611865f37f412f96093c84c51c80", package = "realis-primitives", default-features = false}
-tokio = { version = "1.0" }
+runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "node-runtime" }
+realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "realis-primitives", default-features = false }
 web3 = "0.16.0"
 futures = "0.3.16"
 utils = { path = "../utils" }
 realis-sender = { path = "../realis-sender" }
-
 sp-core = { git = "https://github.com/paritytech/substrate", rev = "03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178" }
