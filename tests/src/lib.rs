@@ -489,7 +489,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn simple_token_transfer_to_bsc() {
+    async fn simple_token_transfer_to_realis() {
         // Get Alice-realis account
         let (account_id, _) = accounts::realis::alice();
         // Get Alice-bsc account
@@ -500,7 +500,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn transfer_some_tokens_to_bsc() {
+    async fn transfer_some_tokens_to_realis() {
         // Get Alice-realis account
         let (account_id, _) = accounts::realis::alice();
         // Get Alice-bsc account
@@ -516,7 +516,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn transfer_some_tokens_to_bsc_than_use_them_1() {
+    async fn transfer_some_tokens_to_realis_than_use_them_1() {
         // Get Alice-realis account
         let (alice_account_id, private_alice_realis) =
             accounts::realis::alice();
@@ -550,7 +550,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn transfer_some_tokens_to_bsc_than_use_them_2() {
+    async fn transfer_some_tokens_to_realis_than_use_them_2() {
         // Get Alice-realis account
         let (alice_account_id, private_alice_realis) =
             accounts::realis::alice();
@@ -601,7 +601,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn transfer_some_tokens_to_bsc_than_use_them_3() {
+    async fn transfer_some_tokens_to_realis_than_use_them_3() {
         // Get Alice-realis account
         let (alice_account_id, private_alice_realis) =
             accounts::realis::alice();
