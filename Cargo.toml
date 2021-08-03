@@ -7,7 +7,7 @@ members = [
     "realis-adapter",
     "realis-sender",
     "utils",
-    "bridge-events",
+    "tests",
     "message-broker",
 ]
 
