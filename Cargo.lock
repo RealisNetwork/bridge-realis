@@ -607,15 +607,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bridge-events"
-version = "0.1.0"
-dependencies = [
- "node-runtime",
- "realis-primitives",
- "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
-]
-
-[[package]]
 name = "bs58"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -628,11 +619,10 @@ dependencies = [
  "ethabi",
  "futures 0.3.16",
  "log",
- "node-runtime",
- "realis-primitives",
+ "node-runtime 3.0.0-dev (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
  "realis-sender",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
- "substrate-stellar-sdk",
  "utils",
  "web3",
 ]
@@ -641,13 +631,11 @@ dependencies = [
 name = "bsc-sender"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "log",
- "node-runtime",
- "realis-primitives",
+ "node-runtime 3.0.0-dev (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
  "secp256k1",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
- "substrate-stellar-sdk",
  "tokio 1.9.0",
  "utils",
  "web3",
@@ -2472,12 +2460,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "index-fixed"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4161ceaf2f41b6cd3f6502f5da085d4ad4393a51e0c70ed2fce1d5698d798fae"
-
-[[package]]
 name = "indexmap"
 version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2689,9 +2671,6 @@ name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
-dependencies = [
- "spin",
-]
 
 [[package]]
 name = "lazycell"
@@ -3322,7 +3301,7 @@ dependencies = [
  "futures-timer 2.0.2",
  "log",
  "native-tls",
- "node-runtime",
+ "node-runtime 3.0.0-dev (git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80)",
  "ratsio",
  "realis-sender",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
@@ -3603,6 +3582,76 @@ dependencies = [
 [[package]]
 name = "node-runtime"
 version = "3.0.0-dev"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#6a4d5cb13152415646e31a752ae317921b6c3de2"
+dependencies = [
+ "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "frame-election-provider-support",
+ "frame-executive",
+ "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "frame-system-rpc-runtime-api",
+ "frame-try-runtime",
+ "log",
+ "node-primitives",
+ "pallet-assets",
+ "pallet-authority-discovery",
+ "pallet-authorship",
+ "pallet-babe",
+ "pallet-balances 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "pallet-contracts",
+ "pallet-contracts-primitives",
+ "pallet-contracts-rpc-runtime-api",
+ "pallet-election-provider-multi-phase",
+ "pallet-gilt",
+ "pallet-grandpa",
+ "pallet-identity",
+ "pallet-im-online",
+ "pallet-indices",
+ "pallet-lottery",
+ "pallet-mmr",
+ "pallet-multisig",
+ "pallet-nft 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "pallet-offences",
+ "pallet-randomness-collective-flip",
+ "pallet-recovery",
+ "pallet-scheduler",
+ "pallet-session",
+ "pallet-staking 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "pallet-staking-reward-curve",
+ "pallet-sudo",
+ "pallet-timestamp",
+ "pallet-transaction-payment",
+ "pallet-transaction-payment-rpc-runtime-api",
+ "pallet-utility",
+ "pallet-vesting",
+ "parity-scale-codec 2.2.0",
+ "primitive-types 0.9.1",
+ "realis-bridge 0.0.1 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "realis-game-api 0.0.1 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "runtime-common 0.0.1 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "sp-api 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-authority-discovery",
+ "sp-block-builder 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-consensus-babe 0.10.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-inherents 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-keyring",
+ "sp-npos-elections",
+ "sp-offchain",
+ "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-session",
+ "sp-staking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-transaction-pool",
+ "sp-version 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "static_assertions",
+ "substrate-wasm-builder",
+]
+
+[[package]]
+name = "node-runtime"
+version = "3.0.0-dev"
 source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80#4d2092476407611865f37f412f96093c84c51c80"
 dependencies = [
  "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
@@ -3631,13 +3680,13 @@ dependencies = [
  "pallet-lottery",
  "pallet-mmr",
  "pallet-multisig",
- "pallet-nft",
+ "pallet-nft 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80)",
  "pallet-offences",
  "pallet-randomness-collective-flip",
  "pallet-recovery",
  "pallet-scheduler",
  "pallet-session",
- "pallet-staking",
+ "pallet-staking 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80)",
  "pallet-staking-reward-curve",
  "pallet-sudo",
  "pallet-timestamp",
@@ -3647,10 +3696,10 @@ dependencies = [
  "pallet-vesting",
  "parity-scale-codec 2.2.0",
  "primitive-types 0.9.1",
- "realis-bridge",
- "realis-game-api",
- "realis-primitives",
- "runtime-common",
+ "realis-bridge 0.0.1 (git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80)",
+ "realis-game-api 0.0.1 (git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80)",
+ "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80)",
+ "runtime-common 0.0.1 (git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80)",
  "sp-api 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "sp-authority-discovery",
  "sp-block-builder 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
@@ -4154,6 +4203,26 @@ dependencies = [
 [[package]]
 name = "pallet-nft"
 version = "0.0.2"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#6a4d5cb13152415646e31a752ae317921b6c3de2"
+dependencies = [
+ "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "hex-literal",
+ "node-primitives",
+ "pallet-balances 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "parity-scale-codec 2.2.0",
+ "primitive-types 0.9.1",
+ "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "serde",
+ "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+]
+
+[[package]]
+name = "pallet-nft"
+version = "0.0.2"
 source = "git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80#4d2092476407611865f37f412f96093c84c51c80"
 dependencies = [
  "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
@@ -4164,7 +4233,7 @@ dependencies = [
  "pallet-balances 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "parity-scale-codec 2.2.0",
  "primitive-types 0.9.1",
- "realis-primitives",
+ "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80)",
  "serde",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
@@ -4247,6 +4316,28 @@ dependencies = [
  "sp-staking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "sp-trie 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+]
+
+[[package]]
+name = "pallet-staking"
+version = "0.0.2"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#6a4d5cb13152415646e31a752ae317921b6c3de2"
+dependencies = [
+ "frame-election-provider-support",
+ "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "log",
+ "pallet-authorship",
+ "pallet-session",
+ "parity-scale-codec 2.2.0",
+ "paste",
+ "serde",
+ "sp-application-crypto 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-io 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-staking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "static_assertions",
 ]
 
 [[package]]
@@ -5178,15 +5269,34 @@ dependencies = [
 name = "realis-adapter"
 version = "0.1.0"
 dependencies = [
- "async-trait",
- "bridge-events",
  "bsc-sender",
  "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "log",
- "node-runtime",
+ "node-runtime 3.0.0-dev (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
  "parity-scale-codec 2.2.0",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "substrate-api-client",
+]
+
+[[package]]
+name = "realis-bridge"
+version = "0.0.1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#6a4d5cb13152415646e31a752ae317921b6c3de2"
+dependencies = [
+ "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "pallet-nft 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "parity-scale-codec 2.2.0",
+ "primitive-types 0.9.1",
+ "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "serde",
+ "sp-arithmetic 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-io 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "substrate-wasm-builder-runner",
 ]
 
 [[package]]
@@ -5197,10 +5307,10 @@ dependencies = [
  "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
- "pallet-nft",
+ "pallet-nft 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80)",
  "parity-scale-codec 2.2.0",
  "primitive-types 0.9.1",
- "realis-primitives",
+ "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80)",
  "serde",
  "sp-arithmetic 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
@@ -5208,6 +5318,30 @@ dependencies = [
  "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "substrate-wasm-builder-runner",
+]
+
+[[package]]
+name = "realis-game-api"
+version = "0.0.1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#6a4d5cb13152415646e31a752ae317921b6c3de2"
+dependencies = [
+ "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "frame-election-provider-support",
+ "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "pallet-authorship",
+ "pallet-balances 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "pallet-nft 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "pallet-session",
+ "pallet-staking 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "pallet-staking-reward-curve",
+ "parity-scale-codec 2.2.0",
+ "primitive-types 0.9.1",
+ "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "serde",
+ "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-staking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
 ]
 
 [[package]]
@@ -5221,16 +5355,35 @@ dependencies = [
  "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "pallet-authorship",
  "pallet-balances 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
- "pallet-nft",
+ "pallet-nft 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80)",
  "pallet-session",
- "pallet-staking",
+ "pallet-staking 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80)",
  "pallet-staking-reward-curve",
  "parity-scale-codec 2.2.0",
  "primitive-types 0.9.1",
- "realis-primitives",
+ "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80)",
  "serde",
  "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "sp-staking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+]
+
+[[package]]
+name = "realis-primitives"
+version = "0.0.2"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#6a4d5cb13152415646e31a752ae317921b6c3de2"
+dependencies = [
+ "ethereum",
+ "ethereum-types",
+ "evm",
+ "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "impl-trait-for-tuples 0.1.3",
+ "parity-scale-codec 2.2.0",
+ "primitive-types 0.9.1",
+ "serde",
+ "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
 ]
 
@@ -5258,14 +5411,11 @@ name = "realis-sender"
 version = "0.1.0"
 dependencies = [
  "log",
- "node-runtime",
- "primitive-types 0.9.1",
- "realis-primitives",
+ "node-runtime 3.0.0-dev (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
- "sp-keyring",
  "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "substrate-api-client",
- "tokio 1.9.0",
 ]
 
 [[package]]
@@ -5432,6 +5582,23 @@ dependencies = [
  "proc-macro2 1.0.28",
  "quote 1.0.9",
  "syn 1.0.74",
+]
+
+[[package]]
+name = "runtime-common"
+version = "0.0.1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#6a4d5cb13152415646e31a752ae317921b6c3de2"
+dependencies = [
+ "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "parity-scale-codec 2.2.0",
+ "rustc-hex",
+ "serde",
+ "serde_derive",
+ "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-io 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
 ]
 
 [[package]]
@@ -6501,15 +6668,6 @@ checksum = "765f090f0e423d2b55843402a07915add955e7d60657db13707a159727326cad"
 dependencies = [
  "libc",
  "winapi 0.3.9",
-]
-
-[[package]]
-name = "sodalite"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41784a359d15c58bba298cccb7f30a847a1a42d0620c9bdaa0aa42fdb3c280e0"
-dependencies = [
- "index-fixed",
 ]
 
 [[package]]
@@ -7817,24 +7975,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "substrate-stellar-sdk"
-version = "0.2.2"
-source = "git+https://github.com/Daelon02/substrate-stellar.git#d955ada34bcff53f52dd5bacc818530d9e645930"
-dependencies = [
- "base64 0.13.0",
- "hex",
- "lazy_static",
- "num-rational 0.4.0",
- "serde",
- "serde_json",
- "sha2 0.9.5",
- "sodalite",
- "sp-io 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
- "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
- "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
-]
-
-[[package]]
 name = "substrate-wasm-builder"
 version = "5.0.0-dev"
 source = "git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178#03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178"
@@ -7946,6 +8086,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2dfed899f0eb03f32ee8c6a0aabdb8a7949659e3466561fc0adf54e26d88c5f4"
 dependencies = [
  "winapi-util",
+]
+
+[[package]]
+name = "tests"
+version = "0.1.0"
+dependencies = [
+ "node-runtime 3.0.0-dev (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "secp256k1",
+ "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "substrate-api-client",
+ "tokio 1.9.0",
+ "utils",
+ "web3",
 ]
 
 [[package]]

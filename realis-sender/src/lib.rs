@@ -24,7 +24,7 @@ impl RealisSender {
     fn api() -> Api<sr25519::Pair> {
         // Get private key
         let pair = Pair::from_string(
-            &*from_path_to_account("./../realis-sender/res/accounts.key"),
+            &*from_path_to_account("./realis-sender/res/accounts.key"),
             None,
         )
         .unwrap();
