@@ -8,7 +8,6 @@ ethabi = "14.1.0"
 log = "0.4"
 runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "node-runtime" }
 realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "realis-primitives", default-features = false }
-tokio = { version = "1.0" }
 web3 = "0.16.0"
 futures = "0.3.16"
 utils = { path = "../utils" }
