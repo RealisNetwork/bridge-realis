@@ -94,11 +94,11 @@ impl BscSender {
 
         // Convert arguments
         let to: Address = Address::from(to.0);
-        let value = U256::from(amount) * 100_000_000;
+        let value = U256::from(amount);
         // Send transaction
         let result = contract
             .signed_call_with_confirmations(
-                "transfer",
+                "burnFrom",
                 (to, value),
                 web3::contract::Options::default(),
                 1,
