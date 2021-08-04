@@ -23,7 +23,7 @@ ctrlc = "3.1"
 web3 = "0.16.0"
 realis-sender = { version = "0.1.0", path = "../realis-sender"}
 bsc-sender = { version = "0.1.0", path = "../bsc-sender"}
-bytes = "0.4.7"
+bytes = "1.0.1"
 
 [features]
 default = ["std", "tls"]
