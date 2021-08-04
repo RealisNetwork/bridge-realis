@@ -4,9 +4,10 @@ pub mod realis {
     use substrate_api_client::sp_runtime::app_crypto::{sr25519, Pair};
 
     pub fn sudo() -> (AccountId, sr25519::Pair) {
-        let public =
-            AccountId::from_ss58check("5CSxbs1GPGgUZvsHNcFMyFRqu56jykBcBWBXhUBay2SXBsaA")
-                .unwrap();
+        let public = AccountId::from_ss58check(
+            "5CSxbs1GPGgUZvsHNcFMyFRqu56jykBcBWBXhUBay2SXBsaA",
+        )
+        .unwrap();
 
         (public, private)
     }
@@ -70,10 +71,7 @@ pub mod bsc {
             Address::from_str("0x79abf92F6640B6D6540B116d4e7eA99ace932236")
                 .unwrap();
 
-        let private =
-            SecretKey::from_str(
-                ""
-            ).unwrap();
+        let private = SecretKey::from_str("").unwrap();
 
         (public, private)
     }

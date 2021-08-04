@@ -38,7 +38,7 @@ This project work at nightly and stable versions Rust.
 
 ### Build
 
-The `make run` command will perform an initial build. Use the following command to build the node
+The `make run` command will perform an initial build. Use the following command to build the bridge
 without launching it:
 
 ```sh
