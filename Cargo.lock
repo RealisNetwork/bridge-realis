@@ -3317,7 +3317,7 @@ dependencies = [
  "env_logger 0.9.0",
  "futures 0.3.16",
  "futures-core",
- "futures-timer 2.0.2",
+ "futures-timer 3.0.2",
  "log",
  "native-tls",
  "node-runtime 3.0.0-dev (git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80)",
@@ -6707,26 +6707,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "soketto"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4919971d141dbadaa0e82b5d369e2d7666c98e4625046140615ca363e50d4daa"
+name = "sp-api"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178#03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178"
 dependencies = [
  "base64 0.13.0",
  "bytes 1.0.1",
  "futures 0.3.16",
  "httparse",
- "log",
- "rand 0.8.4",
- "sha-1 0.9.7",
-]
-
-[[package]]
-name = "sp-api"
-version = "4.0.0-dev"
-source = "git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178#03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178"
-dependencies = [
- "hash-db",
  "log",
  "parity-scale-codec 2.2.0",
  "sp-api-proc-macro 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
@@ -6742,6 +6730,23 @@ dependencies = [
 name = "sp-api"
 version = "4.0.0-dev"
 source = "git+https://github.com/paritytech/substrate.git?branch=master#5e1aab8192cd84b653e023db5ee83abda856438c"
+dependencies = [
+ "hash-db",
+ "log",
+ "parity-scale-codec 2.2.0",
+ "sp-api-proc-macro 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "sp-state-machine 0.10.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "sp-version 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "thiserror",
+]
+
+[[package]]
+name = "sp-api"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178#03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178"
 dependencies = [
  "hash-db",
  "log",
