@@ -11,7 +11,7 @@ runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch 
 realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "realis-primitives", default-features = false }
 substrate-api-client = { git = "https://github.com/scs/substrate-api-client.git", rev = "672a5d4ed9f076525235fef6b5af288f666df803" }
 sp-core = { git = "https://github.com/paritytech/substrate", rev = "03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178" }
-web3 = "0.16.0"
+web3 = "0.17.0"
 secp256k1 = { version = "0.20", features = ["recovery"] }
 utils = { path = "../utils" }
 
