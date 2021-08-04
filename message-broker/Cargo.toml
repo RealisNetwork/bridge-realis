@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 ratsio = { git = "https://github.com/mnetship/ratsio.git", rev = "f49ddf2ea90c52f5ead051b31b36126cd3d38f56" }
-env_logger = {version="^0.7"}
+env_logger = {version="^0.9"}
 runtime = {git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4d2092476407611865f37f412f96093c84c51c80", package = "node-runtime", default-features = false}
 sp-core = { git = "https://github.com/paritytech/substrate", rev = "03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178" }
 tokio = { version = "^1", features = ["rt-multi-thread", "net", "time", "io-util", "macros", "sync"] }
@@ -17,13 +17,13 @@ tokio-native-tls = { version = "^0.3", optional = true }
 async-std = { version = "1", features = ["attributes", "tokio1"] }
 futures = "0.3.16"
 futures-core = "^0.3"
-futures-timer = "^2.0"
+futures-timer = "^3.0"
 log = "^0.4"
 ctrlc = "3.1"
-web3 = "0.16.0"
+web3 = "0.17.0"
 realis-sender = { version = "0.1.0", path = "../realis-sender"}
 bsc-sender = { version = "0.1.0", path = "../bsc-sender"}
-bytes = "0.4.7"
+bytes = "1.0.1"
 
 [features]
 default = ["std", "tls"]
