@@ -6,10 +6,9 @@ mod tests {
     use self::super::accounts;
     use realis_primitives::TokenId;
     use runtime::{
-        realis_bridge::Call as RealisBridgeCall,
         pallet_balances::Call as PalletBalancesCall,
         pallet_nft::Call as PalletNftCall,
-        AccountId, Call
+        realis_bridge::Call as RealisBridgeCall, AccountId, Call,
     };
     use secp256k1::SecretKey;
     use sp_core::{H160, H256 as Hash};
@@ -145,8 +144,7 @@ mod tests {
             1000,
         );
         // Alice-bsc transfer 300 tokens to Bob-bsc
-        transfer_token_in_bsc(private_bsc, alice_address, bob_address, 300)
-            .await;
+        transfer_token_in_bsc(private_bsc, alice_address, bob_address, 300).await;
         // Alice-bsc transfer 300 tokens to Cindy-bsc
         transfer_token_in_bsc(private_bsc, alice_address, cindy_address, 300)
             .await;
@@ -172,13 +170,8 @@ mod tests {
         // Wait for transaction end
         sleep(Duration::from_millis(10_000)).await;
         // Alice-bsc transfer 700 tokens to Bob-bsc
-        transfer_token_in_bsc(
-            private_alice_bsc,
-            alice_address,
-            bob_address,
-            700,
-        )
-        .await;
+        transfer_token_in_bsc(private_alice_bsc, alice_address, bob_address, 700)
+            .await;
         // Alice-bsc transfer 400 tokens to Cindy-bsc
         transfer_token_in_bsc(private_bob_bsc, bob_address, cindy_address, 400)
             .await;
@@ -251,7 +244,8 @@ mod tests {
             account_id,
             address,
             TokenId::from(11),
-        ).await;
+        )
+        .await;
     }
 
     #[tokio::test]
@@ -266,14 +260,16 @@ mod tests {
             account_id.clone(),
             address,
             TokenId::from(21).into(),
-        ).await;
+        )
+        .await;
         // Alice-realis transfer nft-22 to Alice-bsc
         send_nft_from_realis_to_bsc(
             private,
             account_id,
             address,
             TokenId::from(22).into(),
-        ).await;
+        )
+        .await;
     }
 
     #[tokio::test]
@@ -290,7 +286,8 @@ mod tests {
             account_id.clone(),
             alice_address,
             TokenId::from(31).into(),
-        ).await;
+        )
+        .await;
         // Alice-bsc transfer nft-31 to Bob-bsc
         transfer_nft_in_bsc(
             private_alice_bsc,
@@ -326,14 +323,16 @@ mod tests {
             account_id.clone(),
             alice_address,
             TokenId::from(41).into(),
-        ).await;
+        )
+        .await;
         // Alice-realis transfer nft-42 to Alice-bsc
         send_nft_from_realis_to_bsc(
             private.clone(),
             account_id.clone(),
             alice_address,
             TokenId::from(42).into(),
-        ).await;
+        )
+        .await;
         // Alice-bsc transfer nft-41 to Bob-bsc
         transfer_nft_in_bsc(
             private_alice_bsc,
@@ -385,14 +384,16 @@ mod tests {
             account_id.clone(),
             alice_address,
             TokenId::from(51).into(),
-        ).await;
+        )
+        .await;
         // Alice-realis transfer nft-52 to Alice-bsc
         send_nft_from_realis_to_bsc(
             private.clone(),
             account_id.clone(),
             alice_address,
             TokenId::from(52).into(),
-        ).await;
+        )
+        .await;
         // Alice-bsc transfer nft-51 to Bob-bsc
         transfer_nft_in_bsc(
             private_alice_bsc,
@@ -495,8 +496,8 @@ mod tests {
         // Get Alice-bsc account
         let (address, private) = accounts::bsc::alice();
         // Alice-bsc transfer 1 token to Alice-realis
-        let _ = send_tokens_from_bsc_to_realis(private, address, account_id, 1)
-            .await;
+        let _ =
+            send_tokens_from_bsc_to_realis(private, address, account_id, 1).await;
     }
 
     #[tokio::test]
@@ -518,8 +519,7 @@ mod tests {
     #[tokio::test]
     async fn transfer_some_tokens_to_realis_than_use_them_1() {
         // Get Alice-realis account
-        let (alice_account_id, private_alice_realis) =
-            accounts::realis::alice();
+        let (alice_account_id, private_alice_realis) = accounts::realis::alice();
         // Get Bob-realis account
         let (bob_account_id, private_bob_realis) = accounts::realis::bob();
         // Get Alice-bsc account
@@ -552,13 +552,11 @@ mod tests {
     #[tokio::test]
     async fn transfer_some_tokens_to_realis_than_use_them_2() {
         // Get Alice-realis account
-        let (alice_account_id, private_alice_realis) =
-            accounts::realis::alice();
+        let (alice_account_id, private_alice_realis) = accounts::realis::alice();
         // Get Bob-realis account
         let (bob_account_id, private_bob_realis) = accounts::realis::bob();
         // Get Cindy-realis account
-        let (cindy_account_id, private_cindy_realis) =
-            accounts::realis::cindy();
+        let (cindy_account_id, private_cindy_realis) = accounts::realis::cindy();
         // Get Alice-bsc account
         let (address, private_bsc) = accounts::bsc::alice();
         // Alice-bsc transfer 1000 tokens to Alice-realis
@@ -603,13 +601,11 @@ mod tests {
     #[tokio::test]
     async fn transfer_some_tokens_to_realis_than_use_them_3() {
         // Get Alice-realis account
-        let (alice_account_id, private_alice_realis) =
-            accounts::realis::alice();
+        let (alice_account_id, private_alice_realis) = accounts::realis::alice();
         // Get Bob-realis account
         let (bob_account_id, private_bob_realis) = accounts::realis::bob();
         // Get Cindy-realis account
-        let (cindy_account_id, private_cindy_realis) =
-            accounts::realis::cindy();
+        let (cindy_account_id, private_cindy_realis) = accounts::realis::cindy();
         // Get Alice-bsc account
         let (address, private_bsc) = accounts::bsc::alice();
         // Alice-bsc transfer 1000 tokens to Alice-realis
@@ -688,10 +684,7 @@ mod tests {
         #[allow(clippy::redundant_clone)]
         let xt = compose_extrinsic_offline!(
             api.clone().signer.unwrap(),
-            Call::Nft(PalletNftCall::transfer_basic(
-                to.clone(),
-                token_id
-            )),
+            Call::Nft(PalletNftCall::transfer_basic(to.clone(), token_id)),
             api.get_nonce().unwrap(),
             Era::mortal(period, h.number),
             api.genesis_hash,
@@ -746,8 +739,7 @@ mod tests {
     #[tokio::test]
     async fn transfer_some_nfr_to_realis_than_use_them_1() {
         // Get Alice-realis account
-        let (alice_account_id, private_alice_realis) =
-            accounts::realis::alice();
+        let (alice_account_id, private_alice_realis) = accounts::realis::alice();
         // Get Bob-realis account
         let (bob_account_id, private_bob_realis) = accounts::realis::bob();
         // Get Alice-bsc account
@@ -780,13 +772,11 @@ mod tests {
     #[tokio::test]
     async fn transfer_some_nfr_to_realis_than_use_them_2() {
         // Get Alice-realis account
-        let (alice_account_id, private_alice_realis) =
-            accounts::realis::alice();
+        let (alice_account_id, private_alice_realis) = accounts::realis::alice();
         // Get Bob-realis account
         let (bob_account_id, private_bob_realis) = accounts::realis::bob();
         // Get Cindy-realis account
-        let (cindy_account_id, private_cindy_realis) =
-            accounts::realis::cindy();
+        let (cindy_account_id, private_cindy_realis) = accounts::realis::cindy();
         // Get Alice-bsc account
         let (address, private_bsc) = accounts::bsc::alice();
         // Alice-bsc transfer nft-41 to Alice-realis
@@ -839,13 +829,11 @@ mod tests {
     #[tokio::test]
     async fn transfer_some_nfr_to_realis_than_use_them_3() {
         // Get Alice-realis account
-        let (alice_account_id, private_alice_realis) =
-            accounts::realis::alice();
+        let (alice_account_id, private_alice_realis) = accounts::realis::alice();
         // Get Bob-realis account
         let (bob_account_id, private_bob_realis) = accounts::realis::bob();
         // Get Cindy-realis account
-        let (cindy_account_id, private_cindy_realis) =
-            accounts::realis::cindy();
+        let (cindy_account_id, private_cindy_realis) = accounts::realis::cindy();
         // Get Alice-bsc account
         let (address, private_bsc) = accounts::bsc::alice();
         // Alice-bsc transfer nft-51 to Alice-realis
@@ -916,8 +904,7 @@ mod tests {
             1,
         );
         // Transfer 1 token from Alice-bsc account to Alice-realis account
-        send_tokens_from_bsc_to_realis(private_bsc, address, account_id, 1)
-            .await;
+        send_tokens_from_bsc_to_realis(private_bsc, address, account_id, 1).await;
     }
 
     #[tokio::test]
@@ -955,7 +942,8 @@ mod tests {
             account_id.clone(),
             address,
             TokenId::from(61),
-        ).await;
+        )
+        .await;
         // Transfer nft-61 from Alice-bsc account to Alice-realis account
         send_nft_from_bsc_to_realis(
             private_bsc,
@@ -986,6 +974,7 @@ mod tests {
             account_id.clone(),
             address,
             TokenId::from(62),
-        ).await;
+        )
+        .await;
     }
 }

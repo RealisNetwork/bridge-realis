@@ -1,7 +1,7 @@
 pub mod contract {
     use log::{error, info};
-    use std::str::FromStr;
-    use tokio::time::{delay_for, Duration};
+    use std::{str::FromStr, time::Duration};
+    use tokio::time::sleep;
 
     use web3::{contract::Contract, transports::WebSocket, types::Address, Web3};
 
@@ -19,7 +19,7 @@ pub mod contract {
                 }
             }
             // Wait a bit before reconnect
-            delay_for(Duration::from_millis(1000)).await;
+            sleep(Duration::from_millis(1000)).await;
         }
 
         web3::Web3::new(wss.unwrap())
