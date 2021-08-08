@@ -59,8 +59,7 @@ impl RealisAdapter {
 
 fn parse_events(event_str: String) -> Vec<system::EventRecord<Event, Hash>> {
     let unhex = Vec::from_hex(event_str).unwrap();
-    let mut er_enc = unhex.as_slice();
-    Vec::<system::EventRecord<Event, Hash>>::decode(&mut er_enc).unwrap()
+    Decode::decode(&mut unhex.as_slice()).unwrap()
 }
 
 async fn handle_event(event: system::EventRecord<Event, Hash>) {
