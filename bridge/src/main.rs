@@ -36,7 +36,7 @@ async fn main() {
         ),
         Some(value) => match value.as_str() {
             "realis-to-bsc" => {
-                let realis_adapter = RealisAdapter::new("rpc.realis.network");
+                let mut realis_adapter = RealisAdapter::new("rpc.realis.network");
 
                 realis_adapter.listen().await;
             }
