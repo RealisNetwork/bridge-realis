@@ -4,9 +4,9 @@ use log::info;
 use ratsio::{RatsioError, StanClient, StanMessage, StanOptions, StanSid};
 use realis_sender::RealisSender;
 use runtime::AccountId;
-use sp_core::{crypto::Ss58Codec, H160};
+use sp_core::{crypto::Ss58Codec, H160, U256};
 use std::str::FromStr;
-use web3::{contract::deploy::Error, types::U256};
+use web3::contract::deploy::Error;
 
 pub fn logger_setup() {
     use env_logger::Builder;
@@ -83,11 +83,13 @@ async fn listen_nft(accounts: Vec<&str>) -> Result<(), Error> {
         let account_id_realis = AccountId::from_ss58check(&accounts[5]).unwrap();
         let amount = U256::from_dec_str(accounts[8]).unwrap();
         let token_type: u8 = accounts[11].parse().unwrap();
+        let rarity = accounts[14].parse().unwrap();
         RealisSender::send_nft_to_realis(
             account_id_bsc,
             account_id_realis.clone(),
             amount,
             token_type,
+            rarity,
         )
         .await;
         println!("{:?}", account_id_bsc);
@@ -96,7 +98,7 @@ async fn listen_nft(accounts: Vec<&str>) -> Result<(), Error> {
     } else {
         let account_id_realis = AccountId::from_ss58check(&accounts[2]).unwrap();
         let account_id_bsc = H160::from_str(&accounts[5]).unwrap();
-        let value = U256::from_dec_str(accounts[8]).unwrap();
+        let value = web3::types::U256::from_dec_str(accounts[8]).unwrap();
         let token_type: u8 = accounts[11].parse().unwrap();
         BscSender::send_nft_to_bsc(
             account_id_realis.clone(),

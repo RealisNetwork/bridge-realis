@@ -1,5 +1,5 @@
 // use log::{error, info};
-use realis_primitives::{Basic, TokenId};
+use realis_primitives::{Basic, Rarity, TokenId};
 use runtime::{realis_bridge::Call as RealisBridgeCall, AccountId, Call};
 use sp_core::{sr25519, Pair, H160, H256 as Hash};
 use sp_runtime::{generic, traits::BlakeTwo256};
@@ -79,6 +79,7 @@ impl RealisSender {
         to: AccountId,
         token_id: TokenId,
         token_type: Basic,
+        rarity: Rarity,
     ) {
         let api = RealisSender::api();
 
@@ -93,7 +94,8 @@ impl RealisSender {
                 from,
                 to.clone(),
                 token_id,
-                token_type
+                token_type,
+                rarity
             )),
             api.get_nonce().unwrap(),
             Era::mortal(period, h.number),
