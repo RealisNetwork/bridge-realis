@@ -5,7 +5,10 @@ use realis_sender::RealisSender;
 use runtime::AccountId;
 use sp_core::{crypto::Ss58Codec, H160};
 use utils::contract;
-use web3::{contract::Contract, transports::WebSocket};
+use web3::{
+    contract::{Contract, Result as web3Result},
+    transports::WebSocket,
+};
 
 // TODO from struct to functions??? or find better solution
 struct BSCListener(Contract<WebSocket>);
@@ -51,7 +54,7 @@ impl BSCListener {
 
     pub async fn listen_nft(&self) {
         loop {
-            let logs: web3::contract::Result<Vec<(Address, String, Uint, u8)>> =
+            let logs: web3Result<Vec<(Address, String, Uint, u8, String)>> =
                 self.0.events("TransferNftToRealis", (), (), ()).await;
 
             match logs {
@@ -61,19 +64,24 @@ impl BSCListener {
                         // Log event
                         println!("Get event {:?}", event);
                         // Unpack event arguments
-                        let (from, to, tokenid_to_realis, basic) = event;
+                        let (from, to, token_id_from_mint, basic, rarity) = event;
                         // Convert arguments
                         let account_id = AccountId::from_ss58check(&to).unwrap();
                         // Log arguments
                         println!(
                             "TransferNftToRealis: {:?}, {:?}, {:?}",
-                            to, tokenid_to_realis, basic
+                            to, token_id_from_mint, basic
                         );
+                        let rarity_str = rarity.parse().unwrap();
+                        let token_id_str =
+                            string_to_static_str(token_id_from_mint.to_string());
+                        let token_id = sp_core::U256::from(token_id_str);
                         RealisSender::send_nft_to_realis(
                             H160::from(from.0),
                             account_id,
-                            tokenid_to_realis,
+                            token_id,
                             basic,
+                            rarity_str,
                         )
                         .await;
                     }
@@ -129,10 +137,13 @@ impl BSCListener {
                     for event in events {
                         println!("Get event {:?}", event);
                         // Unpack event arguments
-                        let (from, to, token_id, basic) = event;
+                        let (from, to, token_id_from_mint, basic) = event;
                         // Convert argument
                         let account_id =
                             AccountId::from_ss58check(&from).unwrap();
+                        let token_id_str =
+                            string_to_static_str(token_id_from_mint.to_string());
+                        let token_id = sp_core::U256::from(token_id_str);
                         println!(
                             "TransferNftToRealis: {:?} => {:?}, {:?}, {:?}",
                             account_id, to, token_id, basic
@@ -168,4 +179,9 @@ impl BSCAdapter {
             nft_listener_success.listen_nft_success()
         );
     }
+}
+
+#[must_use]
+pub fn string_to_static_str(s: String) -> &'static str {
+    Box::leak(s.into_boxed_str())
 }

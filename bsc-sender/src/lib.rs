@@ -1,11 +1,12 @@
 // use log::{error, info};
-use realis_primitives::{Basic, TokenId};
+use primitive_types::U256;
+use realis_primitives::Basic;
 use runtime::AccountId;
 use secp256k1::SecretKey;
 use sp_core::H160;
 use std::{fs, path::Path, str::FromStr};
 use utils::contract;
-use web3::types::{Address, U256};
+use web3::types::Address;
 
 pub struct BscSender {}
 
@@ -51,7 +52,7 @@ impl BscSender {
     pub async fn send_nft_to_bsc(
         from: AccountId,
         to: H160,
-        token_id: TokenId,
+        token_id: primitive_types::U256,
         token_type: Basic,
     ) {
         println!(
@@ -114,7 +115,7 @@ impl BscSender {
 
     pub async fn send_nft_approve_from_realis_to_bsc(
         to: H160,
-        token_id: TokenId,
+        token_id: primitive_types::U256,
         token_type: Basic,
     ) {
         println!(
@@ -123,7 +124,7 @@ impl BscSender {
         );
 
         let wallet_key =
-            BscSender::read_file_for_secret_key("./bsc-sender/res/accounts.key");
+            BscSender::read_file_for_secret_key("/bsc-sender/res/accounts.key");
 
         let contract = contract::nft_new().await;
 

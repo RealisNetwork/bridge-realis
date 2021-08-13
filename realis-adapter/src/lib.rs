@@ -75,13 +75,17 @@ async fn handle_event(event: system::EventRecord<Event, Hash>) {
             realis_bridge::Event::TransferNftToBSC(
                 from,
                 to,
-                token_id,
+                token_id_from_mint,
                 token_type,
+                _rarity,
             ) => {
                 println!(
                     "Realis-adapter handled TransferNftToBSC: {} => {}, {}",
-                    from, to, token_id
+                    from, to, token_id_from_mint
                 );
+                let token_id_str =
+                    string_to_static_str(token_id_from_mint.to_string());
+                let token_id = primitive_types::U256::from(token_id_str);
                 BscSender::send_nft_to_bsc(
                     from.clone(),
                     to,
@@ -105,16 +109,20 @@ async fn handle_event(event: system::EventRecord<Event, Hash>) {
             realis_bridge::Event::TransferNftToRealis(
                 from,
                 to,
-                token_id,
+                token_id_from_mint,
                 token_type,
+                _rarity,
             ) => {
                 // This event appears when nft transfer from bsc to realis
                 // And realis blockchain confirmed this transfer
                 println!(
                     "Realis-adapter handled TransferNftToRealis: \
                         {} => {}, {}",
-                    from, to, token_id
+                    from, to, token_id_from_mint
                 );
+                let token_id_str =
+                    string_to_static_str(token_id_from_mint.to_string());
+                let token_id = primitive_types::U256::from(token_id_str);
                 BscSender::send_nft_approve_from_realis_to_bsc(
                     from, token_id, token_type,
                 )
@@ -130,4 +138,9 @@ async fn handle_event(event: system::EventRecord<Event, Hash>) {
     } else {
         // println!("Unsupported event {:?}", event.event);
     }
+}
+
+#[must_use]
+pub fn string_to_static_str(s: String) -> &'static str {
+    Box::leak(s.into_boxed_str())
 }
