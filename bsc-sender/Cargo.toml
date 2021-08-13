@@ -13,7 +13,7 @@ sp-core = { git = "https://github.com/paritytech/substrate.git", branch = "maste
 secp256k1 = { version = "0.20", features = ["recovery"] }
 web3 = "0.17.0"
 utils = { path = "../utils" }
-tokio = "1.9"
+tokio = "1.10"
 
 [features]
 default = ["std"]
