@@ -8,7 +8,7 @@ edition = "2018"
 [dependencies]
 log = "0.4"
 secp256k1 = { version = "0.20", features = ["recovery"] }
-tokio = { version = "1.9", optional = true }
+tokio = { version = "1.10", optional = true }
 web3 = "0.17.0"
 
 [features]
