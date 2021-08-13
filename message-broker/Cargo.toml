@@ -8,6 +8,7 @@ edition = "2018"
 [dependencies]
 ratsio = { git = "https://github.com/mnetship/ratsio.git", rev = "f49ddf2ea90c52f5ead051b31b36126cd3d38f56" }
 env_logger = {version="^0.9"}
+utils = {path = "../utils"}
 runtime = {git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4d2092476407611865f37f412f96093c84c51c80", package = "node-runtime", default-features = false}
 sp-core = { git = "https://github.com/paritytech/substrate", rev = "03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178" }
 tokio = { version = "1.9", features = ["rt-multi-thread", "net", "time", "io-util", "macros", "sync"] }

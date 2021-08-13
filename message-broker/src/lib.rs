@@ -1,12 +1,11 @@
-use bsc_sender::BscSender;
 use futures::{Stream, StreamExt};
-use log::info;
+use log::{error, info};
 use ratsio::{RatsioError, StanClient, StanMessage, StanOptions, StanSid};
+
+use bsc_sender::BscSender;
 use realis_sender::RealisSender;
-use runtime::AccountId;
-use sp_core::{crypto::Ss58Codec, H160, U256};
-use std::str::FromStr;
-use web3::contract::deploy::Error;
+use std::convert::TryFrom;
+use utils::{parse, parse::Request};
 
 pub fn logger_setup() {
     use env_logger::Builder;
@@ -33,83 +32,86 @@ pub async fn message_broker() {
             &message,
             String::from_utf8_lossy(message.payload.as_ref())
         );
-        let message_string = String::from_utf8_lossy(message.payload.as_ref());
-        let accounts: Vec<&str> = message_string.split(' ').collect();
-        if accounts[7].starts_with("Value") {
-            listen_token(accounts).await.unwrap();
-        } else if accounts[7].starts_with("TokenId") {
-            listen_nft(accounts).await.unwrap();
+        let message_string = parse::convert_message(&message);
+    }
+}
+
+pub async fn listen(sender: Vec<&str>) -> Result<(), RatsioError> {
+    let mut subscription = sub_stan().await?;
+
+    while let Some(message) = subscription.1.next().await {
+        match utils::parse::convert_message(&message) {
+            Ok(request) => match request {
+                Request::TransferFromRealis {
+                    user_id,
+                    account_id,
+                    bsc_account,
+                    amount,
+                    id,
+                    agent,
+                    lang,
+                } => {
+                    BscSender::send_token_to_bsc(
+                        account_id,
+                        bsc_account,
+                        u128::try_from(amount).unwrap(),
+                    );
+                }
+                Request::TransferFromRealisNft {
+                    user_id,
+                    account_id,
+                    bsc_account,
+                    token_id,
+                    token_type,
+                    rarity,
+                    id,
+                    agent,
+                    lang,
+                } => {
+                    BscSender::send_nft_to_bsc(
+                        account_id,
+                        bsc_account,
+                        token_id,
+                        token_type,
+                    );
+                }
+                Request::SendToRealis {
+                    user_id,
+                    bsc_account,
+                    account_id,
+                    amount,
+                    id,
+                    agent,
+                    lang,
+                } => {
+                    RealisSender::send_token_to_realis(
+                        bsc_account,
+                        account_id,
+                        u128::try_from(amount).unwrap(),
+                    );
+                }
+                Request::SendToRealisNft {
+                    user_id,
+                    account_id,
+                    bsc_account,
+                    token_id,
+                    token_type,
+                    rarity,
+                    id,
+                    agent,
+                    lang,
+                } => {
+                    RealisSender::send_nft_to_realis(
+                        bsc_account,
+                        account_id,
+                        token_id,
+                        token_type,
+                        rarity,
+                    );
+                }
+            },
+            Err(error) => error!("{:?}", error),
         }
-    }
-}
-
-async fn listen_token(accounts: Vec<&str>) -> Result<(), Error> {
-    logger_setup();
-    if accounts[2].starts_with("0x") {
-        let account_id_bsc = H160::from_str(&accounts[2]).unwrap();
-        let account_id_realis = AccountId::from_ss58check(&accounts[5]).unwrap();
-        let amount = u128::from_str(&accounts[8]).unwrap();
-        let value = accounts.clone();
-        RealisSender::send_token_to_realis(
-            account_id_bsc,
-            account_id_realis.clone(),
-            amount,
-        )
-        .await;
-        println!("{:?}", account_id_bsc);
-        println!("{:?}", account_id_realis);
-        println!("{:?}", value);
-    } else {
-        let account_id_realis = AccountId::from_ss58check(&accounts[2]).unwrap();
-        let account_id_bsc = H160::from_str(&accounts[5]).unwrap();
-        let value = u128::from_str(&accounts[8]).unwrap();
-        BscSender::send_token_to_bsc(
-            account_id_realis.clone(),
-            account_id_bsc,
-            value,
-        )
-        .await;
-        println!("{:?}", account_id_realis);
-        println!("{:?}", account_id_bsc);
-        println!("{:?}", value);
-    }
-    Ok(())
-}
-
-async fn listen_nft(accounts: Vec<&str>) -> Result<(), Error> {
-    logger_setup();
-    if accounts[2].starts_with("0x") {
-        let account_id_bsc = H160::from_str(&accounts[2]).unwrap();
-        let account_id_realis = AccountId::from_ss58check(&accounts[5]).unwrap();
-        let amount = U256::from_dec_str(accounts[8]).unwrap();
-        let token_type: u8 = accounts[11].parse().unwrap();
-        let rarity = accounts[14].parse().unwrap();
-        RealisSender::send_nft_to_realis(
-            account_id_bsc,
-            account_id_realis.clone(),
-            amount,
-            token_type,
-            rarity,
-        )
-        .await;
-        println!("{:?}", account_id_bsc);
-        println!("{:?}", account_id_realis);
-        println!("{:?}", amount);
-    } else {
-        let account_id_realis = AccountId::from_ss58check(&accounts[2]).unwrap();
-        let account_id_bsc = H160::from_str(&accounts[5]).unwrap();
-        let value = web3::types::U256::from_dec_str(accounts[8]).unwrap();
-        let token_type: u8 = accounts[11].parse().unwrap();
-        BscSender::send_nft_to_bsc(
-            account_id_realis.clone(),
-            account_id_bsc,
-            value,
-            token_type,
-        )
-        .await;
-        println!("{:?}", account_id_realis);
-        println!("{:?}", account_id_bsc);
-        println!("{:?}", value);
     }
     Ok(())
 }

@@ -1,8 +1,10 @@
-pub mod contract {
-    use log::{error, info};
-    use std::{str::FromStr, time::Duration};
-    use tokio::time::sleep;
+pub mod parse;
 
+pub mod contract {
+    use std::{str::FromStr, time::Duration};
+
+    use log::{error, info};
+    use tokio::time::sleep;
     use web3::{contract::Contract, transports::WebSocket, types::Address, Web3};
 
     async fn connect() -> Web3<WebSocket> {
@@ -57,9 +59,10 @@ pub mod contract {
 }
 
 pub mod accounts {
-    use secp256k1::SecretKey;
     // use sp_core::Pair;
     use std::{fs, path::Path, str::FromStr};
+
+    use secp256k1::SecretKey;
 
     /// # Panics
     ///
