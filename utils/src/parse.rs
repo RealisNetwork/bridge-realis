@@ -88,12 +88,9 @@ pub enum Request {
 
 /// # Errors
 pub fn convert_message(message: &StanMessage) -> Result<Request, Error> {
-    // Convert message to string
-    let message_string =
-        String::from_utf8_lossy(message.payload.as_ref()).into_owned();
     // Convert to json value object
     let raw_request: Result<RawRequest, serde_json::Error> =
-        serde_json::from_str(&message_string);
+        serde_json::from_slice(&message.payload);
     match raw_request {
         Ok(raw_request) => {
             // Parse json from string to objects
@@ -105,6 +102,7 @@ pub fn convert_message(message: &StanMessage) -> Result<Request, Error> {
     }
 }
 
+// TODO: why dont derive serde::Deserialize?
 fn parse_json(raw_request: RawRequest) -> Result<Request, Error> {
     // Get params from JSON
     let params = raw_request.params;
@@ -115,7 +113,7 @@ fn parse_json(raw_request: RawRequest) -> Result<Request, Error> {
     // Parse request params depending on the calling method
     match raw_request.method.as_str() {
         "transfer_from_realis" => {
-            let user_id: UserId = get_string(&params, "user_id")?;
+            let user_id: UserId = get_string(&params, "user_id")?.to_owned();
             let account_id = parse_account_id(&params, "account_id")?;
             let bsc_account = parse_account_bsc(&params, "bsc_account")?;
             let amount = parse_u256(&params, "amount")?;
@@ -130,7 +128,7 @@ fn parse_json(raw_request: RawRequest) -> Result<Request, Error> {
             })
         }
         "transfer_from_realis_nft" => {
-            let user_id: UserId = get_string(&params, "user_id")?;
+            let user_id: UserId = get_string(&params, "user_id")?.to_owned();
             let token_id: U256 = parse_u256(&params, "token_id")?;
             let token_type: Basic = parse_basic(&params, "token_type")?;
             let rarity: Rarity = parse_rarity(&params, "rarity")?;
@@ -149,7 +147,7 @@ fn parse_json(raw_request: RawRequest) -> Result<Request, Error> {
             })
         }
         "transfer_from_bsc" => {
-            let user_id: UserId = get_string(&params, "user_id")?;
+            let user_id: UserId = get_string(&params, "user_id")?.to_owned();
             let amount: U256 = parse_u256(&params, "amount")?;
             let account_id = parse_account_id(&params, "account_id")?;
             let bsc_account = parse_account_bsc(&params, "bsc_account")?;
@@ -164,7 +162,7 @@ fn parse_json(raw_request: RawRequest) -> Result<Request, Error> {
             })
         }
         "transfer_from_bsc_from" => {
-            let user_id: UserId = get_string(&params, "user_id")?;
+            let user_id: UserId = get_string(&params, "user_id")?.to_owned();
             let token_id: TokenId = parse_token_id(&params, "token_id")?;
             let token_type: Basic = parse_basic(&params, "token_type")?;
             let rarity: Rarity = parse_rarity(&params, "rarity")?;
@@ -186,10 +184,10 @@ fn parse_json(raw_request: RawRequest) -> Result<Request, Error> {
     }
 }
 
-fn get_string(
-    params: &Map<String, serde_json::Value>,
+fn get_string<'a>(
+    params: &'a Map<String, serde_json::Value>,
     field_name: &'static str,
-) -> Result<String, Error> {
+) -> Result<&'a str, Error> {
     // Get value by field name
     match params.get(field_name) {
         // If field missing
@@ -206,7 +204,7 @@ fn parse_u256(
     // Try to get value
     let value = get_string(params, field_name)?;
     // Try convert value to 'u128'
-    u256_from_string(&value)
+    u256_from_string(value)
 }
 
 fn parse_token_id(
@@ -214,7 +212,7 @@ fn parse_token_id(
     field_name: &'static str,
 ) -> Result<TokenId, Error> {
     let value = get_string(params, field_name)?;
-    token_id_from_string(&value)
+    token_id_from_string(value)
 }
 
 fn parse_basic(
@@ -222,7 +220,7 @@ fn parse_basic(
     field_name: &'static str,
 ) -> Result<Basic, Error> {
     let value = get_string(params, field_name)?;
-    basic_from_string(&value)
+    basic_from_string(value)
 }
 
 fn parse_rarity(
@@ -230,7 +228,7 @@ fn parse_rarity(
     field_name: &'static str,
 ) -> Result<Rarity, Error> {
     let value = get_string(params, field_name)?;
-    rarity_from_string(&value)
+    rarity_from_string(value)
 }
 
 fn parse_account_id(
@@ -238,7 +236,7 @@ fn parse_account_id(
     field_name: &'static str,
 ) -> Result<AccountId, Error> {
     let value = get_string(params, field_name)?;
-    ss58_from_string(&value)
+    ss58_from_string(value)
 }
 
 fn parse_account_bsc(
@@ -246,16 +244,16 @@ fn parse_account_bsc(
     field_name: &'static str,
 ) -> Result<H160, Error> {
     let value = get_string(params, field_name)?;
-    h160_from_string(&value)
+    h160_from_string(value)
 }
 
-fn string_from_value(value: &Value) -> Result<String, Error> {
+fn string_from_value(value: &Value) -> Result<&str, Error> {
     match value.as_str() {
         None => Err(Error::Convert(
             format!("{:?}", value),
             String::from("String"),
         )),
-        Some(value) => Ok(String::from(value)),
+        Some(value) => Ok(value),
     }
 }
 
@@ -284,14 +282,14 @@ fn ss58_from_string(value: &str) -> Result<AccountId, Error> {
 }
 
 fn token_id_from_string(value: &str) -> Result<TokenId, Error> {
-    match TokenId::from_str_radix(&value, 10) {
+    match TokenId::from_str_radix(value, 10) {
         Err(_) => Err(Error::Convert(value.to_string(), String::from("TokenId"))),
         Ok(token_id) => Ok(token_id),
     }
 }
 
 fn basic_from_string(value: &str) -> Result<Basic, Error> {
-    match from_str(&value) {
+    match from_str(value) {
         Err(_) => Err(Error::Convert(value.to_string(), String::from("Basic"))),
         Ok(basic) => Ok(basic),
     }
