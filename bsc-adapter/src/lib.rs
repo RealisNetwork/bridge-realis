@@ -39,7 +39,7 @@ impl BSCListener {
                         );
                         RealisSender::send_token_to_realis(
                             H160::from(from.0),
-                            account_id,
+                            &account_id,
                             value.as_u128(),
                         );
                     }
@@ -78,7 +78,7 @@ impl BSCListener {
                         let token_id = U256::from(token_id_from_mint.as_u32());
                         RealisSender::send_nft_to_realis(
                             H160::from(from.0),
-                            account_id,
+                            &account_id,
                             token_id,
                             basic,
                             rarity_str,

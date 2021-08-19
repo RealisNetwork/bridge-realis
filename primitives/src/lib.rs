@@ -13,7 +13,7 @@ use thiserror::Error;
 pub type UserId = String;
 pub type TransactionHash = String;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Request {
     Realis(RealisRequest),
 }
@@ -36,13 +36,13 @@ pub enum RealisRequest {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ResponderRequest {
-    TransferTokenToBSC(Raw<Transfer>, String),
+    TransferTokenToBSC(Raw<Transfer>, String, String),
 
-    TransferNftToBSC(Raw<RemoveNftItem>, Amount),
+    TransferNftToBSC(Raw<RemoveNftItem>, TokenId, String),
 
-    TransferTokenToRealis(Raw<Transfer>, Amount),
+    TransferTokenToRealis(Raw<Transfer>, Amount, String),
 
-    TransferNftToRealis(Raw<AddNftItem>, Amount),
+    TransferNftToRealis(Raw<AddNftItem>, TokenId, String),
 
     Error(),
 }

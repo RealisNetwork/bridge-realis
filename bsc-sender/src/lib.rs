@@ -1,6 +1,6 @@
 // use log::{error, info};
 use primitive_types::U256;
-use realis_primitives::Basic;
+use realis_primitives::{Basic, Rarity};
 use runtime::AccountId;
 use secp256k1::SecretKey;
 use sp_core::H160;

@@ -8,7 +8,6 @@ pub type Lang = String;
 pub type Id = String;
 
 pub type Amount = u128;
-pub type UserId = String;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Raw<T> {
@@ -24,25 +23,32 @@ pub struct Raw<T> {
 // CreditHardCurrency, DebitHardCurrency
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Transfer {
-    pub user_id: UserId,
+    pub account_id: String,
+    pub bsc_account: String,
     #[serde(deserialize_with = "u128_from_any")]
     pub amount: Amount,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct AddNftItem {
-    pub user_id: UserId,
+    pub account_id: String,
+    pub bsc_account: String,
     pub token_id: TokenId,
     pub token_type: Basic,
-    pub rarity: Rarity,
+    pub rarity: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct RemoveNftItem {
-    pub user_id: UserId,
+    pub account_id: String,
+    pub bsc_account: String,
     pub token_id: TokenId,
+    pub token_type: Basic,
+    pub rarity: String,
 }
 
+/// # Errors
+///
 pub fn u128_from_any<'de, D>(deserializer: D) -> Result<u128, D::Error>
 where
     D: Deserializer<'de>,
