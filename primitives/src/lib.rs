@@ -13,36 +13,31 @@ use thiserror::Error;
 pub type UserId = String;
 pub type TransactionHash = String;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum Request {
-    Realis(RealisRequest),
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "method")]
-pub enum RealisRequest {
+pub enum Request {
     #[serde(rename = "transfer_token_to_bsc")]
-    TransferTokenToBSC(Raw<Transfer>),
+    TransferTokenToBSC(Raw<TransferToBSC>),
 
     #[serde(rename = "transfer_nft_to_bsc")]
-    TransferNftToBSC(Raw<RemoveNftItem>),
+    TransferNftToBSC(Raw<AddNftToBsc>),
 
     #[serde(rename = "transfer_token_to_realis")]
-    TransferTokenToRealis(Raw<Transfer>),
+    TransferTokenToRealis(Raw<TransferToRealis>),
 
     #[serde(rename = "transfer_token_to_realis")]
-    TransferNftToRealis(Raw<AddNftItem>),
+    TransferNftToRealis(Raw<AddNftToRealis>),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ResponderRequest {
-    TransferTokenToBSC(Raw<Transfer>, String, String),
+    TransferTokenToBSC(Raw<TransferToBSC>, String, String),
 
-    TransferNftToBSC(Raw<RemoveNftItem>, TokenId, String),
+    TransferNftToBSC(Raw<AddNftToBsc>, TokenId, String),
 
-    TransferTokenToRealis(Raw<Transfer>, Amount, String),
+    TransferTokenToRealis(Raw<TransferToRealis>, Amount, String),
 
-    TransferNftToRealis(Raw<AddNftItem>, TokenId, String),
+    TransferNftToRealis(Raw<AddNftToRealis>, TokenId, String),
 
     Error(),
 }

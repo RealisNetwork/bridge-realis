@@ -22,7 +22,16 @@ pub struct Raw<T> {
 
 // CreditHardCurrency, DebitHardCurrency
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct Transfer {
+pub struct TransferToBSC {
+    pub account_id: String,
+    pub bsc_account: String,
+    #[serde(deserialize_with = "u128_from_any")]
+    pub amount: Amount,
+}
+
+// CreditHardCurrency, DebitHardCurrency
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct TransferToRealis {
     pub account_id: String,
     pub bsc_account: String,
     #[serde(deserialize_with = "u128_from_any")]
@@ -30,7 +39,7 @@ pub struct Transfer {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct AddNftItem {
+pub struct AddNftToBsc {
     pub account_id: String,
     pub bsc_account: String,
     pub token_id: TokenId,
@@ -39,16 +48,15 @@ pub struct AddNftItem {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct RemoveNftItem {
-    pub account_id: String,
+pub struct AddNftToRealis {
     pub bsc_account: String,
+    pub account_id: String,
     pub token_id: TokenId,
     pub token_type: Basic,
     pub rarity: String,
 }
 
 /// # Errors
-///
 pub fn u128_from_any<'de, D>(deserializer: D) -> Result<u128, D::Error>
 where
     D: Deserializer<'de>,
