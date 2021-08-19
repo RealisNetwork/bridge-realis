@@ -3,7 +3,7 @@ use futures::join;
 // use log::{error, info};
 use realis_sender::RealisSender;
 use runtime::AccountId;
-use sp_core::{crypto::Ss58Codec, H160};
+use sp_core::{crypto::Ss58Codec, H160, U256};
 use utils::contract;
 use web3::{
     contract::{Contract, Result as web3Result},
@@ -39,10 +39,9 @@ impl BSCListener {
                         );
                         RealisSender::send_token_to_realis(
                             H160::from(from.0),
-                            account_id,
+                            &account_id,
                             value.as_u128(),
-                        )
-                        .await;
+                        );
                     }
                 }
                 Err(error) => {
@@ -54,17 +53,20 @@ impl BSCListener {
 
     pub async fn listen_nft(&self) {
         loop {
-            let logs: web3Result<Vec<(Address, String, Uint, u8, String)>> =
-                self.0.events("TransferNftToRealis", (), (), ()).await;
+            #[allow(clippy::type_complexity)]
+            let logs: web3Result<
+                Vec<(Address, String, Uint, u8, String)>,
+            > = self.0.events("TransferNftToRealis", (), (), ()).await;
 
             match logs {
                 Ok(events) => {
                     // Process all events
-                    for event in events {
+                    for (from, to, token_id_from_mint, basic, rarity) in events {
                         // Log event
-                        println!("Get event {:?}", event);
-                        // Unpack event arguments
-                        let (from, to, token_id_from_mint, basic, rarity) = event;
+                        println!(
+                            "Get event {:?}",
+                            (from, &to, token_id_from_mint, basic, &rarity)
+                        );
                         // Convert arguments
                         let account_id = AccountId::from_ss58check(&to).unwrap();
                         // Log arguments
@@ -73,17 +75,14 @@ impl BSCListener {
                             to, token_id_from_mint, basic
                         );
                         let rarity_str = rarity.parse().unwrap();
-                        let token_id_str =
-                            string_to_static_str(token_id_from_mint.to_string());
-                        let token_id = sp_core::U256::from(token_id_str);
+                        let token_id = U256::from(token_id_from_mint.as_u32());
                         RealisSender::send_nft_to_realis(
                             H160::from(from.0),
-                            account_id,
+                            &account_id,
                             token_id,
                             basic,
                             rarity_str,
-                        )
-                        .await;
+                        );
                     }
                 }
                 Err(error) => {
@@ -134,16 +133,16 @@ impl BSCListener {
             match logs {
                 Ok(events) => {
                     // Process all events
-                    for event in events {
-                        println!("Get event {:?}", event);
-                        // Unpack event arguments
-                        let (from, to, token_id_from_mint, basic) = event;
+                    for (from, to, token_id_from_mint, basic) in events {
+                        println!(
+                            "Get event {:?}",
+                            (&from, to, token_id_from_mint, basic)
+                        );
                         // Convert argument
                         let account_id =
                             AccountId::from_ss58check(&from).unwrap();
-                        let token_id_str =
-                            string_to_static_str(token_id_from_mint.to_string());
-                        let token_id = sp_core::U256::from(token_id_str);
+                        let token_id =
+                            sp_core::U256::from(token_id_from_mint.as_u32());
                         println!(
                             "TransferNftToRealis: {:?} => {:?}, {:?}, {:?}",
                             account_id, to, token_id, basic
@@ -179,9 +178,4 @@ impl BSCAdapter {
             nft_listener_success.listen_nft_success()
         );
     }
-}
-
-#[must_use]
-pub fn string_to_static_str(s: String) -> &'static str {
-    Box::leak(s.into_boxed_str())
 }

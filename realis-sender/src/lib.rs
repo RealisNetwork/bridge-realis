@@ -1,7 +1,7 @@
 // use log::{error, info};
 use realis_primitives::{Basic, Rarity, TokenId};
 use runtime::{realis_bridge::Call as RealisBridgeCall, AccountId, Call};
-use sp_core::{sr25519, Pair, H160, H256 as Hash};
+use sp_core::{sr25519, Pair, H160};
 use sp_runtime::{generic, traits::BlakeTwo256};
 use std::{fs, path::Path};
 use substrate_api_client::{
@@ -24,7 +24,7 @@ impl RealisSender {
     fn api() -> Api<sr25519::Pair> {
         // Get private key
         let pair = Pair::from_string(
-            &*from_path_to_account("./realis-sender/res/accounts.key"),
+            &from_path_to_account("./realis-sender/res/accounts.key"),
             None,
         )
         .unwrap();
@@ -39,10 +39,10 @@ impl RealisSender {
     /// # Panics
     ///
     /// Tranfer token from BSC to Realis.Network
-    pub async fn send_token_to_realis(from: H160, to: AccountId, amount: u128) {
+    pub fn send_token_to_realis(from: H160, to: &AccountId, amount: u128) {
         let api = RealisSender::api();
 
-        let head: Hash = api.get_finalized_head().unwrap().unwrap();
+        let head = api.get_finalized_head().unwrap().unwrap();
         let h: Header = api.get_header(Some(head)).unwrap().unwrap();
         let period = 5;
 
@@ -74,9 +74,9 @@ impl RealisSender {
     /// # Panics
     ///
     /// Tranfer nft from BSC to Realis.Network
-    pub async fn send_nft_to_realis(
+    pub fn send_nft_to_realis(
         from: H160,
-        to: AccountId,
+        to: &AccountId,
         token_id: TokenId,
         token_type: Basic,
         rarity: Rarity,

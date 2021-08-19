@@ -29,14 +29,13 @@ impl BscSender {
 
         // Convert arguments
         let from = from.to_string();
-        let to: Address = Address::from(to.0);
-        let value = U256::from(amount);
+        let to = Address::from(to.0);
 
         // Send transaction
         let result = contract
             .signed_call_with_confirmations(
                 "transferFromRealis",
-                (from, to, value),
+                (from, to, amount),
                 web3::contract::Options::default(),
                 1,
                 &wallet_key,
@@ -52,7 +51,7 @@ impl BscSender {
     pub async fn send_nft_to_bsc(
         from: AccountId,
         to: H160,
-        token_id: primitive_types::U256,
+        token_id: U256,
         token_type: Basic,
     ) {
         println!(
@@ -66,13 +65,14 @@ impl BscSender {
         let contract = contract::nft_new().await;
 
         // Convert arguments
-        let from: String = from.to_string();
-        let to: Address = Address::from(to.0);
+        let from = from.to_string();
+        let to = Address::from(to.0);
 
+        // TODO: remove to_string() when web3 updates to 0.10 primitive-types
         let result = contract
             .signed_call_with_confirmations(
                 "safeMint",
-                (from, to, token_id, token_type),
+                (from, to, token_id.to_string(), token_type),
                 web3::contract::Options::default(),
                 1,
                 &wallet_key,
@@ -94,13 +94,13 @@ impl BscSender {
         let contract = contract::token_new().await;
 
         // Convert arguments
-        let to: Address = Address::from(to.0);
-        let value = U256::from(amount);
+        let to = Address::from(to.0);
+
         // Send transaction
         let result = contract
             .signed_call_with_confirmations(
                 "burnFrom",
-                (to, value),
+                (to, amount),
                 web3::contract::Options::default(),
                 1,
                 &wallet_key,
@@ -115,7 +115,7 @@ impl BscSender {
 
     pub async fn send_nft_approve_from_realis_to_bsc(
         to: H160,
-        token_id: primitive_types::U256,
+        token_id: U256,
         token_type: Basic,
     ) {
         println!(
@@ -130,10 +130,11 @@ impl BscSender {
 
         let _to: Address = Address::from(to.0);
 
+        // TODO: remove to_string() when web3 updates to 0.10 primitive-types
         let result = contract
             .signed_call_with_confirmations(
                 "transferNftToRealisApproved",
-                token_id,
+                token_id.to_string(),
                 web3::contract::Options::default(),
                 1,
                 &wallet_key,
