@@ -1149,6 +1149,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "dotenv"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
+
+[[package]]
 name = "downcast-rs"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3305,8 +3311,10 @@ dependencies = [
  "log",
  "native-tls",
  "node-runtime 3.0.0-dev (git+https://github.com/RealisNetwork/Realis.Network.git?rev=4d2092476407611865f37f412f96093c84c51c80)",
+ "primitives",
  "ratsio",
  "realis-sender",
+ "serde_json",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "tokio 1.10.0",
  "tokio-native-tls",
@@ -4791,6 +4799,18 @@ dependencies = [
  "impl-codec 0.5.1",
  "impl-serde",
  "uint 0.9.1",
+]
+
+[[package]]
+name = "primitives"
+version = "0.1.0"
+dependencies = [
+ "dotenv",
+ "node-runtime 3.0.0-dev (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
+ "serde",
+ "serde_json",
+ "thiserror",
 ]
 
 [[package]]

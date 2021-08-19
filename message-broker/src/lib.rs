@@ -1,11 +1,13 @@
 use futures::{Stream, StreamExt};
 use log::{error, info};
+use primitives::{Error, RealisRequest, Request, ResponderRequest};
 use ratsio::{RatsioError, StanClient, StanMessage, StanOptions, StanSid};
 
 use bsc_sender::BscSender;
 use realis_sender::RealisSender;
-use std::convert::TryFrom;
-use utils::{parse, parse::Request};
+use serde_json;
+use std::{convert::TryFrom, sync::mpsc::Sender};
+use utils::parse::*;
 
 pub fn logger_setup() {
     use env_logger::Builder;
@@ -23,17 +25,22 @@ pub fn logger_setup() {
 /// # Panics
 ///
 /// Message-broker for geting requests from site
-pub async fn message_broker() {
-    logger_setup();
-    let mut stan_client = sub_stan().await.unwrap();
-    while let Some(message) = stan_client.1.next().await {
-        info!(
-            " << 1 >> got stan message --- {:?}\n\t{:?}",
-            &message,
-            String::from_utf8_lossy(message.payload.as_ref())
-        );
-        let message_string = parse::convert_message(&message);
+pub async fn message_broker(sender: Sender<Request>) -> Result<(), RatsioError> {
+    let mut subscription = sub_stan().await?;
+
+    while let Some(message) = subscription.1.next().await {
+        match parse(&message) {
+            Ok(request) => {
+                let send_result = sender.send(request).await;
+                match send_result {
+                    Ok(_) => {}
+                    Err(error) => error!("Send to channel error: {:?}", error),
+                }
+            }
+            Err(error) => error!("{:?}", error),
+        }
     }
+    Ok(())
 }
 
 pub async fn listen(sender: Vec<&str>) -> Result<(), RatsioError> {
@@ -116,9 +123,7 @@ pub async fn listen(sender: Vec<&str>) -> Result<(), RatsioError> {
     Ok(())
 }
 
-async fn sub_stan(
-) -> Result<(StanSid, impl Stream<Item = StanMessage> + Send + Sync), RatsioError>
-{
+async fn sub_stan() -> impl Stream<Item = StanMessage> {
     // Create stan options
     let client_id = "realis-bridge".to_string();
     let opts = StanOptions::with_options(
@@ -130,9 +135,23 @@ async fn sub_stan(
     let stan_client = StanClient::from_options(opts).await.unwrap();
 
     // Subscribe to STAN subject 'foo'
-    let (sid, subscription) = stan_client
+    stan_client
         .subscribe("realis-bridge", None, None)
         .await
-        .unwrap();
-    Ok((sid, subscription))
+        .unwrap()
+        .1
+}
+
+/// # Errors
+pub fn parse(message: &StanMessage) -> Result<Request, Error> {
+    // Convert message to string
+    let message_string =
+        String::from_utf8_lossy(message.payload.as_ref()).into_owned();
+    // Convert to json value object
+    let raw_request: Result<DBRequest, serde_json::Error> =
+        serde_json::from_str(&message_string);
+    match raw_request {
+        Ok(raw_request) => Ok(Request::DB(raw_request)),
+        Err(_) => Err(Error::Parse),
+    }
 }

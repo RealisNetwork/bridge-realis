@@ -9,6 +9,7 @@ members = [
     "utils",
     "tests",
     "message-broker",
+    "primitives"
 ]
 
 [patch.'https://github.com//paritytech/substrate']

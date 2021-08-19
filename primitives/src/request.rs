@@ -21,12 +21,6 @@ pub struct Raw<T> {
     pub params: T,
 }
 
-// CreateWalletPArams, GetBalanceParams, GetNFtItemLists
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct OnlyUser {
-    pub user_id: UserId,
-}
-
 // CreditHardCurrency, DebitHardCurrency
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Transfer {
@@ -44,21 +38,9 @@ pub struct AddNftItem {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct AddNftList {
-    pub user_id: UserId,
-    pub tokens: Vec<(TokenId, Basic, Rarity)>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct RemoveNftItem {
     pub user_id: UserId,
     pub token_id: TokenId,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct RemoveNftList {
-    pub user_id: UserId,
-    pub tokens: Vec<TokenId>,
 }
 
 pub fn u128_from_any<'de, D>(deserializer: D) -> Result<u128, D::Error>

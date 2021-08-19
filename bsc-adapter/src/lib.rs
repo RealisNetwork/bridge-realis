@@ -183,5 +183,6 @@ impl BSCAdapter {
 
 #[must_use]
 pub fn string_to_static_str(s: String) -> &'static str {
-    Box::leak(s.into_boxed_str())
+    let a = s.into_boxed_str();
+    Box::leak(a)
 }
