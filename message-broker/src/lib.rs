@@ -1,13 +1,11 @@
 use futures::{Stream, StreamExt};
 use log::{error, info};
 use primitives::{Error, RealisRequest, Request, ResponderRequest};
-use ratsio::{RatsioError, StanClient, StanMessage, StanOptions, StanSid};
+use ratsio::{StanClient, StanMessage, StanOptions};
 
 use bsc_sender::BscSender;
 use realis_sender::RealisSender;
-use serde_json;
-use std::{convert::TryFrom, sync::mpsc::Sender};
-use utils::parse::*;
+use utils::{parse, parse::Request};
 
 pub fn logger_setup() {
     use env_logger::Builder;
@@ -43,74 +41,64 @@ pub async fn message_broker(sender: Sender<Request>) -> Result<(), RatsioError> 
     Ok(())
 }
 
-pub async fn listen(sender: Vec<&str>) -> Result<(), RatsioError> {
-    let mut subscription = sub_stan().await?;
 
-    while let Some(message) = subscription.1.next().await {
-        match utils::parse::convert_message(&message) {
+pub async fn listen() {
+    let mut subscription = sub_stan().await;
+
+    while let Some(message) = subscription.next().await {
+        match parse::convert_message(&message) {
             Ok(request) => match request {
                 Request::TransferFromRealis {
-                    user_id,
                     account_id,
                     bsc_account,
                     amount,
-                    id,
-                    agent,
-                    lang,
+                    ..
                 } => {
                     BscSender::send_token_to_bsc(
                         account_id,
                         bsc_account,
-                        u128::try_from(amount).unwrap(),
-                    );
+                        amount.as_u128(),
+                    )
+                    .await;
                 }
                 Request::TransferFromRealisNft {
-                    user_id,
                     account_id,
                     bsc_account,
                     token_id,
                     token_type,
-                    rarity,
-                    id,
-                    agent,
-                    lang,
+                    ..
                 } => {
                     BscSender::send_nft_to_bsc(
                         account_id,
                         bsc_account,
                         token_id,
                         token_type,
-                    );
+                    )
+                    .await;
                 }
                 Request::SendToRealis {
-                    user_id,
                     bsc_account,
                     account_id,
                     amount,
-                    id,
-                    agent,
-                    lang,
+                    ..
                 } => {
                     RealisSender::send_token_to_realis(
                         bsc_account,
-                        account_id,
-                        u128::try_from(amount).unwrap(),
+                        &account_id,
+                        amount.as_u128(),
                     );
                 }
                 Request::SendToRealisNft {
-                    user_id,
                     account_id,
                     bsc_account,
                     token_id,
                     token_type,
                     rarity,
-                    id,
-                    agent,
-                    lang,
+                    ..
                 } => {
                     RealisSender::send_nft_to_realis(
                         bsc_account,
-                        account_id,
+                        &account_id,
                         token_id,
                         token_type,
                         rarity,
@@ -120,7 +108,6 @@ pub async fn listen(sender: Vec<&str>) -> Result<(), RatsioError> {
             Err(error) => error!("{:?}", error),
         }
     }
-    Ok(())
 }
 
 async fn sub_stan() -> impl Stream<Item = StanMessage> {
