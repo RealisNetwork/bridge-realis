@@ -66,21 +66,23 @@ mod tests {
         stan_client
     }
 
-    // async fn get_response(stan_client: &Arc<StanClient>, subject: String) ->
-    // Value {     logger_setup();
-    //     let mut subscription =
-    //         stan_client.subscribe(subject, None, None).await.unwrap();
-    //
-    //     let stan_message = subscription.1.next().await.unwrap();
-    //
-    //     let message_string =
-    //         String::from_utf8_lossy(stan_message.payload.as_ref()).
-    // into_owned();
-    //
-    //     let json: Value = serde_json::from_str(&message_string).unwrap();
-    //
-    //     json
-    // }
+    async fn get_response(
+        stan_client: &Arc<StanClient>,
+        subject: String,
+    ) -> Value {
+        logger_setup();
+        let mut subscription =
+            stan_client.subscribe(subject, None, None).await.unwrap();
+
+        let stan_message = subscription.1.next().await.unwrap();
+
+        let message_string =
+            String::from_utf8_lossy(stan_message.payload.as_ref()).into_owned();
+
+        let json: Value = serde_json::from_str(&message_string).unwrap();
+
+        json
+    }
 
     // fn send_token_from_realis_to_bsc(
     //     signer: sr25519::Pair,
@@ -1027,26 +1029,62 @@ mod tests {
     //     .await;
     // }
 
+    #[tokio::test]
+    async fn test_01_transfer_tokens_to_bsc() {
+        logger_setup();
+        // Get stan client
+        let stan_client = get_stan_client().await;
+        // Get subject
+        let subject = "realis-bridge".to_string();
+        // Create request
+        let request = serde_json::json!({
+            "version": "test",
+            "topic": "topic",
+            "topic_res": "topic_res",
+            "method": "transfer_token_to_bsc",
+            "lang": "some_lang",
+            "id": "01",
+            "params": {
+                "account_id": "5CSxbs1GPGgUZvsHNcFMyFRqu56jykBcBWBXhUBay2SXBsaA",
+                "bsc_account": "0x79abf92F6640B6D6540B116d4e7eA99ace932236",
+                "amount": "10000"
+            },
+        });
+        // Publish request
+        let request = stan_client
+            .publish(subject, request.to_string().as_bytes())
+            .await
+            .unwrap();
+        info!("Send {:?}", request);
+        // Wait for response
+        let response = get_response(&stan_client, String::from("response")).await;
+        // Close connection
+        let _ = stan_client.close().await;
+        // Match result
+        assert!(response.get("res").unwrap().get("req").is_some());
+    }
+
     // #[tokio::test]
-    // async fn test_01_transfer_tokens_to_bsc() {
+    // async fn test_02_transfer_nft_to_bsc() {
     //     logger_setup();
     //     // Get stan client
     //     let stan_client = get_stan_client().await;
     //     // Get subject
-    //     let subject = "realis-bridge".to_string();
+    //     let subject = "realis-bridge";
     //     // Create request
     //     let request = serde_json::json!({
     //         "version": "test",
     //         "topic": "topic",
     //         "topic_res": "topic_res",
-    //         "method": "transfer_token_to_bsc",
+    //         "method": "transfer_nft_to_bsc",
     //         "lang": "some_lang",
     //         "id": "01",
     //         "params": {
-    //             "account_id":
-    // "5Cfct15i277rkXX2Gxd58KgatVxAv2B4tmfrDPQRwvojFrUd",             
-    // "bsc_account": "0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943",
-    //             "amount": "10000"
+    //         "account_id": "5Cfct15i277rkXX2Gxd58KgatVxAv2B4tmfrDPQRwvojFrUd",
+    //             "bsc_account": "0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943",
+    //             "token_id": TokenId::from(123),
+    //             "token_type": 3,
+    //             "rarity": "Common"
     //         },
     //     });
     //     // Publish request
@@ -1057,46 +1095,9 @@ mod tests {
     //     info!("Send {:?}", request);
     //     // Wait for response
     //     // let response = get_response(&stan_client,
-    // String::from("response")).await;     // Close connection
+    //     // String::from("response")).await; Close connection
     //     let _ = stan_client.close().await;
     //     // Match result
     //     // assert!(response.get("res").unwrap().get("req").is_some());
     // }
-
-    #[tokio::test]
-    async fn test_02_transfer_nft_to_bsc() {
-        logger_setup();
-        // Get stan client
-        let stan_client = get_stan_client().await;
-        // Get subject
-        let subject = "realis-bridge";
-        // Create request
-        let request = serde_json::json!({
-            "version": "test",
-            "topic": "topic",
-            "topic_res": "topic_res",
-            "method": "transfer_nft_to_bsc",
-            "lang": "some_lang",
-            "id": "01",
-            "params": {
-                "account_id": "5Cfct15i277rkXX2Gxd58KgatVxAv2B4tmfrDPQRwvojFrUd",
-                "bsc_account": "0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943",
-                "token_id": TokenId::from(123),
-                "token_type": 3,
-                "rarity": "Common"
-            },
-        });
-        // Publish request
-        let request = stan_client
-            .publish(subject, request.to_string().as_bytes())
-            .await
-            .unwrap();
-        info!("Send {:?}", request);
-        // Wait for response
-        // let response = get_response(&stan_client,
-        // String::from("response")).await; Close connection
-        let _ = stan_client.close().await;
-        // Match result
-        // assert!(response.get("res").unwrap().get("req").is_some());
-    }
 }

@@ -4,20 +4,24 @@ pub mod contract {
     use std::{str::FromStr, time::Duration};
 
     use log::{error, info};
+    use primitives::Config;
     use tokio::time::sleep;
     use web3::{contract::Contract, transports::WebSocket, types::Address, Web3};
 
-    async fn connect() -> Web3<WebSocket> {
-        let url = "wss://data-seed-prebsc-1-s1.binance.org:8545/";
+    /// # Panics
+    ///
+    /// Connect to bsc
+    pub async fn connect() -> Web3<WebSocket> {
+        let url = Config::key_from_value("URL_BSC").unwrap();
         // Connect to bsc
-        let mut wss = WebSocket::new(url).await;
+        let mut wss = WebSocket::new(&url).await;
         loop {
             match wss {
                 Ok(_) => break,
                 Err(error) => {
                     error!("Cannot connect {:?}", error);
                     info!("Try reconnect");
-                    wss = WebSocket::new(url).await;
+                    wss = WebSocket::new(&url).await;
                 }
             }
             // Wait a bit before reconnect
@@ -34,7 +38,7 @@ pub mod contract {
         let web3 = connect().await;
         // TODO get from config file
         let address: Address =
-            Address::from_str("0xEd7895f5e18302a68904D4109BAa6F7ad70467Da")
+            Address::from_str("0x6d749dD747da1754Ef16B3fA2E779834CF636805")
                 .unwrap();
 
         let json_abi = include_bytes!("./../res/BEP20.abi");

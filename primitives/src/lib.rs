@@ -4,8 +4,6 @@ mod request;
 pub use config::*;
 pub use request::*;
 
-use realis_primitives::TokenId;
-use runtime::AccountId;
 use serde::{Deserialize, Serialize};
 use std::convert::From;
 use thiserror::Error;
@@ -25,19 +23,25 @@ pub enum Request {
     #[serde(rename = "transfer_token_to_realis")]
     TransferTokenToRealis(Raw<TransferToRealis>),
 
-    #[serde(rename = "transfer_token_to_realis")]
+    #[serde(rename = "transfer_nft_to_realis")]
     TransferNftToRealis(Raw<AddNftToRealis>),
+
+    #[serde(rename = "withdraw_from_bsc")]
+    WithdrawFromBSC(Raw<WithdrawToBsc>),
+
+    #[serde(rename = "withdraw_from_bsc")]
+    WithdrawFromRealis(Raw<WithdrawToRealis>),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ResponderRequest {
-    TransferTokenToBSC(Raw<TransferToBSC>, String, String),
+    TransferTokenToBSC(Raw<TransferToBSC>),
 
-    TransferNftToBSC(Raw<AddNftToBsc>, TokenId, String),
+    TransferNftToBSC(Raw<AddNftToBsc>),
 
-    TransferTokenToRealis(Raw<TransferToRealis>, Amount, String),
+    TransferTokenToRealis(Raw<TransferToRealis>),
 
-    TransferNftToRealis(Raw<AddNftToRealis>, TokenId, String),
+    TransferNftToRealis(Raw<AddNftToRealis>),
 
     Error(),
 }

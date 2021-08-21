@@ -61,6 +61,7 @@ pub struct RemoveNftList {
     pub tokens: Vec<TokenId>,
 }
 
+/// # Errors
 pub fn u128_from_any<'de, D>(deserializer: D) -> Result<u128, D::Error>
 where
     D: Deserializer<'de>,

@@ -348,7 +348,7 @@
 			{
 				"indexed": true,
 				"name": "_previousOwner",
-				"type": "address"
+				"type": "address" 
 			},
 			{
 				"indexed": true,

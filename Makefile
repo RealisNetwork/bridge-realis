@@ -15,7 +15,7 @@ run.to_realis:
 	SKIP_WASM_BUILD=1 cargo run --release bsc-to-realis
 
 run.msg_brok:
-	SKIP_WASM_BUILD=1 cargo run --release message-broker
+	 RUST_BACKTRACE=1 SKIP_WASM_BUILD=1 cargo run --release message-broker
 
 build:
 	SKIP_WASM_BUILD=1 cargo build --release

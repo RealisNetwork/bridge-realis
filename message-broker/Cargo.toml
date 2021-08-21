@@ -26,6 +26,7 @@ web3 = "0.17.0"
 realis-sender = { version = "0.1.0", path = "../realis-sender"}
 bsc-sender = { version = "0.1.0", path = "../bsc-sender"}
 primitives = { version = "0.1.0", path = "../primitives" }
+realis-responser = { version = "0.1.0", path = "../realis-responser" }
 bytes = "1.0.1"
 
 [features]

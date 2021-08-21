@@ -77,7 +77,7 @@ async fn handle_event(event: system::EventRecord<Event, Hash>) {
                 to,
                 token_id_from_mint,
                 token_type,
-                _,
+                rarity,
             ) => {
                 println!(
                     "Realis-adapter handled TransferNftToBSC: {} => {}, {}",
@@ -88,6 +88,7 @@ async fn handle_event(event: system::EventRecord<Event, Hash>) {
                     to,
                     token_id_from_mint,
                     token_type,
+                    rarity,
                 )
                 .await;
             }
