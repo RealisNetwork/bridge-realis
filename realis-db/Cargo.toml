@@ -1,0 +1,27 @@
+[package]
+name = "realis-db"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# Custom dependencies
+primitives = { path = "../primitives" }
+utils = { path = "../utils" }
+
+#
+sp-core = { git = "https://github.com/paritytech/substrate", rev = "03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178" }
+tiny-bip39 = { version = "0.8", optional = true }
+tokio = { version = "1", features = ["sync"] }
+tokio-postgres = "0.7.1"
+postgres = "0.19.1"
+web3 = "0.17.0"
+log = "^0.4"
+
+[features]
+default = ["std"]
+std = [
+    "tokio/sync",
+    "tiny-bip39",
+]

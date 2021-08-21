@@ -1,6 +1,8 @@
 pub mod realis {
     use runtime::AccountId;
+    use secp256k1::SecretKey;
     use sp_core::crypto::Ss58Codec;
+    use std::{fs, path::Path, str::FromStr};
     use substrate_api_client::sp_runtime::app_crypto::{sr25519, Pair};
 
     pub fn sudo() -> (AccountId, sr25519::Pair) {
@@ -9,7 +11,17 @@ pub mod realis {
         )
         .unwrap();
 
-        (public, private)
+        let pair = Pair::from_string(
+            &from_path_to_account("./realis-sender/res/accounts.key"),
+            None,
+        )
+        .unwrap();
+
+        (public, pair)
+    }
+
+    fn from_path_to_account<P: AsRef<Path>>(path: P) -> String {
+        fs::read_to_string(path).unwrap()
     }
 
     pub fn alice() -> (AccountId, sr25519::Pair) {

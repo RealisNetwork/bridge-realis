@@ -1,10 +1,10 @@
 use futures::{Stream, StreamExt};
-use log::{error, info};
+use log::{error, info, trace};
+use primitives::{Config, Request, ResponderRequest};
 use ratsio::{StanClient, StanMessage, StanOptions};
 
 use bsc_sender::BscSender;
 use realis_sender::RealisSender;
-use utils::{parse, parse::Request};
 
 pub fn logger_setup() {
     use env_logger::Builder;
@@ -22,79 +22,89 @@ pub fn logger_setup() {
 /// # Panics
 ///
 /// Message-broker for geting requests from site
-pub async fn message_broker() {
-    logger_setup();
-    let mut stan_client = sub_stan().await;
-    while let Some(message) = stan_client.next().await {
-        info!(
-            " << 1 >> got stan message --- {:?}\n\t{:?}",
-            &message,
-            String::from_utf8_lossy(message.payload.as_ref())
-        );
-    }
-}
-
 pub async fn listen() {
+    logger_setup();
+    info!("Start connection to nats streaming! 123");
     let mut subscription = sub_stan().await;
-
+    info!("Connect!");
     while let Some(message) = subscription.next().await {
-        match parse::convert_message(&message) {
+        info!("Got message");
+        match parse(&message) {
             Ok(request) => match request {
-                Request::TransferFromRealis {
-                    account_id,
-                    bsc_account,
-                    amount,
-                    ..
-                } => {
+                Request::TransferTokenToBSC(raw_request) => {
+                    info!("Message {:?}", raw_request);
                     BscSender::send_token_to_bsc(
-                        account_id,
-                        bsc_account,
-                        amount.as_u128(),
+                        raw_request.params.account_id.parse().unwrap(),
+                        raw_request.params.bsc_account.parse().unwrap(),
+                        raw_request.params.amount,
+                    )
+                    .await;
+                    trace!("Drop Here");
+                    realis_responser::listen(
+                        ResponderRequest::TransferTokenToBSC(raw_request.clone()),
                     )
                     .await;
                 }
-                Request::TransferFromRealisNft {
-                    account_id,
-                    bsc_account,
-                    token_id,
-                    token_type,
-                    ..
-                } => {
+                Request::TransferNftToBSC(raw_request) => {
+                    info!("Message {:?}", raw_request);
                     BscSender::send_nft_to_bsc(
-                        account_id,
-                        bsc_account,
-                        token_id,
-                        token_type,
+                        raw_request.params.account_id.parse().unwrap(),
+                        raw_request.params.bsc_account.parse().unwrap(),
+                        raw_request.params.token_id,
+                        raw_request.params.token_type,
+                        raw_request.params.rarity.parse().unwrap(),
+                    )
+                    .await;
+                    realis_responser::listen(ResponderRequest::TransferNftToBSC(
+                        raw_request.clone(),
+                    ))
+                    .await;
+                }
+                Request::TransferTokenToRealis(raw_request) => {
+                    info!("Message {:?}", raw_request);
+                    RealisSender::send_token_to_realis(
+                        raw_request.params.bsc_account.parse().unwrap(),
+                        &raw_request.params.account_id.parse().unwrap(),
+                        raw_request.params.amount * 10_000_000_000,
+                    );
+                    realis_responser::listen(
+                        ResponderRequest::TransferTokenToRealis(
+                            raw_request.clone(),
+                        ),
                     )
                     .await;
                 }
-                Request::SendToRealis {
-                    bsc_account,
-                    account_id,
-                    amount,
-                    ..
-                } => {
-                    RealisSender::send_token_to_realis(
-                        bsc_account,
-                        &account_id,
-                        amount.as_u128(),
+                Request::TransferNftToRealis(raw_request) => {
+                    info!("Message {:?}", raw_request);
+                    RealisSender::send_nft_to_realis(
+                        raw_request.params.bsc_account.parse().unwrap(),
+                        &raw_request.params.account_id.parse().unwrap(),
+                        raw_request.params.token_id,
+                        raw_request.params.token_type,
+                        raw_request.params.rarity.parse().unwrap(),
+                    );
+                    realis_responser::listen(
+                        ResponderRequest::TransferNftToRealis(
+                            raw_request.clone(),
+                        ),
                     );
                 }
-                Request::SendToRealisNft {
-                    account_id,
-                    bsc_account,
-                    token_id,
-                    token_type,
-                    rarity,
-                    ..
-                } => {
-                    RealisSender::send_nft_to_realis(
-                        bsc_account,
-                        &account_id,
-                        token_id,
-                        token_type,
-                        rarity,
+                Request::WithdrawFromBSC(raw_request) => {
+                    info!("Message {:?}", raw_request);
+                    RealisSender::send_token_to_realis(
+                        raw_request.params.bsc_account.parse().unwrap(),
+                        &raw_request.params.account_id.parse().unwrap(),
+                        raw_request.params.amount * 10_000_000_000,
                     );
+                }
+                Request::WithdrawFromRealis(raw_request) => {
+                    info!("Message {:?}", raw_request);
+                    BscSender::send_token_to_bsc(
+                        raw_request.params.account_id.parse().unwrap(),
+                        raw_request.params.bsc_account.parse().unwrap(),
+                        raw_request.params.amount,
+                    )
+                    .await;
                 }
             },
             Err(error) => error!("{:?}", error),
@@ -104,19 +114,31 @@ pub async fn listen() {
 
 async fn sub_stan() -> impl Stream<Item = StanMessage> {
     // Create stan options
-    let client_id = "realis-bridge".to_string();
+    info!("Start connect to NATS_Streaming!");
+    let client_id = Config::key_from_value("CLIENT_ID").unwrap();
     let opts = StanOptions::with_options(
-        "localhost:4222",
-        "test-cluster",
-        &client_id[..],
+        Config::key_from_value("NATS_OPT").unwrap(),
+        Config::key_from_value("CLUSTER_ID").unwrap(),
+        String::from(&client_id[..]),
     );
     // Create STAN client
     let stan_client = StanClient::from_options(opts).await.unwrap();
 
-    // Subscribe to STAN subject 'foo'
+    // Subscribe to STAN subject 'realis-bridge'
     stan_client
-        .subscribe("realis-bridge", None, None)
+        .subscribe(Config::key_from_value("SUBJECT").unwrap(), None, None)
         .await
         .unwrap()
         .1
+}
+
+/// # Errors
+pub fn parse(message: &StanMessage) -> Result<Request, serde_json::Error> {
+    // Convert message to string
+    let message_string =
+        String::from_utf8_lossy(message.payload.as_ref()).into_owned();
+    // Convert to json value object
+    let raw_request: Result<Request, serde_json::Error> =
+        serde_json::from_str(&message_string);
+    raw_request
 }

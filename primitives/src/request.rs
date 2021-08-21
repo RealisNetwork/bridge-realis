@@ -1,4 +1,4 @@
-use realis_primitives::{Basic, Rarity, TokenId};
+use realis_primitives::{Basic, TokenId};
 use serde::{Deserialize, Deserializer, Serialize};
 
 pub type Version = String;
@@ -8,7 +8,6 @@ pub type Lang = String;
 pub type Id = String;
 
 pub type Amount = u128;
-pub type UserId = String;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Raw<T> {
@@ -21,44 +20,56 @@ pub struct Raw<T> {
     pub params: T,
 }
 
-// CreateWalletPArams, GetBalanceParams, GetNFtItemLists
+// CreditHardCurrency, DebitHardCurrency
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct OnlyUser {
-    pub user_id: UserId,
+pub struct TransferToBSC {
+    pub account_id: String,
+    pub bsc_account: String,
+    #[serde(deserialize_with = "u128_from_any")]
+    pub amount: Amount,
 }
 
 // CreditHardCurrency, DebitHardCurrency
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct Transfer {
-    pub user_id: UserId,
+pub struct TransferToRealis {
+    pub account_id: String,
+    pub bsc_account: String,
     #[serde(deserialize_with = "u128_from_any")]
     pub amount: Amount,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct AddNftItem {
-    pub user_id: UserId,
+pub struct AddNftToBsc {
+    pub account_id: String,
+    pub bsc_account: String,
     pub token_id: TokenId,
     pub token_type: Basic,
-    pub rarity: Rarity,
+    pub rarity: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct AddNftList {
-    pub user_id: UserId,
-    pub tokens: Vec<(TokenId, Basic, Rarity)>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct RemoveNftItem {
-    pub user_id: UserId,
+pub struct AddNftToRealis {
+    pub bsc_account: String,
+    pub account_id: String,
     pub token_id: TokenId,
+    pub token_type: Basic,
+    pub rarity: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct RemoveNftList {
-    pub user_id: UserId,
-    pub tokens: Vec<TokenId>,
+pub struct WithdrawToBsc {
+    pub account_id: String,
+    pub bsc_account: String,
+    #[serde(deserialize_with = "u128_from_any")]
+    pub amount: Amount,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct WithdrawToRealis {
+    pub bsc_account: String,
+    pub account_id: String,
+    #[serde(deserialize_with = "u128_from_any")]
+    pub amount: Amount,
 }
 
 /// # Errors

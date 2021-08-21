@@ -1,6 +1,7 @@
 // use log::{error, info};
+use log::{error, trace};
 use primitive_types::U256;
-use realis_primitives::Basic;
+use realis_primitives::{Basic, Rarity};
 use runtime::AccountId;
 use secp256k1::SecretKey;
 use sp_core::H160;
@@ -30,6 +31,7 @@ impl BscSender {
         // Convert arguments
         let from = from.to_string();
         let to = Address::from(to.0);
+        let amount = amount * 100_000_000;
 
         // Send transaction
         let result = contract
@@ -53,22 +55,22 @@ impl BscSender {
         to: H160,
         token_id: U256,
         token_type: Basic,
+        rarity: Rarity,
     ) {
         println!(
-            "Bsc-sender send_nft_to_bsc: {} => {}, ({}, {})",
-            from, to, token_id, token_type
+            "Bsc-sender send_nft_to_bsc: {} => {}, ({}, {}, {:?})",
+            from, to, token_id, token_type, rarity
         );
 
         let wallet_key =
             BscSender::read_file_for_secret_key("./bsc-sender/res/accounts.key");
-
+        trace!("Take account");
         let contract = contract::nft_new().await;
 
         // Convert arguments
         let from = from.to_string();
         let to = Address::from(to.0);
 
-        // TODO: remove to_string() when web3 updates to 0.10 primitive-types
         let result = contract
             .signed_call_with_confirmations(
                 "safeMint",
@@ -78,10 +80,13 @@ impl BscSender {
                 &wallet_key,
             )
             .await;
-
+        trace!("Take result {:?}", result);
         match result {
             Ok(value) => println!("Transaction success {:?}", value),
-            Err(err) => println!("Transaction fail {:?}", err),
+            Err(err) => {
+                trace!("ThisBitchDropHere");
+                error!("Transaction fail {:?}", err)
+            }
         }
     }
 
