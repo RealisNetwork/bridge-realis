@@ -65,19 +65,19 @@ pub async fn listen() {
                         raw_request.params.rarity.parse().unwrap(),
                     )
                     .await;
-                    // match sender {
-                    //     Ok(sender) => realis_responser::listen(
-                    //         ResponderRequest::TransferNftToBSC(raw_request.clone()),
-                    //     )
-                    //         .await,
-                    //     Err(error) => {
-                    //         error!("Error when trying send transaction: {:?}", error);
-                    //         realis_responser::listen(
-                    //             ResponderRequest::Error(Error::CannotSendExtrinsicBSC),
-                    //         )
-                    //             .await;
-                    //     }
-                    // }
+                    match sender {
+                        Ok(sender) => realis_responser::listen(
+                            ResponderRequest::TransferNftToBSC(raw_request.clone()),
+                        )
+                            .await,
+                        Err(error) => {
+                            error!("Error when trying send transaction: {:?}", error);
+                            realis_responser::listen(
+                                ResponderRequest::Error(Error::CannotSendExtrinsicBSC),
+                            )
+                                .await;
+                        }
+                    }
                 }
                 Request::TransferTokenToRealis(raw_request) => {
                     info!("Message {:?}", raw_request);

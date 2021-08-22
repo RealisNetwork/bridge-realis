@@ -7,7 +7,8 @@ use sp_core::H160;
 use std::{fs, path::Path, str::FromStr};
 use utils::contract;
 use web3::types::{Address};
-use log::{info};
+use log::{info, error};
+use web3::Error;
 
 pub struct BscSender {}
 
@@ -17,7 +18,7 @@ impl BscSender {
         SecretKey::from_str(&string).unwrap()
     }
 
-    pub async fn send_token_to_bsc(from: AccountId, to: H160, amount: u128) {
+    pub async fn send_token_to_bsc(from: AccountId, to: H160, amount: u128) -> Result<web3::types::H256, Error> {
         println!(
             "Bsc-sender send_token_to_bsc: {} => {}, ({})",
             from, to, amount
@@ -44,8 +45,14 @@ impl BscSender {
             .await;
         // View on result
         match result {
-            Ok(value) => println!("Transaction success {:?}", value),
-            Err(err) => println!("Transaction fail {:?}", err),
+            Ok(value) => {
+                println!("Transaction success {:?}", value);
+                Ok(value.transaction_hash)
+            },
+            Err(err) => {
+                println!("Transaction fail {:?}", err);
+                Err(err)
+            },
         }
     }
 
@@ -55,7 +62,7 @@ impl BscSender {
         token_id: primitive_types::U256,
         token_type: Basic,
         rarity: Rarity
-    ) {
+    ) -> Result<web3::types::H256, Error> {
         println!(
             "Bsc-sender send_nft_to_bsc: {} => {}, ({}, {})",
             from, to, token_id, token_type
@@ -81,11 +88,16 @@ impl BscSender {
                 &wallet_key,
             )
             .await;
-        info!("Here!");
 
         match result {
-            Ok(value) => println!("Transaction success {:?}", value),
-            Err(err) => println!("Transaction fail {:?}", err),
+            Ok(value) => {
+                println!("Transaction success {:?}", value);
+                Ok(value.transaction_hash)
+            },
+            Err(err) => {
+                error!("Transaction fail {:?}", err);
+                Err(err)
+            }
         }
     }
 
