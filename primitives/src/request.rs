@@ -1,5 +1,6 @@
 use realis_primitives::{Basic, TokenId};
 use serde::{Deserialize, Deserializer, Serialize};
+use primitive_types::U256;
 
 pub type Version = String;
 pub type Topic = String;
@@ -42,7 +43,7 @@ pub struct TransferToRealis {
 pub struct AddNftToBsc {
     pub account_id: String,
     pub bsc_account: String,
-    pub token_id: TokenId,
+    pub token_id: U256,
     pub token_type: Basic,
     pub rarity: String,
 }

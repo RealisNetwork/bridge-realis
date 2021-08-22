@@ -1,6 +1,5 @@
 // use log::{error, info};
-use log::{error, trace};
-use primitive_types::{U256, H256};
+use primitive_types::U256;
 use realis_primitives::{Basic, Rarity};
 use runtime::AccountId;
 use secp256k1::SecretKey;
@@ -8,7 +7,7 @@ use sp_core::H160;
 use std::{fs, path::Path, str::FromStr};
 use utils::contract;
 use web3::types::{Address};
-use web3::Error;
+use log::{info};
 
 pub struct BscSender {}
 
@@ -18,7 +17,7 @@ impl BscSender {
         SecretKey::from_str(&string).unwrap()
     }
 
-    pub async fn send_token_to_bsc(from: AccountId, to: H160, amount: u128) -> Result<web3::types::H256, Error> {
+    pub async fn send_token_to_bsc(from: AccountId, to: H160, amount: u128) {
         println!(
             "Bsc-sender send_token_to_bsc: {} => {}, ({})",
             from, to, amount
@@ -32,7 +31,6 @@ impl BscSender {
         // Convert arguments
         let from = from.to_string();
         let to = Address::from(to.0);
-        let amount = amount * 100_000_000;
 
         // Send transaction
         let result = contract
@@ -46,32 +44,26 @@ impl BscSender {
             .await;
         // View on result
         match result {
-            Ok(value) => {
-                println!("Transaction success {:?}", value);
-                Ok(value.transaction_hash)
-            },
-            Err(err) => {
-                println!("Transaction fail {:?}", err);
-                Err(err)
-            },
+            Ok(value) => println!("Transaction success {:?}", value),
+            Err(err) => println!("Transaction fail {:?}", err),
         }
     }
 
     pub async fn send_nft_to_bsc(
         from: AccountId,
         to: H160,
-        token_id: U256,
+        token_id: primitive_types::U256,
         token_type: Basic,
-        rarity: Rarity,
-    ) -> Result<web3::types::H256, Error> {
+        rarity: Rarity
+    ) {
         println!(
-            "Bsc-sender send_nft_to_bsc: {} => {}, ({}, {}, {:?})",
-            from, to, token_id, token_type, rarity
+            "Bsc-sender send_nft_to_bsc: {} => {}, ({}, {})",
+            from, to, token_id, token_type
         );
 
         let wallet_key =
             BscSender::read_file_for_secret_key("./bsc-sender/res/accounts.key");
-        trace!("Take account");
+
         let contract = contract::nft_new().await;
 
         // Convert arguments
@@ -79,25 +71,21 @@ impl BscSender {
         let to = Address::from(to.0);
         // let token_id =
 
+        // TODO: remove to_string() when web3 updates to 0.10 primitive-types
         let result = contract
             .signed_call_with_confirmations(
                 "safeMint",
-                (from, to, token_id.to_string(), token_type),
+                (from, to, token_id, token_type, rarity.to_string()),
                 web3::contract::Options::default(),
                 1,
                 &wallet_key,
             )
             .await;
-        trace!("Take result {:?}", result);
+        info!("Here!");
+
         match result {
-            Ok(value) => {
-                println!("Transaction success {:?}", value);
-                Ok(value.transaction_hash)
-            },
-            Err(err) => {
-                error!("Transaction fail {:?}", err);
-                Err(err)
-            }
+            Ok(value) => println!("Transaction success {:?}", value),
+            Err(err) => println!("Transaction fail {:?}", err),
         }
     }
 
