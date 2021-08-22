@@ -43,10 +43,10 @@ pub enum ResponderRequest {
 
     TransferNftToRealis(Raw<AddNftToRealis>),
 
-    Error(),
+    Error(Error),
 }
 
-#[derive(Debug, Clone, Error)]
+#[derive(Debug, Clone, Error, Deserialize, Serialize)]
 pub enum Error {
     #[error("Cannot find required field: {0}!")]
     MissingField(String),
@@ -60,17 +60,8 @@ pub enum Error {
     UserNotFound(UserId),
     #[error("Cannot parse json!")]
     Parse,
-}
-
-impl From<Error> for u32 {
-    fn from(item: Error) -> Self {
-        match item {
-            Error::MissingField(_) => 1,
-            Error::UnknownMethod(_) => 2,
-            Error::Convert(_, _) => 3,
-            Error::UnknownRarity(_) => 4,
-            Error::UserNotFound(_) => 5,
-            Error::Parse => 6,
-        }
-    }
+    #[error("Cannot send extrinsic to Realis.Network!")]
+    CannotSendExtrinsicRealis,
+    #[error("Cannot send extrinsic to BSC!")]
+    CannotSendExtrinsicBSC
 }

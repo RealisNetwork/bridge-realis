@@ -17,12 +17,10 @@ impl Config {
     /// If `.env` file can not be parsed
     ///
     /// # Panics
-    pub fn key_from_value(key: &str) -> Result<String, Error> {
-        dotenv::dotenv().ok();
-        match dotenv::var(key) {
-            Ok(value) => Ok(value),
-            Err(_) => Err(Error::Parse),
-        }
+    pub fn key_from_value(key: &str) -> String {
+        let dotenv = dotenv::dotenv().ok();
+        let value = dotenv::var(key).unwrap();
+        value
     }
 
     #[must_use]

@@ -1,8 +1,7 @@
 use bip39::{Language, Mnemonic, MnemonicType};
 use log::{error, info, trace, warn};
 use postgres::NoTls;
-use primitives::{Config, Raw, Request, ResponderRequest, Error, Config};
-use runtime::AccountId;
+use primitives::{Config, Raw, Request, ResponderRequest, Error};
 use sp_core::{
     crypto::{AccountId32, Ss58Codec},
     Pair,
@@ -11,10 +10,10 @@ use tokio::sync::mpsc::{Receiver, Sender};
 use tokio_postgres::Client;
 use web3::api::{ParityAccounts, Namespace};
 use utils::*;
-use utils::contract::connect;
+use utils::contract::{connect, connect_eth};
 use web3::types::Address;
 
-pub async fn listen(receiver: Receiver<DBRequest>, sender: Sender<Request>) {
+pub async fn listen(receiver: Receiver<Request>, sender: Sender<Request>) {
     let mut receiver = receiver;
 
     let client_result = connect_to_db().await;
@@ -25,7 +24,7 @@ pub async fn listen(receiver: Receiver<DBRequest>, sender: Sender<Request>) {
                 None => break,
                 Some(request) => {
                     info!("Realis db - listen - Got request: {:?}", &request);
-                    if let Some(request) = process_request(&client, request).await {
+                    if let Some(request) = process_request(&client, &request).await {
                         let result = sender.send(request.clone()).await;
                         match result {
                             Ok(_) => {
@@ -75,12 +74,12 @@ async fn main() {
 
     println!("phrase: {}", phrase);
 
-    let connect = connect().await;
+    let connect = connect_eth().await;
 
     let transport = ParityAccounts::new(connect);
 
     let address =
-        ParityAccounts::parity_new_account_from_phrase(&transport, phrase, "");
+        transport.parity_new_account_from_phrase(phrase, "").await;
     // println!("account_id: {:?}", pair.to_string());
     println!("account_id: {:?}", address);
 
@@ -88,7 +87,7 @@ async fn main() {
 
 async fn connect_to_db() -> Result<tokio_postgres::Client, tokio_postgres::Error> {
     let (client, connection) = tokio_postgres::connect(
-        &*Config::key_from_value("DATABASE_CFG").unwrap(),
+        &*Config::key_from_value("DATABASE_CFG"),
         NoTls,
     )
         .await?;
@@ -104,7 +103,7 @@ async fn connect_to_db() -> Result<tokio_postgres::Client, tokio_postgres::Error
 async fn get_account_id_by_user_id(
     client: &Client,
     user_id: String,
-) -> Result<AccountId, Error> {
+) -> Result<String, Error> {
     match client
         .query_one(
             "SELECT account_id FROM wallet_to_user WHERE user_id=$1",
@@ -114,12 +113,12 @@ async fn get_account_id_by_user_id(
     {
         Ok(row) => {
             let column_account_id: String = row.get(0);
-            Ok(AccountId::from_ss58check(&column_account_id).unwrap())
+            Ok(column_account_id)
         }
         Err(_) => Err(Error::UserNotFound(user_id)),
     }
 }
 
-async fn process_request(client: &Client, request: DBRequest) {
+async fn process_request(client: &Client, request: &Request) {
    println!("Ok!");
 }

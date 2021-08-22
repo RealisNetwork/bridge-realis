@@ -1041,13 +1041,15 @@ mod tests {
             "version": "test",
             "topic": "topic",
             "topic_res": "topic_res",
-            "method": "transfer_token_to_bsc",
+            "method": "transfer_nft_to_bsc",
             "lang": "some_lang",
             "id": "01",
             "params": {
                 "account_id": "5CSxbs1GPGgUZvsHNcFMyFRqu56jykBcBWBXhUBay2SXBsaA",
                 "bsc_account": "0x79abf92F6640B6D6540B116d4e7eA99ace932236",
-                "amount": "10000"
+                "token_id": "0x10000",
+                "token_type": 3,
+                "rarity": "Common"
             },
         });
         // Publish request

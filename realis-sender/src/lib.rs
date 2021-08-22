@@ -1,12 +1,10 @@
 // use log::{error, info};
 use realis_primitives::{Basic, Rarity, TokenId};
 use runtime::{realis_bridge::Call as RealisBridgeCall, AccountId, Call};
-use sp_core::{sr25519, Pair, H160};
+use sp_core::{sr25519, Pair, H160, H256};
 use sp_runtime::{generic, traits::BlakeTwo256};
 use std::{fs, path::Path};
-use substrate_api_client::{
-    compose_extrinsic_offline, Api, BlockNumber, UncheckedExtrinsicV4, XtStatus,
-};
+use substrate_api_client::{compose_extrinsic_offline, Api, BlockNumber, UncheckedExtrinsicV4, XtStatus, ApiClientError};
 
 type Header = generic::Header<BlockNumber, BlakeTwo256>;
 
@@ -39,7 +37,7 @@ impl RealisSender {
     /// # Panics
     ///
     /// Tranfer token from BSC to Realis.Network
-    pub fn send_token_to_realis(from: H160, to: &AccountId, amount: u128) {
+    pub fn send_token_to_realis(from: H160, to: &AccountId, amount: u128) -> Result<Option<H256>, ApiClientError> {
         let api = RealisSender::api();
 
         let head = api.get_finalized_head().unwrap().unwrap();
@@ -66,8 +64,14 @@ impl RealisSender {
         let tx_result = api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
 
         match tx_result {
-            Ok(hash) => println!("Send extrinsic {:?}", hash),
-            Err(error) => println!("Can`t send extrinsic {:?}", error),
+            Ok(hash) => {
+                println!("Send extrinsic {:?}", hash);
+                Ok(hash)
+            },
+            Err(error) => {
+                println!("Can`t send extrinsic {:?}", error);
+                Err(error)
+            },
         }
     }
 
@@ -80,7 +84,7 @@ impl RealisSender {
         token_id: TokenId,
         token_type: Basic,
         rarity: Rarity,
-    ) {
+    ) -> Result<Option<H256>, ApiClientError> {
         let api = RealisSender::api();
 
         let head = api.get_finalized_head().unwrap().unwrap();
@@ -108,8 +112,14 @@ impl RealisSender {
         let tx_result = api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
 
         match tx_result {
-            Ok(hash) => println!("Send extrinsic {:?}", hash),
-            Err(error) => println!("Can`t send extrinsic {:?}", error),
+            Ok(hash) => {
+                println!("Send extrinsic {:?}", hash);
+                Ok(hash)
+            },
+            Err(error) => {
+                println!("Can`t send extrinsic {:?}", error);
+                Err(error)
+            },
         }
     }
 

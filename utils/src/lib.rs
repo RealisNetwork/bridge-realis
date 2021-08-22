@@ -12,7 +12,7 @@ pub mod contract {
     ///
     /// Connect to bsc
     pub async fn connect() -> Web3<WebSocket> {
-        let url = Config::key_from_value("URL_BSC").unwrap();
+        let url = Config::key_from_value("URL_BSC");
         // Connect to bsc
         let mut wss = WebSocket::new(&url).await;
         loop {
@@ -60,6 +60,26 @@ pub mod contract {
 
         Contract::from_json(web3.eth(), address, json_abi).unwrap()
     }
+
+    pub async fn connect_eth() -> Web3<WebSocket> {
+        let url = "wss://mainnet.infura.io/ws/v3/eb804ac058aa4ab38efc538c2153ee9b";
+        // Connect to bsc
+        let mut wss = WebSocket::new(&url).await;
+        loop {
+            match wss {
+                Ok(_) => break,
+                Err(error) => {
+                    error!("Cannot connect {:?}", error);
+                    info!("Try reconnect");
+                    wss = WebSocket::new(&url).await;
+                }
+            }
+            // Wait a bit before reconnect
+            sleep(Duration::from_millis(1000)).await;
+        }
+
+        web3::Web3::new(wss.unwrap())
+    }
 }
 
 pub mod accounts {
@@ -83,3 +103,5 @@ pub mod accounts {
     //     ).unwrap()
     // }
 }
+
+

@@ -72,6 +72,70 @@ pub struct WithdrawToRealis {
     pub amount: Amount,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Error {
+    Internal(Internal),
+    External(External)
+}
+
+// Contains error, in adapter executing logic
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Internal {
+    /// Error while connect
+    /// Parametr: one of possible connections
+    Connection(Connections),
+    /// Error while send message to nats
+    NatsSend,
+    /// Send error, appears when can't send value by channel
+    /// Contains two parametrs (from, to)
+    ChannelSend(String, String)
+}
+
+/// Contains list of all possible connections
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Connections {
+    /// Subscride on nats
+    NatsListen,
+    /// Send to nats
+    NatsSend,
+    /// Subscride on blockchain head
+    RealisBlockchainListen,
+    /// Send to blockchain
+    RealisBlockchainSend,
+    /// Block getter
+    Sidecar,
+    /// Database
+    Database
+}
+
+// Contains error, caused by:
+// wrong request, wrong request parametrs...
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum External {
+    /// Cann't parse request
+    ParseRequest,
+    /// Blockchain fail while execute
+    Extrinsic,
+    /// Blockchain storage don't have value
+    Storage,
+    /// Wallet for user don't exist in DB
+    UserWithoutWallet
+}
+
+// impl From<Error> for u32 {
+//     fn from(error: Error) -> u32 {
+//         match error {
+//             Internal(_) => 11,
+//             External(error) => match error {
+//                 ParseRequest => 21,
+//                 Extrinsic => 22,
+//                 Storage => 23,
+//                 UserWithoutWallet => 24
+//             }
+//         }
+//     }
+// }
+
 /// # Errors
 pub fn u128_from_any<'de, D>(deserializer: D) -> Result<u128, D::Error>
 where

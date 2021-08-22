@@ -6,14 +6,14 @@ use serde_json::{json, Value};
 
 /// # Panics
 pub async fn listen(receiver: ResponderRequest) {
-    let client_id = Config::key_from_value("RESPONDER_ID").unwrap();
+    let client_id = Config::key_from_value("RESPONDER_ID");
     let opts = StanOptions::with_options(
-        Config::key_from_value("NATS_OPT").unwrap(),
-        Config::key_from_value("CLUSTER_ID").unwrap(),
+        Config::key_from_value("NATS_OPT"),
+        Config::key_from_value("CLUSTER_ID"),
         client_id[..].parse().unwrap(),
     );
 
-    let subject = Config::key_from_value("RESPONDER_SUBJECT").unwrap();
+    let subject = Config::key_from_value("RESPONDER_SUBJECT");
 
     match StanClient::from_options(opts).await {
         Ok(stan_client) => match Some(receiver.clone()) {
@@ -100,9 +100,9 @@ fn parse(response: ResponderRequest) -> Value {
                 "id": raw_request.id
             })
         }
-        ResponderRequest::Error() => json!({
-            "version": "raw_request.version",
-            "lang": "some lamg",
+        ResponderRequest::Error(raw_request) => json!({
+            "version": "version",
+            "lang": "some lang",
             "method": "error",
             "res": {
                 "result": 100,
