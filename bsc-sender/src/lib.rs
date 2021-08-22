@@ -77,6 +77,7 @@ impl BscSender {
         // Convert arguments
         let from = from.to_string();
         let to = Address::from(to.0);
+        // let token_id =
 
         let result = contract
             .signed_call_with_confirmations(
