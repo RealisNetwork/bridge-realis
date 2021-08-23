@@ -80,8 +80,7 @@ pub mod bsc {
 
     pub fn sudo() -> (Address, SecretKey) {
         let public =
-            Address::from_str("0x79abf92F6640B6D6540B116d4e7eA99ace932236")
-                .unwrap();
+            Address::from_str("0x79abf92F6640B6D6540B116d4e7eA99ace932236").unwrap();
 
         let private = SecretKey::from_str("").unwrap();
 
@@ -90,8 +89,7 @@ pub mod bsc {
 
     pub fn alice() -> (Address, SecretKey) {
         let public =
-            Address::from_str("0xF09c06d1cDD0cF2B8Cc691197Eb1dd2d6889b5b1")
-                .unwrap();
+            Address::from_str("0xF09c06d1cDD0cF2B8Cc691197Eb1dd2d6889b5b1").unwrap();
 
         let private = SecretKey::from_str(
             "f807147ea8a83e0951a23cbd2ff5c3a9cbaff5ca49234bd7b9d73b052b6fccb9",
@@ -103,8 +101,7 @@ pub mod bsc {
 
     pub fn bob() -> (Address, SecretKey) {
         let public =
-            Address::from_str("0x75b882a65e82C00924a83e93bC39584C2Bb7a39B")
-                .unwrap();
+            Address::from_str("0x75b882a65e82C00924a83e93bC39584C2Bb7a39B").unwrap();
 
         let private = SecretKey::from_str(
             "2e7738fb3006d77faa35217a0f9fd7c03b19db0e717d4b909668b413d7b9b54f",
@@ -116,8 +113,7 @@ pub mod bsc {
 
     pub fn cindy() -> (Address, SecretKey) {
         let public =
-            Address::from_str("0x6dFF4Fab42659d677c4c60F5FCC6993A96b5aaEa")
-                .unwrap();
+            Address::from_str("0x6dFF4Fab42659d677c4c60F5FCC6993A96b5aaEa").unwrap();
 
         let private = SecretKey::from_str(
             "f2d7a63c6aa4e22ade393093a5be78ec4f012c40d785b212aa2884e95f1b4b67",

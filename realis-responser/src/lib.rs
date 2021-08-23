@@ -22,8 +22,7 @@ pub async fn listen(receiver: ResponderRequest) {
                 debug!("Response Here!");
                 let value = parse(response);
                 let json = value.to_string();
-                match stan_client.publish(subject.clone(), json.as_bytes()).await
-                {
+                match stan_client.publish(subject.clone(), json.as_bytes()).await {
                     Ok(_) => info!("Response sent: {:?}!", json),
                     Err(error) => error!("{:?}", error),
                 }

@@ -63,5 +63,5 @@ pub enum Error {
     #[error("Cannot send extrinsic to Realis.Network!")]
     CannotSendExtrinsicRealis,
     #[error("Cannot send extrinsic to BSC!")]
-    CannotSendExtrinsicBSC
+    CannotSendExtrinsicBSC,
 }

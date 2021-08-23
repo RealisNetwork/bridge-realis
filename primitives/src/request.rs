@@ -1,6 +1,6 @@
+use primitive_types::U256;
 use realis_primitives::{Basic, TokenId};
 use serde::{Deserialize, Deserializer, Serialize};
-use primitive_types::U256;
 
 pub type Version = String;
 pub type Topic = String;
@@ -76,7 +76,7 @@ pub struct WithdrawToRealis {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Error {
     Internal(Internal),
-    External(External)
+    External(External),
 }
 
 // Contains error, in adapter executing logic
@@ -89,7 +89,7 @@ pub enum Internal {
     NatsSend,
     /// Send error, appears when can't send value by channel
     /// Contains two parametrs (from, to)
-    ChannelSend(String, String)
+    ChannelSend(String, String),
 }
 
 /// Contains list of all possible connections
@@ -106,7 +106,7 @@ pub enum Connections {
     /// Block getter
     Sidecar,
     /// Database
-    Database
+    Database,
 }
 
 // Contains error, caused by:
@@ -120,7 +120,7 @@ pub enum External {
     /// Blockchain storage don't have value
     Storage,
     /// Wallet for user don't exist in DB
-    UserWithoutWallet
+    UserWithoutWallet,
 }
 
 // impl From<Error> for u32 {

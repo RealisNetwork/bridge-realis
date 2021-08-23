@@ -1,14 +1,13 @@
 // use log::{error, info};
-use primitive_types::U256;
+use log::{error, info};
+use primitive_types::{H256, U256};
 use realis_primitives::{Basic, Rarity};
 use runtime::AccountId;
 use secp256k1::SecretKey;
 use sp_core::H160;
 use std::{fs, path::Path, str::FromStr};
 use utils::contract;
-use web3::types::{Address};
-use log::{info, error};
-use web3::Error;
+use web3::{types::Address, Error};
 
 pub struct BscSender {}
 
@@ -18,7 +17,11 @@ impl BscSender {
         SecretKey::from_str(&string).unwrap()
     }
 
-    pub async fn send_token_to_bsc(from: AccountId, to: H160, amount: u128) -> Result<web3::types::H256, Error> {
+    pub async fn send_token_to_bsc(
+        from: AccountId,
+        to: H160,
+        amount: u128,
+    ) -> Result<web3::types::H256, Error> {
         println!(
             "Bsc-sender send_token_to_bsc: {} => {}, ({})",
             from, to, amount
@@ -48,11 +51,11 @@ impl BscSender {
             Ok(value) => {
                 println!("Transaction success {:?}", value);
                 Ok(value.transaction_hash)
-            },
+            }
             Err(err) => {
                 println!("Transaction fail {:?}", err);
                 Err(err)
-            },
+            }
         }
     }
 
@@ -61,7 +64,7 @@ impl BscSender {
         to: H160,
         token_id: primitive_types::U256,
         token_type: Basic,
-        rarity: Rarity
+        rarity: Rarity,
     ) -> Result<web3::types::H256, Error> {
         println!(
             "Bsc-sender send_nft_to_bsc: {} => {}, ({}, {})",
@@ -93,7 +96,7 @@ impl BscSender {
             Ok(value) => {
                 println!("Transaction success {:?}", value);
                 Ok(value.transaction_hash)
-            },
+            }
             Err(err) => {
                 error!("Transaction fail {:?}", err);
                 Err(err)

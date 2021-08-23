@@ -4,7 +4,10 @@ use runtime::{realis_bridge::Call as RealisBridgeCall, AccountId, Call};
 use sp_core::{sr25519, Pair, H160, H256};
 use sp_runtime::{generic, traits::BlakeTwo256};
 use std::{fs, path::Path};
-use substrate_api_client::{compose_extrinsic_offline, Api, BlockNumber, UncheckedExtrinsicV4, XtStatus, ApiClientError};
+use substrate_api_client::{
+    compose_extrinsic_offline, Api, ApiClientError, BlockNumber,
+    UncheckedExtrinsicV4, XtStatus,
+};
 
 type Header = generic::Header<BlockNumber, BlakeTwo256>;
 
@@ -37,7 +40,11 @@ impl RealisSender {
     /// # Panics
     ///
     /// Tranfer token from BSC to Realis.Network
-    pub fn send_token_to_realis(from: H160, to: &AccountId, amount: u128) -> Result<Option<H256>, ApiClientError> {
+    pub fn send_token_to_realis(
+        from: H160,
+        to: &AccountId,
+        amount: u128,
+    ) -> Result<Option<H256>, ApiClientError> {
         let api = RealisSender::api();
 
         let head = api.get_finalized_head().unwrap().unwrap();
@@ -67,11 +74,11 @@ impl RealisSender {
             Ok(hash) => {
                 println!("Send extrinsic {:?}", hash);
                 Ok(hash)
-            },
+            }
             Err(error) => {
                 println!("Can`t send extrinsic {:?}", error);
                 Err(error)
-            },
+            }
         }
     }
 
@@ -115,11 +122,11 @@ impl RealisSender {
             Ok(hash) => {
                 println!("Send extrinsic {:?}", hash);
                 Ok(hash)
-            },
+            }
             Err(error) => {
                 println!("Can`t send extrinsic {:?}", error);
                 Err(error)
-            },
+            }
         }
     }
 

@@ -94,9 +94,8 @@ impl BSCListener {
 
     pub async fn listen_token_success(&self) {
         loop {
-            let logs: web3::contract::Result<
-                Vec<(Address, String, Address, Uint)>,
-            > = self.0.events("TransferFromRealis", (), (), ()).await;
+            let logs: web3::contract::Result<Vec<(Address, String, Address, Uint)>> =
+                self.0.events("TransferFromRealis", (), (), ()).await;
             match logs {
                 Ok(events) => {
                     // Process all events
@@ -105,8 +104,7 @@ impl BSCListener {
                         // Unpack event arguments
                         let (_, from, to, amount) = event;
                         // Convert argument
-                        let account_id =
-                            AccountId::from_ss58check(&from).unwrap();
+                        let account_id = AccountId::from_ss58check(&from).unwrap();
                         // Log arguments
                         println!(
                             "TokenSuccessOnBsc: {:?} => {:?}, {:?}",
@@ -139,8 +137,7 @@ impl BSCListener {
                             (&from, to, token_id_from_mint, basic)
                         );
                         // Convert argument
-                        let account_id =
-                            AccountId::from_ss58check(&from).unwrap();
+                        let account_id = AccountId::from_ss58check(&from).unwrap();
                         let token_id =
                             sp_core::U256::from(token_id_from_mint.as_u32());
                         println!(
@@ -167,8 +164,7 @@ impl BSCAdapter {
     pub async fn listen() {
         let token_listener = BSCListener::new(contract::token_new().await);
         let nft_listener = BSCListener::new(contract::nft_new().await);
-        let token_listener_success =
-            BSCListener::new(contract::token_new().await);
+        let token_listener_success = BSCListener::new(contract::token_new().await);
         let nft_listener_success = BSCListener::new(contract::nft_new().await);
 
         join!(

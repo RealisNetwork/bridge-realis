@@ -38,8 +38,7 @@ pub mod contract {
         let web3 = connect().await;
         // TODO get from config file
         let address: Address =
-            Address::from_str("0x6d749dD747da1754Ef16B3fA2E779834CF636805")
-                .unwrap();
+            Address::from_str("0x6d749dD747da1754Ef16B3fA2E779834CF636805").unwrap();
 
         let json_abi = include_bytes!("./../res/BEP20.abi");
 
@@ -53,8 +52,7 @@ pub mod contract {
         let web3 = connect().await;
         // TODO get from config file
         let address: Address =
-            Address::from_str("0x3eEdAa20Ec4AfF8472355c138F39ca2a4b02e518")
-                .unwrap();
+            Address::from_str("0x3eEdAa20Ec4AfF8472355c138F39ca2a4b02e518").unwrap();
 
         let json_abi = include_bytes!("./../res/BEP721.abi");
 
@@ -103,5 +101,3 @@ pub mod accounts {
     //     ).unwrap()
     // }
 }
-
-
