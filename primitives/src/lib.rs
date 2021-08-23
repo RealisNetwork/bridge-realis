@@ -5,7 +5,6 @@ pub use config::*;
 pub use request::*;
 
 use serde::{Deserialize, Serialize};
-use std::convert::From;
 use thiserror::Error;
 
 pub type UserId = String;
