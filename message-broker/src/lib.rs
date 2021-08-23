@@ -32,7 +32,6 @@ pub async fn listen() {
     info!("Connect!");
     while let Some(message) = subscription.next().await {
         info!("Got message");
-        tokio::spawn(async move {
             match parse(&message) {
                 Ok(request) => match request {
                     Request::TransferTokenToBSC(raw_request) => {
@@ -199,7 +198,6 @@ pub async fn listen() {
                 },
                 Err(error) => error!("{:?}", error),
             }
-        });
     }
 }
 
