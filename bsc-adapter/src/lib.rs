@@ -41,7 +41,8 @@ impl BSCListener {
                             H160::from(from.0),
                             &account_id,
                             value.as_u128(),
-                        );
+                        )
+                        .unwrap();
                     }
                 }
                 Err(error) => {
@@ -82,7 +83,8 @@ impl BSCListener {
                             token_id,
                             basic,
                             rarity_str,
-                        );
+                        )
+                        .unwrap();
                     }
                 }
                 Err(error) => {
@@ -139,7 +141,7 @@ impl BSCListener {
                         // Convert argument
                         let account_id = AccountId::from_ss58check(&from).unwrap();
                         let token_id =
-                            sp_core::U256::from(token_id_from_mint.as_u32());
+                            primitive_types::U256::from(token_id_from_mint.as_u32());
                         println!(
                             "TransferNftToRealis: {:?} => {:?}, {:?}, {:?}",
                             account_id, to, token_id, basic

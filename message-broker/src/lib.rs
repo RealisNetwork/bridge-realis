@@ -1,10 +1,10 @@
 use futures::{Stream, StreamExt};
-use log::{error, info, trace};
-use primitives::{Config, Error, External, Request, ResponderRequest};
+use log::{error, info};
+use primitives::{Config, Error, Request, ResponderRequest};
 use ratsio::{StanClient, StanMessage, StanOptions};
 
 use bsc_sender::BscSender;
-use primitives::{Connections::NatsSend, Internal};
+// use primitives::{Connections::NatsSend, Internal};
 use realis_sender::RealisSender;
 use std::time::Duration;
 use tokio::time::sleep;
@@ -32,172 +32,195 @@ pub async fn listen() {
     info!("Connect!");
     while let Some(message) = subscription.next().await {
         info!("Got message");
-            match parse(&message) {
-                Ok(request) => match request {
-                    Request::TransferTokenToBSC(raw_request) => {
-                        info!("Message {:?}", raw_request);
-                        let mut vector = Vec::new();
-                        vector.push((
-                            raw_request.clone().params.account_id,
-                            raw_request.clone().params.bsc_account,
-                            raw_request.clone().params.amount,
-                        ));
-                        println!("All values on vector => {:?}", vector);
-                        for tuple in vector {
-                            sleep(Duration::from_secs(2)).await;
-                            let sender = BscSender::send_token_to_bsc(
-                                tuple.0.parse().unwrap(),
-                                tuple.1.parse().unwrap(),
-                                tuple.2,
-                            )
-                            .await;
-                            match sender {
-                                Ok(sender) => {
-                                    realis_responser::listen(
-                                        ResponderRequest::TransferTokenToBSC(
-                                            raw_request.clone(),
-                                        ),
-                                    )
-                                    .await
-                                }
-                                Err(error) => {
-                                    error!(
-                                        "Error when triyng send transaction: {:?}",
-                                        error
-                                    );
-                                    realis_responser::listen(
-                                        ResponderRequest::Error(
-                                            Error::CannotSendExtrinsicRealis,
-                                        ),
-                                    )
-                                    .await
-                                }
-                            }
-                        }
-                    }
-                    Request::TransferNftToBSC(raw_request) => {
-                        info!("Message {:?}", raw_request);
-                        let mut vector = Vec::new();
-                        vector.push((
-                            raw_request.clone().params.account_id,
-                            raw_request.clone().params.bsc_account,
-                            raw_request.clone().params.token_id,
-                            raw_request.clone().params.token_type,
-                            raw_request.clone().params.rarity,
-                        ));
-                        println!("All values on vector => {:?}", vector);
-                        for tuple in vector {
-                            sleep(Duration::from_secs(2)).await;
-                            let sender = BscSender::send_nft_to_bsc(
-                                tuple.0.parse().unwrap(),
-                                tuple.1.parse().unwrap(),
-                                tuple.2,
-                                tuple.3,
-                                tuple.4.parse().unwrap(),
-                            )
-                            .await;
-                            match sender {
-                                Ok(sender) => {
-                                    realis_responser::listen(
-                                        ResponderRequest::TransferNftToBSC(
-                                            raw_request.clone(),
-                                        ),
-                                    )
-                                    .await
-                                }
-                                Err(error) => {
-                                    error!(
-                                        "Error when triyng send transaction: {:?}",
-                                        error
-                                    );
-                                    realis_responser::listen(
-                                        ResponderRequest::Error(
-                                            Error::CannotSendExtrinsicRealis,
-                                        ),
-                                    )
-                                    .await
-                                }
-                            }
-                        }
-                    }
-                    Request::TransferTokenToRealis(raw_request) => {
-                        info!("Message {:?}", raw_request);
-                        let sender = RealisSender::send_token_to_realis(
-                            raw_request.params.bsc_account.parse().unwrap(),
-                            &raw_request.params.account_id.parse().unwrap(),
-                            raw_request.params.amount * 10_000_000_000,
-                        );
-                        match sender {
-                            Ok(sender) => {
-                                realis_responser::listen(
-                                    ResponderRequest::TransferTokenToRealis(
-                                        raw_request.clone(),
-                                    ),
-                                )
-                                .await
-                            }
-                            Err(error) => {
-                                error!(
-                                    "Error when triyng send transaction: {:?}",
-                                    error
-                                );
-                                realis_responser::listen(ResponderRequest::Error(
-                                    Error::CannotSendExtrinsicRealis,
-                                ))
-                                .await
-                            }
-                        }
-                    }
-                    Request::TransferNftToRealis(raw_request) => {
-                        info!("Message {:?}", raw_request);
-                        let sender = RealisSender::send_nft_to_realis(
-                            raw_request.params.bsc_account.parse().unwrap(),
-                            &raw_request.params.account_id.parse().unwrap(),
-                            raw_request.params.token_id,
-                            raw_request.params.token_type,
-                            raw_request.params.rarity.parse().unwrap(),
-                        );
-                        match sender {
-                            Ok(sender) => {
-                                realis_responser::listen(
-                                    ResponderRequest::TransferNftToRealis(
-                                        raw_request.clone(),
-                                    ),
-                                )
-                                .await
-                            }
-                            Err(error) => {
-                                error!(
-                                    "Error when triyng send transaction: {:?}",
-                                    error
-                                );
-                                realis_responser::listen(ResponderRequest::Error(
-                                    Error::CannotSendExtrinsicRealis,
-                                ))
-                                .await
-                            }
-                        }
-                    }
-                    Request::WithdrawFromBSC(raw_request) => {
-                        info!("Message {:?}", raw_request);
-                        RealisSender::send_token_to_realis(
-                            raw_request.params.bsc_account.parse().unwrap(),
-                            &raw_request.params.account_id.parse().unwrap(),
-                            raw_request.params.amount * 10_000_000_000,
-                        );
-                    }
-                    Request::WithdrawFromRealis(raw_request) => {
-                        info!("Message {:?}", raw_request);
-                        BscSender::send_token_to_bsc(
-                            raw_request.params.account_id.parse().unwrap(),
-                            raw_request.params.bsc_account.parse().unwrap(),
-                            raw_request.params.amount,
+        match parse(&message) {
+            Ok(request) => match request {
+                Request::TransferTokenToBSC(raw_request) => {
+                    info!("Message {:?}", raw_request);
+                    let mut vector = Vec::new();
+                    vector.push((
+                        raw_request.clone().params.account_id,
+                        raw_request.clone().params.bsc_account,
+                        raw_request.clone().params.amount,
+                    ));
+                    println!("All values on vector => {:?}", vector);
+                    for tuple in vector {
+                        sleep(Duration::from_secs(15)).await;
+                        let sender = BscSender::send_token_to_bsc(
+                            tuple.0.parse().unwrap(),
+                            tuple.1.parse().unwrap(),
+                            tuple.2 * 100_000_000,
                         )
                         .await;
+                        match sender {
+                            Ok(_sender) => {
+                                RealisSender::send_token_approve_to_realis(
+                                    tuple.0.parse().unwrap(),
+                                    tuple.2 * 1_000_000_000,
+                                )
+                                .await;
+                                realis_responser::listen(
+                                    ResponderRequest::TransferTokenToBSC(
+                                        raw_request.clone(),
+                                    ),
+                                )
+                                .await
+                            }
+                            Err(error) => {
+                                error!(
+                                    "Error when triyng send transaction: {:?}",
+                                    error
+                                );
+                                realis_responser::listen(ResponderRequest::Error(
+                                    Error::CannotSendExtrinsicRealis,
+                                ))
+                                .await
+                            }
+                        }
                     }
-                },
-                Err(error) => error!("{:?}", error),
-            }
+                }
+                Request::TransferNftToBSC(raw_request) => {
+                    info!("Message {:?}", raw_request);
+                    let mut vector = Vec::new();
+                    vector.push((
+                        raw_request.clone().params.account_id,
+                        raw_request.clone().params.bsc_account,
+                        raw_request.clone().params.token_id,
+                        raw_request.clone().params.token_type,
+                        raw_request.clone().params.rarity,
+                    ));
+                    println!("All values on vector => {:?}", vector);
+                    for tuple in vector {
+                        sleep(Duration::from_secs(2)).await;
+                        let sender = BscSender::send_nft_to_bsc(
+                            tuple.0.parse().unwrap(),
+                            tuple.1.parse().unwrap(),
+                            tuple.2,
+                            tuple.3,
+                            tuple.4.parse().unwrap(),
+                        )
+                        .await;
+                        match sender {
+                            Ok(_sender) => {
+                                RealisSender::send_nft_approve_to_realis_from_bsc(
+                                    tuple.0.parse().unwrap(),
+                                    tuple.2,
+                                )
+                                .await;
+                                realis_responser::listen(
+                                    ResponderRequest::TransferNftToBSC(
+                                        raw_request.clone(),
+                                    ),
+                                )
+                                .await
+                            }
+                            Err(error) => {
+                                error!(
+                                    "Error when triyng send transaction: {:?}",
+                                    error
+                                );
+                                realis_responser::listen(ResponderRequest::Error(
+                                    Error::CannotSendExtrinsicRealis,
+                                ))
+                                .await
+                            }
+                        }
+                    }
+                }
+                Request::TransferTokenToRealis(raw_request) => {
+                    info!("Message {:?}", raw_request);
+                    let sender = RealisSender::send_token_to_realis(
+                        raw_request.params.bsc_account.parse().unwrap(),
+                        &raw_request.params.account_id.parse().unwrap(),
+                        raw_request.params.amount * 10_000_000_000,
+                    );
+                    match sender {
+                        Ok(_sender) => {
+                            BscSender::send_token_approve_from_realis_to_bsc(
+                                raw_request.params.bsc_account.parse().unwrap(),
+                                raw_request.params.amount,
+                            )
+                            .await;
+                            realis_responser::listen(
+                                ResponderRequest::TransferTokenToRealis(
+                                    raw_request.clone(),
+                                ),
+                            )
+                            .await
+                        }
+                        Err(error) => {
+                            error!(
+                                "Error when triyng send transaction: {:?}",
+                                error
+                            );
+                            realis_responser::listen(ResponderRequest::Error(
+                                Error::CannotSendExtrinsicRealis,
+                            ))
+                            .await
+                        }
+                    }
+                }
+                Request::TransferNftToRealis(raw_request) => {
+                    info!("Message {:?}", raw_request);
+                    let sender = RealisSender::send_nft_to_realis(
+                        raw_request.params.bsc_account.parse().unwrap(),
+                        &raw_request.params.account_id.parse().unwrap(),
+                        raw_request.params.token_id,
+                        raw_request.params.token_type,
+                        raw_request.params.rarity.parse().unwrap(),
+                    );
+                    match sender {
+                        Ok(_sender) => {
+                            let token_id_str =
+                                &raw_request.params.token_id.to_string();
+                            let token_id =
+                                primitive_types::U256::from_dec_str(token_id_str)
+                                    .unwrap();
+                            BscSender::send_nft_approve_from_realis_to_bsc(
+                                raw_request.params.bsc_account.parse().unwrap(),
+                                token_id,
+                                raw_request.params.token_type,
+                                raw_request.params.rarity.parse().unwrap(),
+                            )
+                            .await;
+                            realis_responser::listen(
+                                ResponderRequest::TransferNftToRealis(
+                                    raw_request.clone(),
+                                ),
+                            )
+                            .await
+                        }
+                        Err(error) => {
+                            error!(
+                                "Error when triyng send transaction: {:?}",
+                                error
+                            );
+                            realis_responser::listen(ResponderRequest::Error(
+                                Error::CannotSendExtrinsicRealis,
+                            ))
+                            .await
+                        }
+                    }
+                }
+                Request::WithdrawFromBSC(raw_request) => {
+                    info!("Message {:?}", raw_request);
+                    RealisSender::send_token_to_realis(
+                        raw_request.params.bsc_account.parse().unwrap(),
+                        &raw_request.params.account_id.parse().unwrap(),
+                        raw_request.params.amount * 10_000_000_000,
+                    );
+                }
+                Request::WithdrawFromRealis(raw_request) => {
+                    info!("Message {:?}", raw_request);
+                    BscSender::send_token_to_bsc(
+                        raw_request.params.account_id.parse().unwrap(),
+                        raw_request.params.bsc_account.parse().unwrap(),
+                        raw_request.params.amount,
+                    )
+                    .await;
+                }
+            },
+            Err(error) => error!("{:?}", error),
+        }
     }
 }
 

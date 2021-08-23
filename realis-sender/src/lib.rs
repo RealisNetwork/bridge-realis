@@ -40,6 +40,8 @@ impl RealisSender {
     /// # Panics
     ///
     /// Tranfer token from BSC to Realis.Network
+    ///
+    /// # Errors
     pub fn send_token_to_realis(
         from: H160,
         to: &AccountId,
@@ -57,7 +59,7 @@ impl RealisSender {
             Call::RealisBridge(RealisBridgeCall::transfer_token_to_realis(
                 from,
                 to.clone(),
-                amount
+                amount * 10_000_000_000
             )),
             api.get_nonce().unwrap(),
             Era::mortal(period, h.number),
@@ -85,6 +87,8 @@ impl RealisSender {
     /// # Panics
     ///
     /// Tranfer nft from BSC to Realis.Network
+    ///
+    /// # Errors
     pub fn send_nft_to_realis(
         from: H160,
         to: &AccountId,
@@ -170,13 +174,15 @@ impl RealisSender {
     /// Approve send NFT from BSC to Realis.Network
     pub async fn send_nft_approve_to_realis_from_bsc(
         from: AccountId,
-        token_id: TokenId,
+        token_id: primitive_types::U256,
     ) {
         let api = RealisSender::api();
 
         let head = api.get_finalized_head().unwrap().unwrap();
         let h: Header = api.get_header(Some(head)).unwrap().unwrap();
         let period = 5;
+        let token_id_str = &token_id.to_string();
+        let token_id = sp_core::U256::from_dec_str(token_id_str).unwrap();
 
         #[allow(clippy::redundant_clone)]
         let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(

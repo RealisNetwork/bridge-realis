@@ -7,7 +7,6 @@ use futures::{
     channel::mpsc::{unbounded as async_chan, UnboundedReceiver as AsyncRx},
     StreamExt as _,
 };
-use primitive_types::U256;
 use runtime::{realis_bridge, Event};
 use sp_core::{sr25519, H256 as Hash};
 use substrate_api_client::{utils::FromHexString, Api};
@@ -71,7 +70,9 @@ async fn handle_event(event: system::EventRecord<Event, Hash>) {
                     "Realis-adapter handled TransferTokenToBSC: {} => {}, {}",
                     from, to, value
                 );
-                BscSender::send_token_to_bsc(from.clone(), to, value).await;
+                BscSender::send_token_to_bsc(from.clone(), to, value)
+                    .await
+                    .unwrap();
             }
             realis_bridge::Event::TransferNftToBSC(
                 from,
@@ -88,7 +89,8 @@ async fn handle_event(event: system::EventRecord<Event, Hash>) {
                 let token_id =
                     primitive_types::U256::from_dec_str(token_id_str).unwrap();
                 BscSender::send_nft_to_bsc(from, to, token_id, token_type, rarity)
-                    .await;
+                    .await
+                    .unwrap();
             }
             realis_bridge::Event::TransferTokenToRealis(from, to, amount) => {
                 // This event appears when tokens transfer from bsc to
@@ -106,20 +108,20 @@ async fn handle_event(event: system::EventRecord<Event, Hash>) {
                 to,
                 token_id_from_mint,
                 token_type,
-                _,
+                rarity,
             ) => {
                 // This event appears when nft transfer from bsc to realis
                 // And realis blockchain confirmed this transfer
                 println!(
                     "Realis-adapter handled TransferNftToRealis: \
-                        {} => {}, {}",
-                    from, to, token_id_from_mint
+                        {} => {}, {}, {:?}",
+                    from, to, token_id_from_mint, rarity
                 );
                 let token_id_str = &token_id_from_mint.to_string();
                 let token_id =
                     primitive_types::U256::from_dec_str(token_id_str).unwrap();
                 BscSender::send_nft_approve_from_realis_to_bsc(
-                    from, token_id, token_type,
+                    from, token_id, token_type, rarity,
                 )
                 .await;
             }

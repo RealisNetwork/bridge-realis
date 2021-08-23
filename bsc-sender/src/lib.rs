@@ -1,6 +1,5 @@
-// use log::{error, info};
-use log::{error, info};
-use primitive_types::{H256, U256};
+use log::error;
+use primitive_types::U256;
 use realis_primitives::{Basic, Rarity};
 use runtime::AccountId;
 use secp256k1::SecretKey;
@@ -17,6 +16,7 @@ impl BscSender {
         SecretKey::from_str(&string).unwrap()
     }
 
+    /// # Errors
     pub async fn send_token_to_bsc(
         from: AccountId,
         to: H160,
@@ -28,7 +28,7 @@ impl BscSender {
         );
 
         let wallet_key =
-            BscSender::read_file_for_secret_key("./bsc-sender/res/accounts.key");
+            BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
 
         let contract = contract::token_new().await;
 
@@ -59,6 +59,7 @@ impl BscSender {
         }
     }
 
+    /// # Errors
     pub async fn send_nft_to_bsc(
         from: AccountId,
         to: H160,
@@ -72,7 +73,7 @@ impl BscSender {
         );
 
         let wallet_key =
-            BscSender::read_file_for_secret_key("./bsc-sender/res/accounts.key");
+            BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
 
         let contract = contract::nft_new().await;
 
@@ -108,7 +109,7 @@ impl BscSender {
         println!("Bsc-sender send_token_approve_to_bsc {}, ({})", to, amount);
 
         let wallet_key =
-            BscSender::read_file_for_secret_key("./bsc-sender/res/accounts.key");
+            BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
 
         let contract = contract::token_new().await;
 
@@ -136,14 +137,15 @@ impl BscSender {
         to: H160,
         token_id: U256,
         token_type: Basic,
+        rarity: Rarity,
     ) {
         println!(
-            "Bsc-sender send_nft_approve_to_bsc: {}, ({}, {})",
-            to, token_id, token_type
+            "Bsc-sender send_nft_approve_to_bsc: {}, ({}, {}, {:?})",
+            to, token_id, token_type, rarity
         );
 
         let wallet_key =
-            BscSender::read_file_for_secret_key("/bsc-sender/res/accounts.key");
+            BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
 
         let contract = contract::nft_new().await;
 

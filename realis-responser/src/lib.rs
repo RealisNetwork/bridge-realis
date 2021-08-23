@@ -74,7 +74,7 @@ fn parse(response: ResponderRequest) -> Value {
                 "res": {
                    "req": {
                         "account_id": raw_request.params.account_id,
-                        "amount": raw_request.params.amount
+                        "amount": raw_request.params.amount.to_string()
                     },
                    "result": 100,
                    "status": 0
@@ -104,6 +104,7 @@ fn parse(response: ResponderRequest) -> Value {
             "lang": "some lang",
             "method": "error",
             "res": {
+                "req": raw_request,
                 "result": 100,
                 "status": 0
             }
