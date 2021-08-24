@@ -596,6 +596,7 @@ dependencies = [
  "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
  "realis-sender",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
+ "substrate-api-client",
  "utils",
  "web3",
 ]
@@ -5603,8 +5604,10 @@ dependencies = [
  "node-runtime 3.0.0-dev (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
  "parity-scale-codec 2.2.0",
  "primitive-types 0.9.1",
+ "realis-primitives 0.0.2 (git+https://github.com/RealisNetwork/Realis.Network.git?branch=main)",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "substrate-api-client",
+ "web3",
 ]
 
 [[package]]

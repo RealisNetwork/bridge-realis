@@ -2,14 +2,17 @@ use std::sync::mpsc::channel as sync_chan;
 
 use bsc_sender::BscSender;
 use codec::Decode;
-// use log::{error, info, warn};
 use futures::{
     channel::mpsc::{unbounded as async_chan, UnboundedReceiver as AsyncRx},
     StreamExt as _,
 };
+use log::{error, info, trace};
+use primitive_types::H256;
+use realis_primitives::{Rarity, TokenId};
 use runtime::{realis_bridge, Event};
-use sp_core::{sr25519, H256 as Hash};
+use sp_core::{sr25519, H160, H256 as Hash};
 use substrate_api_client::{utils::FromHexString, Api};
+use web3;
 
 pub struct RealisAdapter(AsyncRx<String>);
 
@@ -62,17 +65,30 @@ fn parse_events(event_str: String) -> Vec<system::EventRecord<Event, Hash>> {
     Decode::decode(&mut unhex.as_slice()).unwrap()
 }
 
-async fn handle_event(event: system::EventRecord<Event, Hash>) {
+async fn handle_event(
+    event: system::EventRecord<Event, Hash>,
+) -> Result<H256, web3::Error> {
     if let Event::RealisBridge(bridge_event) = event.event {
         match bridge_event {
             realis_bridge::Event::TransferTokenToBSC(from, to, value) => {
-                println!(
+                trace!(
                     "Realis-adapter handled TransferTokenToBSC: {} => {}, {}",
-                    from, to, value
+                    from,
+                    to,
+                    value
                 );
-                BscSender::send_token_to_bsc(from.clone(), to, value)
-                    .await
-                    .unwrap();
+                let tx_bsc =
+                    BscSender::send_token_to_bsc(from.clone(), to, value).await;
+                match tx_bsc {
+                    Ok(tx_hash) => {
+                        info!("Transaction send: {:?}", tx_hash);
+                        return Ok(tx_hash);
+                    }
+                    Err(error) => {
+                        info!("Transaction fail: {:?}", error);
+                        return Err(error);
+                    }
+                }
             }
             realis_bridge::Event::TransferNftToBSC(
                 from,
@@ -81,27 +97,50 @@ async fn handle_event(event: system::EventRecord<Event, Hash>) {
                 token_type,
                 rarity,
             ) => {
-                println!(
+                info!(
                     "Realis-adapter handled TransferNftToBSC: {} => {}, {}",
                     from, to, token_id_from_mint
                 );
                 let token_id_str = &token_id_from_mint.to_string();
                 let token_id =
                     primitive_types::U256::from_dec_str(token_id_str).unwrap();
-                BscSender::send_nft_to_bsc(from, to, token_id, token_type, rarity)
-                    .await
-                    .unwrap();
+                let tx_bsc = BscSender::send_nft_to_bsc(
+                    from, to, token_id, token_type, rarity,
+                )
+                .await;
+                match tx_bsc {
+                    Ok(tx_hash) => {
+                        info!("Transaction send: {:?}", tx_hash);
+                        return Ok(tx_hash);
+                    }
+                    Err(error) => {
+                        error!("Transaction fail: {:?}", error);
+                        return Err(error);
+                    }
+                }
             }
             realis_bridge::Event::TransferTokenToRealis(from, to, amount) => {
                 // This event appears when tokens transfer from bsc to
                 // realis And realis blockchain
                 // confirmed this transfer
-                println!(
+                info!(
                     "Realis-adapter handled TransferTokenToRealis: \
                         {} => {}, {}",
                     from, to, amount
                 );
-                BscSender::send_token_approve_from_realis_to_bsc(from, amount).await;
+                let tx_bsc =
+                    BscSender::send_token_approve_from_realis_to_bsc(from, amount)
+                        .await;
+                match tx_bsc {
+                    Ok(tx_hash) => {
+                        info!("Transaction send: {:?}", tx_hash);
+                        return Ok(tx_hash);
+                    }
+                    Err(error) => {
+                        error!("Transaction fail: {:?}", error);
+                        return Err(error);
+                    }
+                }
             }
             realis_bridge::Event::TransferNftToRealis(
                 from,
@@ -112,7 +151,7 @@ async fn handle_event(event: system::EventRecord<Event, Hash>) {
             ) => {
                 // This event appears when nft transfer from bsc to realis
                 // And realis blockchain confirmed this transfer
-                println!(
+                info!(
                     "Realis-adapter handled TransferNftToRealis: \
                         {} => {}, {}, {:?}",
                     from, to, token_id_from_mint, rarity
@@ -120,19 +159,53 @@ async fn handle_event(event: system::EventRecord<Event, Hash>) {
                 let token_id_str = &token_id_from_mint.to_string();
                 let token_id =
                     primitive_types::U256::from_dec_str(token_id_str).unwrap();
-                BscSender::send_nft_approve_from_realis_to_bsc(
+                let tx_bsc = BscSender::send_nft_approve_from_realis_to_bsc(
                     from, token_id, token_type, rarity,
                 )
                 .await;
+                match tx_bsc {
+                    Ok(tx_hash) => {
+                        info!("Transaction send: {:?}", tx_hash);
+                        return Ok(tx_hash);
+                    }
+                    Err(error) => {
+                        error!("Transaction fail: {:?}", error);
+                        return Err(error);
+                    }
+                }
             }
             _ => {
-                // println!(
-                //     "Unsupported event in Bridge-pallet {:?}",
-                //     event.event
-                // )
+                let token_id_from_mint = TokenId::from(123);
+                let rarity = Rarity::Common;
+                let token_type = 3;
+                let token_id_str = &token_id_from_mint.to_string();
+                let from = Default::default();
+                let token_id =
+                    primitive_types::U256::from_dec_str(token_id_str).unwrap();
+                let tx_bsc = BscSender::send_nft_approve_from_realis_to_bsc(
+                    from, token_id, token_type, rarity,
+                )
+                .await;
+                match tx_bsc {
+                    Ok(some) => return Ok(some),
+                    Err(error) => return Err(error),
+                }
             }
         }
     } else {
-        // println!("Unsupported event {:?}", event.event);
+        let token_id_from_mint = TokenId::from(123);
+        let rarity = Rarity::Common;
+        let token_type = 3;
+        let token_id_str = &token_id_from_mint.to_string();
+        let from = Default::default();
+        let token_id = primitive_types::U256::from_dec_str(token_id_str).unwrap();
+        let tx_bsc = BscSender::send_nft_approve_from_realis_to_bsc(
+            from, token_id, token_type, rarity,
+        )
+        .await;
+        match tx_bsc {
+            Ok(some) => return Ok(some),
+            Err(error) => return Err(error),
+        }
     }
 }

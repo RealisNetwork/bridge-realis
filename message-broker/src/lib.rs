@@ -31,7 +31,7 @@ pub async fn listen() {
     let mut subscription = sub_stan().await;
     info!("Connect!");
     while let Some(message) = subscription.next().await {
-        info!("Got message");
+        info!("Got message => {:?}", &message);
         match parse(&message) {
             Ok(request) => match request {
                 Request::TransferTokenToBSC(raw_request) => {

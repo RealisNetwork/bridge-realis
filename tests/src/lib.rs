@@ -1070,18 +1070,19 @@ mod tests {
         let subject = "realis-bridge".to_string();
         // Create request
         let request = serde_json::json!({
-            "version": "test",
-            "topic": "topic",
-            "topic_res": "topic_res",
+            "id": "01",
             "method": "transfer_nft_to_bsc",
             "lang": "some_lang",
-            "id": "01",
             "params": {
                 "account_id": "5GgSgijLeCndfk1t8Mdjm8weUNEahBBtWwtfC1ZJxc9yNh1e",
                 "bsc_account": "0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943",
                 "token_id": "0x10000",
                 "token_type": 3,
                 "rarity": "Rare"
+            },
+            "agent": "agent",
+            "authInfo": {
+                "userId": "some user_id"
             },
         });
         // Publish request
@@ -1107,16 +1108,17 @@ mod tests {
         let subject = "realis-bridge".to_string();
         // Create request
         let request = serde_json::json!({
-            "version": "test",
-            "topic": "topic",
-            "topic_res": "topic_res",
-            "method": "transfer_token_to_realis",
-            "lang": "some_lang",
             "id": "01",
+            "method": "transfer_tokens_to_realis",
+            "lang": "some_lang",
             "params": {
-                "bsc_account": "0x998b32b3a74912567608DE7e089ddd6C7D8e69e3",
-                "account_id": "5Cfct15i277rkXX2Gxd58KgatVxAv2B4tmfrDPQRwvojFrUd",
+                "bsc_account": "0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943",
+                "account_id": "5GgSgijLeCndfk1t8Mdjm8weUNEahBBtWwtfC1ZJxc9yNh1e",
                 "amount": "10000"
+            },
+            "agent": "agent",
+            "authInfo": {
+                "userId": "some user_id"
             },
         });
         // Publish request
@@ -1142,18 +1144,19 @@ mod tests {
         let subject = "realis-bridge".to_string();
         // Create request
         let request = serde_json::json!({
-            "version": "test",
-            "topic": "topic",
-            "topic_res": "topic_res",
+            "id": "01",
             "method": "transfer_nft_to_realis",
             "lang": "some_lang",
-            "id": "01",
             "params": {
                 "bsc_account": "0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943",
                 "account_id": "5GgSgijLeCndfk1t8Mdjm8weUNEahBBtWwtfC1ZJxc9yNh1e",
                 "token_id": "0x10000",
                 "token_type": 3,
                 "rarity": "Rare"
+            },
+            "agent": "agent",
+            "authInfo": {
+                "userId": "some user_id"
             },
         });
         // Publish request

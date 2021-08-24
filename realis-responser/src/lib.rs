@@ -19,7 +19,6 @@ pub async fn listen(receiver: ResponderRequest) {
         Ok(stan_client) => match Some(receiver.clone()) {
             None => {}
             Some(response) => {
-                debug!("Response Here!");
                 let value = parse(response);
                 let json = value.to_string();
                 match stan_client.publish(subject.clone(), json.as_bytes()).await {
@@ -37,66 +36,58 @@ fn parse(response: ResponderRequest) -> Value {
     match response {
         ResponderRequest::TransferTokenToBSC(raw_request) => {
             json!({
-                "version": raw_request.version,
-                "method": "transfer_token_to_bsc",
-                "res": {
-                   "req": {
-                        "bsc_account": raw_request.params.bsc_account,
-                        "amount": raw_request.params.amount.to_string()
-                    },
-                   "result": 100,
-                   "status": 0
-                },
-                "lang": raw_request.lang,
-                "id": raw_request.id
+                "result": {
+                    "request": raw_request,
+                    "response": {
+                        "type": "Right",
+                        "value": {
+                            "tx_id": "some tx_id",
+                            "token_id": "some token_id"
+                        }
+                    }
+                }
             })
         }
         ResponderRequest::TransferNftToBSC(raw_request) => {
             json!({
-                "version": raw_request.version,
-                "method": "transfer_nft_to_bsc",
-                "res": {
-                   "req": {
-                        "bsc_account": raw_request.params.bsc_account,
-                        "amount": raw_request.params.token_id
-                    },
-                   "result": 100,
-                   "status": 0
-                },
-                "lang": raw_request.lang,
-                "id": raw_request.id
+                "result": {
+                    "request": raw_request,
+                    "response": {
+                        "type": "Right",
+                        "value": {
+                            "tx_id": "some tx_id",
+                            "token_id": "some token_id"
+                        }
+                    }
+                }
             })
         }
         ResponderRequest::TransferTokenToRealis(raw_request) => {
             json!({
-                "version": raw_request.version,
-                "method": "transfer_token_to_realis",
-                "res": {
-                   "req": {
-                        "account_id": raw_request.params.account_id,
-                        "amount": raw_request.params.amount.to_string()
-                    },
-                   "result": 100,
-                   "status": 0
-                },
-                "lang": raw_request.lang,
-                "id": raw_request.id
+                "result": {
+                    "request": raw_request,
+                    "response": {
+                        "type": "Right",
+                        "value": {
+                            "tx_id": "some tx_id",
+                            "token_id": "some token_id"
+                        }
+                    }
+                }
             })
         }
         ResponderRequest::TransferNftToRealis(raw_request) => {
             json!({
-                "version": raw_request.version,
-                "method": "transfer_nft_to_realis",
-                "res": {
-                   "req": {
-                        "account_id": raw_request.params.account_id,
-                        "amount": raw_request.params.token_id
-                    },
-                   "result": 100,
-                   "status": 0
-                },
-                "lang": raw_request.lang,
-                "id": raw_request.id
+                "result": {
+                    "request": raw_request,
+                    "response": {
+                        "type": "Right",
+                        "value": {
+                            "tx_id": "some tx_id",
+                            "token_id": "some token_id"
+                        }
+                    }
+                }
             })
         }
         ResponderRequest::Error(raw_request) => json!({

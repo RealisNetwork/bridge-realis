@@ -1,5 +1,5 @@
-use log::error;
-use primitive_types::U256;
+use log::{error, info, trace};
+use primitive_types::{H256, U256};
 use realis_primitives::{Basic, Rarity};
 use runtime::AccountId;
 use secp256k1::SecretKey;
@@ -22,7 +22,7 @@ impl BscSender {
         to: H160,
         amount: u128,
     ) -> Result<web3::types::H256, Error> {
-        println!(
+        info!(
             "Bsc-sender send_token_to_bsc: {} => {}, ({})",
             from, to, amount
         );
@@ -49,11 +49,11 @@ impl BscSender {
         // View on result
         match result {
             Ok(value) => {
-                println!("Transaction success {:?}", value);
+                info!("Transaction success {:?}", value);
                 Ok(value.transaction_hash)
             }
             Err(err) => {
-                println!("Transaction fail {:?}", err);
+                error!("Transaction fail {:?}", err);
                 Err(err)
             }
         }
@@ -67,7 +67,7 @@ impl BscSender {
         token_type: Basic,
         rarity: Rarity,
     ) -> Result<web3::types::H256, Error> {
-        println!(
+        info!(
             "Bsc-sender send_nft_to_bsc: {} => {}, ({}, {})",
             from, to, token_id, token_type
         );
@@ -95,7 +95,7 @@ impl BscSender {
 
         match result {
             Ok(value) => {
-                println!("Transaction success {:?}", value);
+                info!("Transaction success {:?}", value);
                 Ok(value.transaction_hash)
             }
             Err(err) => {
@@ -105,8 +105,11 @@ impl BscSender {
         }
     }
 
-    pub async fn send_token_approve_from_realis_to_bsc(to: H160, amount: u128) {
-        println!("Bsc-sender send_token_approve_to_bsc {}, ({})", to, amount);
+    pub async fn send_token_approve_from_realis_to_bsc(
+        to: H160,
+        amount: u128,
+    ) -> Result<H256, Error> {
+        info!("Bsc-sender send_token_approve_to_bsc {}, ({})", to, amount);
 
         let wallet_key =
             BscSender::read_file_for_secret_key("bsc-sender/res/accounts.key");
@@ -128,8 +131,14 @@ impl BscSender {
             .await;
         // View on result
         match result {
-            Ok(value) => println!("Transaction success {:?}", value),
-            Err(err) => println!("Transaction fail {:?}", err),
+            Ok(value) => {
+                info!("Transaction success {:?}", value);
+                Ok(value.transaction_hash)
+            }
+            Err(err) => {
+                error!("Transaction fail {:?}", err);
+                Err(err)
+            }
         }
     }
 
@@ -138,8 +147,8 @@ impl BscSender {
         token_id: U256,
         token_type: Basic,
         rarity: Rarity,
-    ) {
-        println!(
+    ) -> Result<H256, Error> {
+        info!(
             "Bsc-sender send_nft_approve_to_bsc: {}, ({}, {}, {:?})",
             to, token_id, token_type, rarity
         );
@@ -163,8 +172,14 @@ impl BscSender {
             .await;
 
         match result {
-            Ok(value) => println!("Transaction success {:?}", value),
-            Err(err) => println!("Transaction fail {:?}", err),
+            Ok(value) => {
+                info!("Transaction success {:?}", value);
+                Ok(value.transaction_hash)
+            }
+            Err(err) => {
+                error!("Transaction fail {:?}", err);
+                Err(err)
+            }
         }
     }
 }
