@@ -10,8 +10,8 @@ mod tests {
     use realis_primitives::TokenId;
     use runtime::{
         pallet_balances::Call as PalletBalancesCall,
-        pallet_nft::Call as PalletNftCall,
-        realis_bridge::Call as RealisBridgeCall, AccountId, Call,
+        pallet_nft::Call as PalletNftCall, realis_bridge::Call as RealisBridgeCall,
+        AccountId, Call,
     };
     use secp256k1::SecretKey;
     use serde_json::{self, Value};
@@ -66,10 +66,7 @@ mod tests {
         stan_client
     }
 
-    async fn get_response(
-        stan_client: &Arc<StanClient>,
-        subject: String,
-    ) -> Value {
+    async fn get_response(stan_client: &Arc<StanClient>, subject: String) -> Value {
         logger_setup();
         let mut subscription =
             stan_client.subscribe(subject, None, None).await.unwrap();
@@ -1046,8 +1043,120 @@ mod tests {
             "id": "01",
             "params": {
                 "account_id": "5CSxbs1GPGgUZvsHNcFMyFRqu56jykBcBWBXhUBay2SXBsaA",
-                "bsc_account": "0x79abf92F6640B6D6540B116d4e7eA99ace932236",
+                "bsc_account": "0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943",
                 "amount": "10000"
+            },
+        });
+        // Publish request
+        let request = stan_client
+            .publish(subject, request.to_string().as_bytes())
+            .await
+            .unwrap();
+        info!("Send {:?}", request);
+        // Wait for response
+        let response = get_response(&stan_client, String::from("response")).await;
+        // Close connection
+        let _ = stan_client.close().await;
+        // Match result
+        assert!(response.get("res").unwrap().get("req").is_some());
+    }
+
+    #[tokio::test]
+    async fn test_02_transfer_nft_to_bsc() {
+        logger_setup();
+        // Get stan client
+        let stan_client = get_stan_client().await;
+        // Get subject
+        let subject = "realis-bridge".to_string();
+        // Create request
+        let request = serde_json::json!({
+            "id": "01",
+            "method": "transfer_nft_to_bsc",
+            "lang": "some_lang",
+            "params": {
+                "account_id": "5GgSgijLeCndfk1t8Mdjm8weUNEahBBtWwtfC1ZJxc9yNh1e",
+                "bsc_account": "0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943",
+                "token_id": "0x10000",
+                "token_type": 3,
+                "rarity": "Rare"
+            },
+            "agent": "agent",
+            "authInfo": {
+                "userId": "some user_id"
+            },
+        });
+        // Publish request
+        let request = stan_client
+            .publish(subject, request.to_string().as_bytes())
+            .await
+            .unwrap();
+        info!("Send {:?}", request);
+        // Wait for response
+        let response = get_response(&stan_client, String::from("response")).await;
+        // Close connection
+        let _ = stan_client.close().await;
+        // Match result
+        assert!(response.get("res").unwrap().get("req").is_some());
+    }
+
+    #[tokio::test]
+    async fn test_03_transfer_tokens_to_realis() {
+        logger_setup();
+        // Get stan client
+        let stan_client = get_stan_client().await;
+        // Get subject
+        let subject = "realis-bridge".to_string();
+        // Create request
+        let request = serde_json::json!({
+            "id": "01",
+            "method": "transfer_tokens_to_realis",
+            "lang": "some_lang",
+            "params": {
+                "bsc_account": "0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943",
+                "account_id": "5GgSgijLeCndfk1t8Mdjm8weUNEahBBtWwtfC1ZJxc9yNh1e",
+                "amount": "10000"
+            },
+            "agent": "agent",
+            "authInfo": {
+                "userId": "some user_id"
+            },
+        });
+        // Publish request
+        let request = stan_client
+            .publish(subject, request.to_string().as_bytes())
+            .await
+            .unwrap();
+        info!("Send {:?}", request);
+        // Wait for response
+        let response = get_response(&stan_client, String::from("response")).await;
+        // Close connection
+        let _ = stan_client.close().await;
+        // Match result
+        assert!(response.get("res").unwrap().get("req").is_some());
+    }
+
+    #[tokio::test]
+    async fn test_04_transfer_nft_to_realis() {
+        logger_setup();
+        // Get stan client
+        let stan_client = get_stan_client().await;
+        // Get subject
+        let subject = "realis-bridge".to_string();
+        // Create request
+        let request = serde_json::json!({
+            "id": "01",
+            "method": "transfer_nft_to_realis",
+            "lang": "some_lang",
+            "params": {
+                "bsc_account": "0x6D1eee1CFeEAb71A4d7Fcc73f0EF67A9CA2cD943",
+                "account_id": "5GgSgijLeCndfk1t8Mdjm8weUNEahBBtWwtfC1ZJxc9yNh1e",
+                "token_id": "0x10000",
+                "token_type": 3,
+                "rarity": "Rare"
+            },
+            "agent": "agent",
+            "authInfo": {
+                "userId": "some user_id"
             },
         });
         // Publish request

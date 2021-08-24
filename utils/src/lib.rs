@@ -12,7 +12,7 @@ pub mod contract {
     ///
     /// Connect to bsc
     pub async fn connect() -> Web3<WebSocket> {
-        let url = Config::key_from_value("URL_BSC").unwrap();
+        let url = Config::key_from_value("URL_BSC");
         // Connect to bsc
         let mut wss = WebSocket::new(&url).await;
         loop {
@@ -38,8 +38,7 @@ pub mod contract {
         let web3 = connect().await;
         // TODO get from config file
         let address: Address =
-            Address::from_str("0x6d749dD747da1754Ef16B3fA2E779834CF636805")
-                .unwrap();
+            Address::from_str("0x6d749dD747da1754Ef16B3fA2E779834CF636805").unwrap();
 
         let json_abi = include_bytes!("./../res/BEP20.abi");
 
@@ -53,8 +52,7 @@ pub mod contract {
         let web3 = connect().await;
         // TODO get from config file
         let address: Address =
-            Address::from_str("0x47837cc63ea6A912e699f9d2D4AeEb5C17F385aB")
-                .unwrap();
+            Address::from_str("0x3eEdAa20Ec4AfF8472355c138F39ca2a4b02e518").unwrap();
 
         let json_abi = include_bytes!("./../res/BEP721.abi");
 

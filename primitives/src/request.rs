@@ -1,9 +1,8 @@
+use primitive_types::U256;
 use realis_primitives::{Basic, TokenId};
 use serde::{Deserialize, Deserializer, Serialize};
 
-pub type Version = String;
-pub type Topic = String;
-pub type TopicRes = String;
+pub type Agent = String;
 pub type Lang = String;
 pub type Id = String;
 
@@ -11,13 +10,16 @@ pub type Amount = u128;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Raw<T> {
-    pub version: Version,
-    pub topic: Topic,
-    pub topic_res: TopicRes,
-    pub lang: Lang,
     pub id: Id,
-
+    pub lang: Lang,
     pub params: T,
+    pub agent: Agent,
+    pub authInfo: authInfo,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct authInfo {
+    pub userId: String,
 }
 
 // CreditHardCurrency, DebitHardCurrency
@@ -42,7 +44,7 @@ pub struct TransferToRealis {
 pub struct AddNftToBsc {
     pub account_id: String,
     pub bsc_account: String,
-    pub token_id: TokenId,
+    pub token_id: U256,
     pub token_type: Basic,
     pub rarity: String,
 }
@@ -70,6 +72,11 @@ pub struct WithdrawToRealis {
     pub account_id: String,
     #[serde(deserialize_with = "u128_from_any")]
     pub amount: Amount,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Error {
+    Error(String),
 }
 
 /// # Errors

@@ -8,12 +8,14 @@ edition = "2018"
 [dependencies]
 bsc-sender = { path = "../bsc-sender" }
 codec = { package = "parity-scale-codec", features = ["derive"], version = "2.0.0", default-features = false }
-primitive-types = "0.10.1"
+primitive-types = "0.9.1"
 futures = "0.3"
+web3 = "0.17.0"
 log = "0.4"
 runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "node-runtime" }
 sp-core = { git = "https://github.com/paritytech/substrate.git", branch = "master", package = "sp-core" }
 substrate-api-client = { git = "https://github.com/scs/substrate-api-client.git", rev = "672a5d4ed9f076525235fef6b5af288f666df803" }
+realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "realis-primitives", default-features = false }
 system = { git = "https://github.com/paritytech/substrate.git", branch = "master", package = "frame-system" }
 
 [features]

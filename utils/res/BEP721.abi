@@ -45,7 +45,7 @@
 			{
 				"indexed": false,
 				"internalType": "string",
-				"name": "Rarity",
+				"name": "rarity",
 				"type": "string"
 			}
 		],
@@ -107,7 +107,7 @@
 			{
 				"indexed": false,
 				"internalType": "string",
-				"name": "Rarity",
+				"name": "rarity",
 				"type": "string"
 			}
 		],
@@ -234,7 +234,7 @@
 			},
 			{
 				"internalType": "string",
-				"name": "Rarity",
+				"name": "rarity",
 				"type": "string"
 			}
 		],

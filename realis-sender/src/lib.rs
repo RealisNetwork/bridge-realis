@@ -1,11 +1,12 @@
 // use log::{error, info};
 use realis_primitives::{Basic, Rarity, TokenId};
 use runtime::{realis_bridge::Call as RealisBridgeCall, AccountId, Call};
-use sp_core::{sr25519, Pair, H160};
+use sp_core::{sr25519, Pair, H160, H256};
 use sp_runtime::{generic, traits::BlakeTwo256};
 use std::{fs, path::Path};
 use substrate_api_client::{
-    compose_extrinsic_offline, Api, BlockNumber, UncheckedExtrinsicV4, XtStatus,
+    compose_extrinsic_offline, Api, ApiClientError, BlockNumber,
+    UncheckedExtrinsicV4, XtStatus,
 };
 
 type Header = generic::Header<BlockNumber, BlakeTwo256>;
@@ -39,7 +40,13 @@ impl RealisSender {
     /// # Panics
     ///
     /// Tranfer token from BSC to Realis.Network
-    pub fn send_token_to_realis(from: H160, to: &AccountId, amount: u128) {
+    ///
+    /// # Errors
+    pub fn send_token_to_realis(
+        from: H160,
+        to: &AccountId,
+        amount: u128,
+    ) -> Result<Option<H256>, ApiClientError> {
         let api = RealisSender::api();
 
         let head = api.get_finalized_head().unwrap().unwrap();
@@ -52,7 +59,7 @@ impl RealisSender {
             Call::RealisBridge(RealisBridgeCall::transfer_token_to_realis(
                 from,
                 to.clone(),
-                amount
+                amount * 10_000_000_000
             )),
             api.get_nonce().unwrap(),
             Era::mortal(period, h.number),
@@ -66,21 +73,29 @@ impl RealisSender {
         let tx_result = api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
 
         match tx_result {
-            Ok(hash) => println!("Send extrinsic {:?}", hash),
-            Err(error) => println!("Can`t send extrinsic {:?}", error),
+            Ok(hash) => {
+                println!("Send extrinsic {:?}", hash);
+                Ok(hash)
+            }
+            Err(error) => {
+                println!("Can`t send extrinsic {:?}", error);
+                Err(error)
+            }
         }
     }
 
     /// # Panics
     ///
     /// Tranfer nft from BSC to Realis.Network
+    ///
+    /// # Errors
     pub fn send_nft_to_realis(
         from: H160,
         to: &AccountId,
         token_id: TokenId,
         token_type: Basic,
         rarity: Rarity,
-    ) {
+    ) -> Result<Option<H256>, ApiClientError> {
         let api = RealisSender::api();
 
         let head = api.get_finalized_head().unwrap().unwrap();
@@ -108,15 +123,24 @@ impl RealisSender {
         let tx_result = api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
 
         match tx_result {
-            Ok(hash) => println!("Send extrinsic {:?}", hash),
-            Err(error) => println!("Can`t send extrinsic {:?}", error),
+            Ok(hash) => {
+                println!("Send extrinsic {:?}", hash);
+                Ok(hash)
+            }
+            Err(error) => {
+                println!("Can`t send extrinsic {:?}", error);
+                Err(error)
+            }
         }
     }
 
     /// # Panics
     ///
     /// Approve send from BSC to Realis.Network
-    pub async fn send_token_approve_to_realis(from: AccountId, amount: u128) {
+    pub async fn send_token_approve_to_realis(
+        from: AccountId,
+        amount: u128,
+    ) -> Result<Option<H256>, ApiClientError> {
         let api = RealisSender::api();
 
         let head = api.get_finalized_head().unwrap().unwrap();
@@ -141,9 +165,13 @@ impl RealisSender {
         let tx_result = api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
 
         match tx_result {
-            Ok(hash) => println!("Send extrinsic {:?}", hash),
+            Ok(hash) => {
+                println!("Send extrinsic {:?}", hash);
+                Ok(hash)
+            }
             Err(error) => {
                 println!("Can`t send extrinsic {:?}", error);
+                Err(error)
             }
         }
     }
@@ -153,13 +181,15 @@ impl RealisSender {
     /// Approve send NFT from BSC to Realis.Network
     pub async fn send_nft_approve_to_realis_from_bsc(
         from: AccountId,
-        token_id: TokenId,
-    ) {
+        token_id: primitive_types::U256,
+    ) -> Result<Option<H256>, ApiClientError> {
         let api = RealisSender::api();
 
         let head = api.get_finalized_head().unwrap().unwrap();
         let h: Header = api.get_header(Some(head)).unwrap().unwrap();
         let period = 5;
+        let token_id_str = &token_id.to_string();
+        let token_id = sp_core::U256::from_dec_str(token_id_str).unwrap();
 
         #[allow(clippy::redundant_clone)]
         let xt: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
@@ -179,8 +209,14 @@ impl RealisSender {
         let tx_result = api.send_extrinsic(xt.hex_encode(), XtStatus::InBlock);
 
         match tx_result {
-            Ok(hash) => println!("Send extrinsic {:?}", hash),
-            Err(error) => println!("Can`t send extrinsic {:?}", error),
+            Ok(hash) => {
+                println!("Send extrinsic {:?}", hash);
+                Ok(hash)
+            }
+            Err(error) => {
+                println!("Can`t send extrinsic {:?}", error);
+                Err(error)
+            }
         }
     }
 }

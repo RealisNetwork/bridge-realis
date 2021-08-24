@@ -6,24 +6,22 @@ use serde_json::{json, Value};
 
 /// # Panics
 pub async fn listen(receiver: ResponderRequest) {
-    let client_id = Config::key_from_value("RESPONDER_ID").unwrap();
+    let client_id = Config::key_from_value("RESPONDER_ID");
     let opts = StanOptions::with_options(
-        Config::key_from_value("NATS_OPT").unwrap(),
-        Config::key_from_value("CLUSTER_ID").unwrap(),
+        Config::key_from_value("NATS_OPT"),
+        Config::key_from_value("CLUSTER_ID"),
         client_id[..].parse().unwrap(),
     );
 
-    let subject = Config::key_from_value("RESPONDER_SUBJECT").unwrap();
+    let subject = Config::key_from_value("RESPONDER_SUBJECT");
 
     match StanClient::from_options(opts).await {
         Ok(stan_client) => match Some(receiver.clone()) {
             None => {}
             Some(response) => {
-                debug!("Response Here!");
                 let value = parse(response);
                 let json = value.to_string();
-                match stan_client.publish(subject.clone(), json.as_bytes()).await
-                {
+                match stan_client.publish(subject.clone(), json.as_bytes()).await {
                     Ok(_) => info!("Response sent: {:?}!", json),
                     Err(error) => error!("{:?}", error),
                 }
@@ -38,73 +36,66 @@ fn parse(response: ResponderRequest) -> Value {
     match response {
         ResponderRequest::TransferTokenToBSC(raw_request) => {
             json!({
-                "version": raw_request.version,
-                "method": "transfer_token_to_bsc",
-                "res": {
-                   "req": {
-                        "bsc_account": raw_request.params.bsc_account,
-                        "amount": raw_request.params.amount.to_string()
-                    },
-                   "result": 100,
-                   "status": 0
-                },
-                "lang": raw_request.lang,
-                "id": raw_request.id
+                "result": {
+                    "request": raw_request,
+                    "response": {
+                        "type": "Right",
+                        "value": {
+                            "tx_id": "some tx_id",
+                            "token_id": "some token_id"
+                        }
+                    }
+                }
             })
         }
         ResponderRequest::TransferNftToBSC(raw_request) => {
             json!({
-                "version": raw_request.version,
-                "method": "transfer_nft_to_bsc",
-                "res": {
-                   "req": {
-                        "bsc_account": raw_request.params.bsc_account,
-                        "amount": raw_request.params.token_id
-                    },
-                   "result": 100,
-                   "status": 0
-                },
-                "lang": raw_request.lang,
-                "id": raw_request.id
+                "result": {
+                    "request": raw_request,
+                    "response": {
+                        "type": "Right",
+                        "value": {
+                            "tx_id": "some tx_id",
+                            "token_id": "some token_id"
+                        }
+                    }
+                }
             })
         }
         ResponderRequest::TransferTokenToRealis(raw_request) => {
             json!({
-                "version": raw_request.version,
-                "method": "transfer_token_to_realis",
-                "res": {
-                   "req": {
-                        "account_id": raw_request.params.account_id,
-                        "amount": raw_request.params.amount
-                    },
-                   "result": 100,
-                   "status": 0
-                },
-                "lang": raw_request.lang,
-                "id": raw_request.id
+                "result": {
+                    "request": raw_request,
+                    "response": {
+                        "type": "Right",
+                        "value": {
+                            "tx_id": "some tx_id",
+                            "token_id": "some token_id"
+                        }
+                    }
+                }
             })
         }
         ResponderRequest::TransferNftToRealis(raw_request) => {
             json!({
-                "version": raw_request.version,
-                "method": "transfer_nft_to_realis",
-                "res": {
-                   "req": {
-                        "account_id": raw_request.params.account_id,
-                        "amount": raw_request.params.token_id
-                    },
-                   "result": 100,
-                   "status": 0
-                },
-                "lang": raw_request.lang,
-                "id": raw_request.id
+                "result": {
+                    "request": raw_request,
+                    "response": {
+                        "type": "Right",
+                        "value": {
+                            "tx_id": "some tx_id",
+                            "token_id": "some token_id"
+                        }
+                    }
+                }
             })
         }
-        ResponderRequest::Error() => json!({
-            "version": "raw_request.version",
-            "lang": "some lamg",
+        ResponderRequest::Error(raw_request) => json!({
+            "version": "version",
+            "lang": "some lang",
             "method": "error",
             "res": {
+                "req": raw_request,
                 "result": 100,
                 "status": 0
             }

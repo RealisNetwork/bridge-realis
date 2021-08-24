@@ -1,5 +1,3 @@
-use crate::Error;
-
 pub struct Config {
     pub query: String,
     pub filename: String,
@@ -17,12 +15,10 @@ impl Config {
     /// If `.env` file can not be parsed
     ///
     /// # Panics
-    pub fn key_from_value(key: &str) -> Result<String, Error> {
-        dotenv::dotenv().ok();
-        match dotenv::var(key) {
-            Ok(value) => Ok(value),
-            Err(_) => Err(Error::Parse),
-        }
+    #[must_use]
+    pub fn key_from_value(key: &str) -> String {
+        let _dotenv = dotenv::dotenv().ok();
+        dotenv::var(key).unwrap()
     }
 
     #[must_use]
