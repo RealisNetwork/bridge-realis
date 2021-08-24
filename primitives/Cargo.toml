@@ -11,7 +11,7 @@ realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git
 runtime = { git = "git://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "node-runtime" }
 primitive-types = "0.9.1"
 #
-serde = { version = "1.0.127", features = ["derive"] }
+serde = { version = "1.0.129", features = ["derive"] }
 serde_json = "1.0.66"
 thiserror = "1.0.26"
 dotenv = "0.15.0"
