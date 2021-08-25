@@ -11,7 +11,7 @@ runtime = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch 
 realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "realis-primitives", default-features = false }
 sp-core = { git = "https://github.com/paritytech/substrate.git", branch = "master", package = "sp-core" }
 secp256k1 = { version = "0.20", features = ["recovery"] }
-primitive-types = "0.9.1"
+primitive-types = "0.10.1"
 web3 = "0.17.0"
 utils = { path = "../utils" }
 tokio = "1.10"
