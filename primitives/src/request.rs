@@ -5,6 +5,7 @@ use serde::{Deserialize, Deserializer, Serialize};
 pub type Agent = String;
 pub type Lang = String;
 pub type Id = String;
+pub type UserId = String;
 
 pub type Amount = u128;
 
@@ -14,12 +15,14 @@ pub struct Raw<T> {
     pub lang: Lang,
     pub params: T,
     pub agent: Agent,
-    pub authInfo: authInfo,
+    #[serde(alias = "authInfo")]
+    pub auth_info: AuthInfo,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct authInfo {
-    pub userId: String,
+pub struct AuthInfo {
+    #[serde(alias = "userId")]
+    pub user_id: UserId,
 }
 
 // CreditHardCurrency, DebitHardCurrency

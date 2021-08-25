@@ -1,4 +1,4 @@
-use log::{error, info, trace};
+use log::{error, info};
 use primitive_types::{H256, U256};
 use realis_primitives::{Basic, Rarity};
 use runtime::AccountId;
