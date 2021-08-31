@@ -71,7 +71,7 @@ pub async fn listen() {
                                     error
                                 );
                                 realis_responser::listen(ResponderRequest::Error(
-                                    Error::CannotSendExtrinsicRealis,
+                                    error.to_string(),
                                 ))
                                 .await
                             }
@@ -119,7 +119,7 @@ pub async fn listen() {
                                     error
                                 );
                                 realis_responser::listen(ResponderRequest::Error(
-                                    Error::CannotSendExtrinsicRealis,
+                                    error.to_string(),
                                 ))
                                 .await
                             }
@@ -153,7 +153,7 @@ pub async fn listen() {
                                 error
                             );
                             realis_responser::listen(ResponderRequest::Error(
-                                Error::CannotSendExtrinsicRealis,
+                                error.to_string(),
                             ))
                             .await
                         }
@@ -195,7 +195,7 @@ pub async fn listen() {
                                 error
                             );
                             realis_responser::listen(ResponderRequest::Error(
-                                Error::CannotSendExtrinsicRealis,
+                                error.to_string(),
                             ))
                             .await
                         }
