@@ -13,5 +13,4 @@ primitive-types = "0.9.1"
 #
 serde = { version = "1.0.129", features = ["derive"] }
 serde_json = "1.0.67"
-thiserror = "1.0.28"
 dotenv = "0.15.0"
