@@ -17,8 +17,8 @@ native-tls = { version = "^0.2", optional = true }
 tokio-native-tls = { version = "^0.3", optional = true }
 async-std = { version = "1", features = ["attributes", "tokio1"] }
 futures = "0.3.16"
-serde_json = { version = "1.0.66"}
-primitive-types = "0.10.1"
+serde_json = { version = "1.0.67"}
+primitive-types = "0.9.1"
 futures-core = "^0.3"
 futures-timer = "^3.0"
 log = "^0.4"
@@ -28,7 +28,7 @@ realis-sender = { version = "0.1.0", path = "../realis-sender"}
 bsc-sender = { version = "0.1.0", path = "../bsc-sender"}
 primitives = { version = "0.1.0", path = "../primitives" }
 realis-responser = { version = "0.1.0", path = "../realis-responser" }
-bytes = "1.0.1"
+bytes = "1.1.0"
 
 [features]
 default = ["std", "tls"]
