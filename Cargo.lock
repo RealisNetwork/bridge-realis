@@ -7248,17 +7248,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sp-externalities"
-version = "0.10.0-dev"
-source = "git+https://github.com/paritytech/substrate.git?branch=master#72aaab6c9dface13e3c31ace323341dec43f20d0"
-dependencies = [
- "environmental",
- "parity-scale-codec 2.2.0",
- "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
- "sp-storage 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
-]
-
-[[package]]
 name = "sp-finality-grandpa"
 version = "4.0.0-dev"
 source = "git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178#03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178"
@@ -7276,20 +7265,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "sp-finality-grandpa"
-version = "4.0.0-dev"
+name = "sp-externalities"
+version = "0.10.0-dev"
 source = "git+https://github.com/paritytech/substrate.git?branch=master#72aaab6c9dface13e3c31ace323341dec43f20d0"
 dependencies = [
- "finality-grandpa",
- "log",
+ "environmental",
  "parity-scale-codec 2.2.0",
- "serde",
- "sp-api 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
- "sp-application-crypto 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
- "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
- "sp-keystore 0.10.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
- "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "sp-storage 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
 ]
 
 [[package]]
@@ -7307,17 +7290,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "sp-inherents"
+name = "sp-finality-grandpa"
 version = "4.0.0-dev"
 source = "git+https://github.com/paritytech/substrate.git?branch=master#72aaab6c9dface13e3c31ace323341dec43f20d0"
 dependencies = [
- "async-trait",
- "impl-trait-for-tuples 0.2.1",
+ "finality-grandpa",
+ "log",
  "parity-scale-codec 2.2.0",
+ "serde",
+ "sp-api 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "sp-application-crypto 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "sp-keystore 0.10.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
- "thiserror",
 ]
 
 [[package]]
@@ -7343,6 +7329,20 @@ dependencies = [
  "sp-wasm-interface 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "tracing",
  "tracing-core",
+]
+
+[[package]]
+name = "sp-inherents"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate.git?branch=master#72aaab6c9dface13e3c31ace323341dec43f20d0"
+dependencies = [
+ "async-trait",
+ "impl-trait-for-tuples 0.2.1",
+ "parity-scale-codec 2.2.0",
+ "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "thiserror",
 ]
 
 [[package]]
@@ -8055,7 +8055,6 @@ dependencies = [
  "log",
  "prometheus",
  "tokio 1.10.1",
-
 ]
 
 [[package]]
