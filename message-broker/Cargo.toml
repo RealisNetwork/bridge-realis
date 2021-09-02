@@ -11,7 +11,7 @@ env_logger = {version="^0.9"}
 utils = {path = "../utils"}
 runtime = {git = "https://github.com/RealisNetwork/Realis.Network.git", rev = "4d2092476407611865f37f412f96093c84c51c80", package = "node-runtime", default-features = false}
 sp-core = { git = "https://github.com/paritytech/substrate", rev = "03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178" }
-tokio = { version = "1.10", features = ["rt-multi-thread", "net", "time", "io-util", "macros", "sync"] }
+tokio = { version = "1.11", features = ["rt-multi-thread", "net", "time", "io-util", "macros", "sync"] }
 tokio-util = { version = "^0.6", features = ["codec"] }
 native-tls = { version = "^0.2", optional = true }
 tokio-native-tls = { version = "^0.3", optional = true }
