@@ -17,7 +17,7 @@ native-tls = { version = "^0.2", optional = true }
 tokio-native-tls = { version = "^0.3", optional = true }
 async-std = { version = "1", features = ["attributes", "tokio1"] }
 futures = "0.3.17"
-serde_json = { version = "1.0.67"}
+serde_json = { version = "1.0.68"}
 primitive-types = "0.9.1"
 futures-core = "^0.3"
 futures-timer = "^3.0"
