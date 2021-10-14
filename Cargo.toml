@@ -1,16 +1,11 @@
 [workspace]
 
 members = [
+    "db",
     "bridge",
-    "bsc-adapter",
-    "bsc-sender",
-    "realis-adapter",
-    "realis-sender",
-    "utils",
-    "tests",
-    "message-broker",
     "primitives",
-    "realis-responser"
+    "bsc-adapter",
+    "realis-adapter",
 ]
 
 [patch.'https://github.com//paritytech/substrate']
