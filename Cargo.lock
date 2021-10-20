@@ -13,27 +13,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "adapter"
-version = "0.1.0"
-dependencies = [
- "db",
- "futures 0.3.17",
- "log 0.4.14",
- "node-runtime",
- "primitives",
- "realis-primitives",
- "reqwest 0.11.6",
- "rust-lib",
- "serde",
- "serde_json",
- "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
- "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
- "substrate-api-client",
- "tokio 1.12.0",
- "web3",
-]
-
-[[package]]
 name = "addr2line"
 version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -295,13 +274,13 @@ checksum = "8d696c370c750c948ada61c69a0ee2cbbb9c50b1019ddb86d9317157a99c2cae"
 name = "bridge"
 version = "0.1.0"
 dependencies = [
- "adapter",
  "bsc-adapter",
  "db",
  "env_logger 0.9.0",
  "futures 0.3.17",
  "log 0.4.14",
  "primitives",
+ "realis-listener",
  "rust-lib",
  "tokio 1.12.0",
 ]
@@ -3991,6 +3970,27 @@ dependencies = [
  "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=e7b93e1b1abcf0865824c68d10850bbb451e295f)",
  "sp-staking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=e7b93e1b1abcf0865824c68d10850bbb451e295f)",
  "sp-std 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=e7b93e1b1abcf0865824c68d10850bbb451e295f)",
+]
+
+[[package]]
+name = "realis-listener"
+version = "0.1.0"
+dependencies = [
+ "db",
+ "futures 0.3.17",
+ "log 0.4.14",
+ "node-runtime",
+ "primitives",
+ "realis-primitives",
+ "reqwest 0.11.6",
+ "rust-lib",
+ "serde",
+ "serde_json",
+ "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
+ "substrate-api-client",
+ "tokio 1.12.0",
+ "web3",
 ]
 
 [[package]]

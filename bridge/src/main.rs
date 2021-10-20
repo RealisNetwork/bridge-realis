@@ -102,7 +102,7 @@ fn main() {
 
         match Config::key_from_value("RESTORE").map(|value| value == *"true") {
             Ok(true) => {
-                match adapter::BlockListener::new_with_restore(
+                match realis_listener::BlockListener::new_with_restore(
                     &url,
                     binance_tx,
                     db::Database::new(&format!(
@@ -115,10 +115,10 @@ fn main() {
                 )
                 .await
                 {
-                    Ok((mut adapter, restore)) => {
+                    Ok((mut listener, restore)) => {
                         modules.push(tokio::spawn({
                             async move {
-                                adapter.listen().await;
+                                listener.listen().await;
                             }
                         }));
                         modules.push(tokio::spawn({
@@ -131,7 +131,7 @@ fn main() {
                 }
             }
             Ok(false) | Err(_) => {
-                let mut listener = adapter::BlockListener::new(
+                let mut listener = realis_listener::BlockListener::new(
                     &url,
                     binance_tx,
                     Arc::clone(&status),

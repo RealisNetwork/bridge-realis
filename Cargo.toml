@@ -5,7 +5,7 @@ members = [
     "bridge",
     "primitives",
     "bsc-adapter",
-    "realis-adapter",
+    "realis-listener",
 ]
 
 [patch.'https://github.com//paritytech/substrate']
