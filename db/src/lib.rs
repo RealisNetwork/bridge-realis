@@ -5,6 +5,7 @@ use postgres::NoTls;
 use rawsql::{self, Loader};
 use std::{
     convert::TryFrom,
+    str::FromStr,
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc,
@@ -53,16 +54,20 @@ impl Database {
         match response {
             EventType::TransferTokenToBscSuccess(event, hash, block_number)
             | EventType::TransferTokenToBscError(event, hash, block_number) => {
-                let block_number = u32::try_from(*block_number).unwrap();
+                let value = serde_json::to_value(&event.amount).unwrap();
 
                 self.client
                     .execute(
-                        "INSERT INTO extrinsics(from, to, amount, hash, block_number) \
-                    VALUES ($1, $2, $3) \
-                    ON CONFLICT(request_id) DO UPDATE \
-                        SET hash = excluded.hash,\
-                            block_number = excluded.block_number",
-                        &[&event.from, &format!("{:?}", hash), &block_number],
+                        "INSERT INTO extrinsics_realis(hash, block, \
+                        from_account, to_account, value) \
+                    VALUES ($1, $2, $3, $4, $5)",
+                        &[
+                            &event.hash.to_string(),
+                            &event.block.to_string(),
+                            &event.from.to_string(),
+                            &event.to.to_string(),
+                            &value,
+                        ],
                     )
                     .await
                     .map_err(Error::Postgres)?;
@@ -94,30 +99,6 @@ impl Database {
         }
 
         Ok(())
-    }
-
-    /// # Panics
-    /// # Errors
-    pub async fn contains_extrinsic(&self, event: &EventType) -> Result<bool, Error> {
-        self.still_alive().await?;
-
-        match event {
-            EventType::TransferTokenToBscSuccess(event, _, _)
-            | EventType::TransferTokenToBscError(event, _, _) => self
-                .client
-                .query_one(
-                    "SELECT COUNT(*) \
-                    FROM extrinsics_batch \
-                    WHERE request_id = $1",
-                    &[&event.id],
-                )
-                .await
-                .map_err(Error::Postgres)?
-                .try_get::<_, u32>(0)
-                .map_err(Error::Postgres)
-                .map(|value| value != 0),
-            _ => {}
-        }
     }
 
     /// # Panics

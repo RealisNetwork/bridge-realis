@@ -62,8 +62,8 @@ pub struct Signer {
 
 /// # Errors
 pub fn u32_from_string<'de, D>(deserializer: D) -> Result<u64, D::Error>
-    where
-        D: Deserializer<'de>,
+where
+    D: Deserializer<'de>,
 {
     match String::deserialize(deserializer)?.parse::<u64>() {
         Ok(value) => Ok(value),

@@ -8,6 +8,7 @@ edition = "2018"
 [dependencies]
 # Custom dependencies
 adapter = { path = "../realis-adapter" }
+bsc-adapter = { path = "../bsc-adapter" }
 primitives = { path = "../primitives" }
 db = { path = "../db" }
 #

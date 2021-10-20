@@ -6,16 +6,10 @@ check:
 	SKIP_WASM_BUILD=1 cargo check
 
 test:
-	SKIP_WASM_BUILD=1 cargo test --all
+	SKIP_WASM_BUILD=1 cargo test --all -- --nocapture --test-threads 1
 
-run.to_bsc:
-	SKIP_WASM_BUILD=1 cargo run --release realis-to-bsc
-
-run.to_realis:
-	SKIP_WASM_BUILD=1 cargo run --release bsc-to-realis
-
-run.msg_brok:
-	 RUST_BACKTRACE=1 SKIP_WASM_BUILD=1 cargo run --release message-broker
+run:
+	SKIP_WASM_BUILD=1 cargo run --release
 
 build:
 	SKIP_WASM_BUILD=1 cargo build --release
@@ -31,4 +25,4 @@ fmt:
 lint:
 	SKIP_WASM_BUILD=1 cargo clippy --workspace -- -D clippy::pedantic -D warnings
 
-.PHONY: lint fmt build run.to_bsc run.to_realis run.msg_brok test check
+.PHONY: lint fmt build run test check

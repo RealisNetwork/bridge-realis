@@ -1,7 +1,7 @@
+pub mod block_parser;
+
 use db::Database;
-use primitives::{
-    block::Block, types::BlockNumber, Error, events::EventType
-};
+use primitives::{block::Block, events::EventType, types::BlockNumber, Error};
 
 use futures::Future;
 use log::{error, info, warn};
@@ -13,15 +13,17 @@ use tokio::{
     sync::mpsc::{unbounded_channel, Sender, UnboundedReceiver, UnboundedSender},
 };
 
+use crate::block_parser::BlockParser;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     mpsc::channel,
     Arc,
 };
+use tokio::time::{sleep, Duration};
 
 pub struct BlockListener {
     rx: UnboundedReceiver<BlockNumber>,
-    tx: Sender<Result<EventType, Error>>,
+    tx: Sender<EventType>,
     status: Arc<AtomicBool>,
 }
 
@@ -29,7 +31,7 @@ impl BlockListener {
     /// # Errors
     pub fn new(
         url: &str,
-        tx: Sender<Result<EventType, Error>>,
+        tx: Sender<EventType>,
         status: Arc<AtomicBool>,
     ) -> Result<Self, Error> {
         let (_, rx) = BlockListener::subscribe(url, Arc::clone(&status));
@@ -39,7 +41,7 @@ impl BlockListener {
     /// # Errors
     pub async fn new_with_restore(
         url: &str,
-        tx: Sender<Result<EventType, Error>>,
+        tx: Sender<EventType>,
         db: Database,
         status: Arc<AtomicBool>,
     ) -> Result<(Self, impl Future), Error> {
@@ -72,13 +74,13 @@ impl BlockListener {
                 _ = is_alive(Arc::clone(&self.status)) => break,
                 option = self.rx.recv() => {
                     if let Some(block_number) = option {
-                        match BlockListener::get_block(block_number).await {
+                        match BlockListener::get_block(83516).await {
                             Ok(block) => match self.process_block(block).await {
                                 Ok(_) => info!("Block {} processed!", block_number),
-                                Err(Error::Disconnected) =>
-                                    self.terminate(Error::Disconnected).await,
-                                Err(Error::Send) =>
-                                    self.terminate(Error::Send).await,
+                                Err(Error::Disconnected) => {}/*
+                                    self.terminate(Error::Disconnected).await*/,
+                                Err(Error::Send) => {}/*
+                                    self.terminate(Error::Send).await*/,
                                 Err(error) => {
                                     error!(
                                         "Unable to process block with error: {:?}",
@@ -118,9 +120,9 @@ impl BlockListener {
                         break;
                     }
                     match sync_rx.recv().map(|header| {
-                        serde_json::from_str::<generic::Header<BlockNumber, BlakeTwo256>>(
-                            &header,
-                        )
+                        serde_json::from_str::<
+                            generic::Header<BlockNumber, BlakeTwo256>,
+                        >(&header)
                     }) {
                         Ok(Ok(header)) => {
                             if let Err(error) = async_tx.send(header.number) {
@@ -146,9 +148,9 @@ impl BlockListener {
     async fn get_block(block_number: BlockNumber) -> Result<Block, Error> {
         // Create request
         let request = format!(
-            "http://135.181.18.215:8080/blocks/{}",
-            block_number.to_string()
+            "http://135.181.18.215:8080/blocks/83516" /* block_number.to_string() */
         );
+        info!("Got block: {:?}", request);
         // Send request and wait response
         reqwest::get(request)
             .await
@@ -164,24 +166,30 @@ impl BlockListener {
         for events in block
             .extrinsics
             .iter()
-            .filter_map(|xt| BatchParser::new(xt.clone(), block_number))
-            .map(|batch| batch.parse())
+            .filter_map(|xt| BlockParser::new(xt.clone(), block_number))
+            .map(|block| block.parse())
         {
             for event in events {
-                warn!("{:?}", event);
-                self.tx.send(Ok(event)).await.map_err(|_| Error::Send)?;
+                warn!("send to BSC {:?}", event);
+                self.tx.send(event).await.map_err(|_| Error::Send)?;
             }
         }
 
         Ok(())
     }
 
-    #[allow(unused_must_use)]
-    async fn terminate(&mut self, error: Error) {
-        warn!("Terminate listener with error: {:?}", error);
-        self.rx.close();
-        self.tx.send(Err(error)).await;
+    // #[allow(unused_must_use)]
+    // async fn terminate(&mut self, error: Error) {
+    //     warn!("Terminate listener with error: {:?}", error);
+    //     self.rx.close();
+    //     self.tx.send(error).await;
+    //
+    //     self.status.store(false, Ordering::SeqCst);
+    // }
+}
 
-        self.status.store(false, Ordering::SeqCst);
+pub async fn is_alive(status: Arc<AtomicBool>) {
+    while status.load(Ordering::Acquire) {
+        sleep(Duration::from_millis(10000)).await;
     }
 }
