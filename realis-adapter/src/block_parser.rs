@@ -1,14 +1,11 @@
-use futures::StreamExt;
 use primitives::{
-    block::{Extrinsic, Method},
+    block::Extrinsic,
     events::{EventType, TransferNftToBsc, TransferTokenToBsc},
 };
 use std::str::FromStr;
 
-use crate::block_parser;
-use log::{error, info, warn};
+use log::{error, info};
 use primitives::{events::BridgeExtrinsics, types::BlockNumber};
-use realis_primitives::TokenId;
 use runtime::AccountId;
 use rust_lib::primitives::adapter::request::token_id_from_string;
 use serde::{Deserialize, Serialize};

@@ -3,13 +3,9 @@ use primitives::{events::EventType, types::BlockNumber, Error};
 use log::{error, trace};
 use postgres::NoTls;
 use rawsql::{self, Loader};
-use std::{
-    convert::TryFrom,
-    str::FromStr,
-    sync::{
-        atomic::{AtomicBool, Ordering},
-        Arc,
-    },
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
 };
 use tokio_postgres::Client;
 
@@ -52,8 +48,8 @@ impl Database {
         self.still_alive().await?;
 
         match response {
-            EventType::TransferTokenToBscSuccess(event, hash, block_number)
-            | EventType::TransferTokenToBscError(event, hash, block_number) => {
+            EventType::TransferTokenToBscSuccess(event, ..)
+            | EventType::TransferTokenToBscError(event, ..) => {
                 let value = serde_json::to_value(&event.amount).unwrap();
 
                 self.client

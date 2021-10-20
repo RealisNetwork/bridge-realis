@@ -34,11 +34,9 @@ fn main() {
         );
     }
 
-    // let (listener_tx, listener_rx) = mpsc::channel(1024);
-    let (responder_tx, responder_rx) = mpsc::channel(1024);
     let (binance_tx, binance_rx) = mpsc::channel(1024);
-    let (rollback_tx, rollback_rx) = mpsc::channel(1024);
-    let status = Arc::new(AtomicBool::new(true));
+    // let (rollback_tx, rollback_rx) = mpsc::channel(1024);
+    // let status = Arc::new(AtomicBool::new(true));
 
     let binance_url =
         Config::key_from_value("BINANCE_URL").expect("Missing env BINANCE_URL");
@@ -149,14 +147,11 @@ fn main() {
 
         let binance_handler = BinanceHandler::new(
             binance_rx,
-            responder_tx.clone(),
-            rollback_tx,
             Arc::clone(&status),
             &binance_url,
             token_contract_address,
             nft_contract_address,
             binance_master_key,
-            Arc::clone(&db),
         );
         modules.push(tokio::spawn(binance_handler.handle()));
 

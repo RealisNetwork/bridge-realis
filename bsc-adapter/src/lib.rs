@@ -1,14 +1,11 @@
 mod connection_builder;
 
 use crate::connection_builder::ConnectionBuilder;
+use tokio::sync::mpsc::Receiver;
 
-use db::Database;
-use primitives::{events::EventType, Error, Status};
-
-use log::{error, info, warn};
+use log::{error, info};
+use primitives::{events::EventType, Error};
 use secp256k1::SecretKey;
-use serde_json::Value;
-use tokio::sync::mpsc::{Receiver, Sender};
 
 use std::{
     str::FromStr,
@@ -21,14 +18,11 @@ use web3::{transports::WebSocket, types::U256, Web3};
 
 pub struct BinanceHandler {
     rx: Receiver<EventType>,
-    tx_responder: Sender<Value>,
-    tx_rollback: Sender<EventType>,
     connection_builder: ConnectionBuilder,
     token_contract_address: String,
     nft_contract_address: String,
     status: Arc<AtomicBool>,
     master_key: SecretKey,
-    db: Arc<Database>,
 }
 
 impl BinanceHandler {
@@ -36,28 +30,22 @@ impl BinanceHandler {
     /// # Panics
     pub fn new(
         rx: Receiver<EventType>,
-        tx_responder: Sender<Value>,
-        tx_rollback: Sender<EventType>,
         status: Arc<AtomicBool>,
         url: &str,
         token_contract_address: String,
         nft_contract_address: String,
         master_key: &str,
-        db: Arc<Database>,
     ) -> Self {
         let connection_builder = ConnectionBuilder::new(url);
         let master_key = SecretKey::from_str(master_key).unwrap();
 
         Self {
             rx,
-            tx_responder,
-            tx_rollback,
             connection_builder,
             token_contract_address,
             nft_contract_address,
             status,
             master_key,
-            db,
         }
     }
 

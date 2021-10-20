@@ -74,7 +74,8 @@ impl BlockListener {
                 _ = is_alive(Arc::clone(&self.status)) => break,
                 option = self.rx.recv() => {
                     if let Some(block_number) = option {
-                        match BlockListener::get_block(83516).await {
+                        info!("Start process block!");
+                        match BlockListener::get_block(block_number).await {
                             Ok(block) => match self.process_block(block).await {
                                 Ok(_) => info!("Block {} processed!", block_number),
                                 Err(Error::Disconnected) => {}/*
@@ -147,10 +148,8 @@ impl BlockListener {
 
     async fn get_block(block_number: BlockNumber) -> Result<Block, Error> {
         // Create request
-        let request = format!(
-            "http://135.181.18.215:8080/blocks/83516" /* block_number.to_string() */
-        );
-        info!("Got block: {:?}", request);
+        let request =
+            format!("http://135.181.18.215:8080/blocks/{:?}", block_number);
         // Send request and wait response
         reqwest::get(request)
             .await
@@ -162,7 +161,6 @@ impl BlockListener {
 
     async fn process_block(&self, block: Block) -> Result<(), Error> {
         let block_number = block.number;
-
         for events in block
             .extrinsics
             .iter()
