@@ -1,6 +1,6 @@
 use primitives::{
     block::Extrinsic,
-    events::{EventType, TransferNftToBsc, TransferTokenToBsc},
+    events::{RealisEventType, TransferNftToBsc, TransferTokenToBsc},
 };
 use std::str::FromStr;
 
@@ -20,10 +20,8 @@ pub struct BlockParser {
 
 impl BlockParser {
     pub fn new(extrinsic: Extrinsic, block_number: BlockNumber) -> Option<Self> {
-        if extrinsic.method.pallet == "realisBridge"
-            && extrinsic.method.method == "transferTokenToBsc"
-            || extrinsic.method.pallet == "realisBridge"
-                && extrinsic.method.method == "transferNftToBsc"
+        if extrinsic.method.pallet == "realisBridge" && extrinsic.method.method == "transferTokenToBsc"
+            || extrinsic.method.pallet == "realisBridge" && extrinsic.method.method == "transferNftToBsc"
         {
             info!("Start proccess extrinsic!");
             Some(Self {
@@ -35,21 +33,21 @@ impl BlockParser {
         }
     }
 
-    pub fn parse(self) -> Vec<EventType> {
+    pub fn parse(self) -> Vec<RealisEventType> {
         error!("Start parse extrinsics {:?}!", self.extrinsic.clone());
-        let args = self.clone().parse_args(
-            serde_json::from_value::<Args>(self.extrinsic.args.clone()).unwrap(),
-        );
+        let args = self
+            .clone()
+            .parse_args(serde_json::from_value::<Args>(self.extrinsic.args.clone()).unwrap());
         match args {
             BridgeExtrinsics::TransferToken(args) => {
-                return vec![EventType::TransferTokenToBscSuccess(
+                return vec![RealisEventType::TransferTokenToBscSuccess(
                     args,
                     self.extrinsic.hash,
                     self.block_number,
                 )]
             }
             BridgeExtrinsics::TransferNft(args) => {
-                return vec![EventType::TransferNftToBscSuccess(
+                return vec![RealisEventType::TransferNftToBscSuccess(
                     args,
                     self.extrinsic.hash,
                     self.block_number,
@@ -65,10 +63,7 @@ impl BlockParser {
                 hash: self.extrinsic.hash,
                 from: args.from,
                 to: args.to,
-                amount: u128::from_str(
-                    &serde_json::from_value::<String>(args.value).unwrap(),
-                )
-                .unwrap(),
+                amount: u128::from_str(&serde_json::from_value::<String>(args.value).unwrap()).unwrap(),
             })
         } else {
             BridgeExtrinsics::TransferNft(TransferNftToBsc {

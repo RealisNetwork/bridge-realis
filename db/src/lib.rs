@@ -1,4 +1,4 @@
-use primitives::{events::EventType, types::BlockNumber, Error};
+use primitives::{events::RealisEventType, types::BlockNumber, Error};
 
 use log::{error, trace};
 use postgres::NoTls;
@@ -44,12 +44,12 @@ impl Database {
 
     /// # Panics
     /// # Errors
-    pub async fn add_extrinsic(&self, response: &EventType) -> Result<(), Error> {
+    pub async fn add_extrinsic(&self, response: &RealisEventType) -> Result<(), Error> {
         self.still_alive().await?;
 
         match response {
-            EventType::TransferTokenToBscSuccess(event, ..)
-            | EventType::TransferTokenToBscError(event, ..) => {
+            RealisEventType::TransferTokenToBscSuccess(event, ..)
+            | RealisEventType::TransferTokenToBscError(event, ..) => {
                 let value = serde_json::to_value(&event.amount).unwrap();
 
                 self.client

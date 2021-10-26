@@ -4,7 +4,7 @@ use crate::connection_builder::ConnectionBuilder;
 use tokio::sync::mpsc::Receiver;
 
 use log::{error, info};
-use primitives::{events::EventType, Error};
+use primitives::{events::RealisEventType, Error};
 use secp256k1::SecretKey;
 
 use std::{
@@ -17,7 +17,7 @@ use std::{
 use web3::{transports::WebSocket, types::U256, Web3};
 
 pub struct BinanceHandler {
-    rx: Receiver<EventType>,
+    rx: Receiver<RealisEventType>,
     connection_builder: ConnectionBuilder,
     token_contract_address: String,
     nft_contract_address: String,
@@ -29,7 +29,7 @@ impl BinanceHandler {
     #[must_use]
     /// # Panics
     pub fn new(
-        rx: Receiver<EventType>,
+        rx: Receiver<RealisEventType>,
         status: Arc<AtomicBool>,
         url: &str,
         token_contract_address: String,
@@ -64,7 +64,7 @@ impl BinanceHandler {
         }
     }
 
-    async fn execute(&mut self, request: &EventType) -> Result<(), Error> {
+    async fn execute(&mut self, request: &RealisEventType) -> Result<(), Error> {
         let connection = self.connect().await?;
 
         info!("Start send transaction");
@@ -72,13 +72,10 @@ impl BinanceHandler {
         // let gas_price = connection.eth().gas_price().await.unwrap();
 
         match request {
-            EventType::TransferNftToBscSuccess(request, ..) => {
-                let contract =
-                    ConnectionBuilder::nft(connection, &self.nft_contract_address)
-                        .await?;
+            RealisEventType::TransferNftToBscSuccess(request, ..) => {
+                let contract = ConnectionBuilder::nft(connection, &self.nft_contract_address).await?;
 
-                let token_id =
-                    U256::from_dec_str(&request.token_id.to_string()).unwrap();
+                let token_id = U256::from_dec_str(&request.token_id.to_string()).unwrap();
 
                 contract
                     .signed_call_with_confirmations(
@@ -95,12 +92,8 @@ impl BinanceHandler {
                     .map_err(Error::Web3)
                     .map(|_| ())
             }
-            EventType::TransferTokenToBscSuccess(request, ..) => {
-                let contract = ConnectionBuilder::token(
-                    connection,
-                    &self.token_contract_address,
-                )
-                .await?;
+            RealisEventType::TransferTokenToBscSuccess(request, ..) => {
+                let contract = ConnectionBuilder::token(connection, &self.token_contract_address).await?;
 
                 let amount = web3::types::U128::from(request.amount);
 
@@ -119,8 +112,7 @@ impl BinanceHandler {
                     .map_err(Error::Web3)
                     .map(|_| ())
             }
-            EventType::TransferTokenToBscError(..)
-            | EventType::TransferNftToBscError(..) => Ok(()),
+            RealisEventType::TransferTokenToBscError(..) | RealisEventType::TransferNftToBscError(..) => Ok(()),
         }
     }
 

@@ -5,6 +5,8 @@ members = [
     "bridge",
     "primitives",
     "bsc-adapter",
+    "bsc-listener",
+    "realis-adapter",
     "realis-listener",
 ]
 

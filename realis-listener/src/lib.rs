@@ -1,7 +1,7 @@
 pub mod block_parser;
 
 use db::Database;
-use primitives::{block::Block, events::EventType, types::BlockNumber, Error};
+use primitives::{block::Block, events::RealisEventType, types::BlockNumber, Error};
 
 use futures::Future;
 use log::{error, info, warn};
@@ -23,17 +23,13 @@ use tokio::time::{sleep, Duration};
 
 pub struct BlockListener {
     rx: UnboundedReceiver<BlockNumber>,
-    tx: Sender<EventType>,
+    tx: Sender<RealisEventType>,
     status: Arc<AtomicBool>,
 }
 
 impl BlockListener {
     /// # Errors
-    pub fn new(
-        url: &str,
-        tx: Sender<EventType>,
-        status: Arc<AtomicBool>,
-    ) -> Result<Self, Error> {
+    pub fn new(url: &str, tx: Sender<RealisEventType>, status: Arc<AtomicBool>) -> Result<Self, Error> {
         let (_, rx) = BlockListener::subscribe(url, Arc::clone(&status));
         Ok(Self { rx, tx, status })
     }
@@ -41,25 +37,18 @@ impl BlockListener {
     /// # Errors
     pub async fn new_with_restore(
         url: &str,
-        tx: Sender<EventType>,
+        tx: Sender<RealisEventType>,
         db: Database,
         status: Arc<AtomicBool>,
     ) -> Result<(Self, impl Future), Error> {
         let (tx_copy, mut rx) = BlockListener::subscribe(url, Arc::clone(&status));
         let current = rx.recv().await.ok_or(Error::Disconnected)?;
         let last = db.get_last_block().await?;
-        Ok((
-            Self { rx, tx, status },
-            BlockListener::restore(tx_copy, current, last),
-        ))
+        Ok((Self { rx, tx, status }, BlockListener::restore(tx_copy, current, last)))
     }
 
     /// # Panics
-    pub async fn restore(
-        tx: UnboundedSender<BlockNumber>,
-        current: BlockNumber,
-        last_processed: BlockNumber,
-    ) {
+    pub async fn restore(tx: UnboundedSender<BlockNumber>, current: BlockNumber, last_processed: BlockNumber) {
         for block_number in last_processed..current {
             if let Err(error) = tx.send(block_number) {
                 panic!("In restore: {:?}", error);
@@ -120,11 +109,10 @@ impl BlockListener {
                     if !status.load(Ordering::Acquire) {
                         break;
                     }
-                    match sync_rx.recv().map(|header| {
-                        serde_json::from_str::<
-                            generic::Header<BlockNumber, BlakeTwo256>,
-                        >(&header)
-                    }) {
+                    match sync_rx
+                        .recv()
+                        .map(|header| serde_json::from_str::<generic::Header<BlockNumber, BlakeTwo256>>(&header))
+                    {
                         Ok(Ok(header)) => {
                             if let Err(error) = async_tx.send(header.number) {
                                 error!("{:?}", error);
@@ -148,8 +136,7 @@ impl BlockListener {
 
     async fn get_block(block_number: BlockNumber) -> Result<Block, Error> {
         // Create request
-        let request =
-            format!("http://135.181.18.215:8080/blocks/{:?}", block_number);
+        let request = format!("http://135.181.18.215:8080/blocks/{:?}", block_number);
         // Send request and wait response
         reqwest::get(request)
             .await
