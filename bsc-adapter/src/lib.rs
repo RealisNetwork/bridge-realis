@@ -1,11 +1,12 @@
 mod connection_builder;
 
 use crate::connection_builder::ConnectionBuilder;
-use tokio::sync::mpsc::Receiver;
+use tokio::{select, sync::mpsc::Receiver};
 
 use log::{error, info};
 use primitives::{events::RealisEventType, Error};
 use secp256k1::SecretKey;
+use rust_lib::healthchecker::HealthChecker;
 
 use std::{
     str::FromStr,
@@ -50,15 +51,21 @@ impl BinanceHandler {
     }
 
     pub async fn handle(mut self) {
-        // TODO check handle still_alive status
-        while let Some(request) = self.rx.recv().await {
-            match self.execute(&request).await {
-                Ok(_) => {
-                    info!("Success send transaction to Realis!");
-                }
-                Err(error) => {
-                    error!("Cannot send transaction {:?}", error);
-                    self.status.store(false, Ordering::SeqCst);
+        loop {
+            select! {
+                () = HealthChecker::is_alive(Arc::clone(&self.status)) => break,
+                option = self.rx.recv() => {
+                    if let Some(request) = option {
+                        match self.execute(&request).await {
+                            Ok(_) => {
+                                info!("Success send transaction to Realis!");
+                            }
+                            Err(error) => {
+                                error!("Cannot send transaction {:?}", error);
+                                self.status.store(false, Ordering::SeqCst);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -79,7 +86,6 @@ impl BinanceHandler {
 
                 contract
                     .signed_call_with_confirmations(
-                        // TODO check this
                         "safeMint",
                         (request.dest, token_id),
                         // TODO get this options from blockchain data
@@ -99,7 +105,6 @@ impl BinanceHandler {
 
                 contract
                     .signed_call_with_confirmations(
-                        // TODO check this
                         "transferFromRealis",
                         (request.from.to_string(), request.to, amount),
                         // TODO get this options from blockchain data

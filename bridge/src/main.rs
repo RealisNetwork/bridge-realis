@@ -91,13 +91,13 @@ fn main() {
                 match realis_listener::BlockListener::new_with_restore(
                     &url,
                     binance_tx,
+                    Arc::clone(&status),
                     db::Database::new(&format!(
                         "host={} port={} user={} password={} dbname={}",
                         db_host, db_port, db_user, db_password, db_name
                     ))
                     .await
                     .unwrap(),
-                    Arc::clone(&status),
                 )
                 .await
                 {

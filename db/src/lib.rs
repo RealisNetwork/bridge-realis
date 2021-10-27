@@ -9,6 +9,7 @@ use std::sync::{
     Arc,
 };
 use tokio_postgres::Client;
+use uuid::Uuid;
 
 pub struct Database {
     client: Client,
@@ -50,8 +51,8 @@ impl Database {
 
         match response {
             RealisEventType::TransferNftToBscSuccess(event, ..)
-            | RealisEventType::TransferTokenToBscError(event, ..) => {
-                let value = serde_json::to_value(&event.amount).unwrap();
+            | RealisEventType::TransferNftToBscError(event, ..) => {
+                let value = serde_json::to_value(&event.token_id).unwrap();
 
                 self.client
                     .execute(
@@ -62,7 +63,7 @@ impl Database {
                             &event.hash.to_string(),
                             &event.block.to_string(),
                             &event.from.to_string(),
-                            &event.to.to_string(),
+                            &event.token_id.to_string(),
                             &value,
                         ],
                     )
@@ -80,8 +81,8 @@ impl Database {
 
         match response {
             BscEventType::TransferNftToRealisSuccess(event, ..)
-            | BscEventType::TransferTokenToRealisError(event, ..) => {
-                let value = serde_json::to_value(&event.amount).unwrap();
+            | BscEventType::TransferNftToRealisError(event, ..) => {
+                let value = serde_json::to_value(&event.token_id).unwrap();
 
                 self.client
                     .execute(
@@ -90,7 +91,7 @@ impl Database {
                     VALUES ($1, $2, $3, $4, $5)",
                         &[
                             &event.hash.to_string(),
-                            &event.block.to_string(),
+                            &event.block.unwrap().to_string(),
                             &event.from.to_string(),
                             &event.dest.to_string(),
                             &value,
@@ -142,5 +143,21 @@ impl Database {
             .map_err(Error::Postgres)
             .map(u64::from)?;
         Ok(block_number_batch)
+    }
+
+    pub async fn update_status(&self, id: &Uuid, status: u32) -> Result<(), Error> {
+        self.still_alive().await?;
+
+        self.client
+            .execute(
+                "UPDATE request_status \
+                SET status = $1 \
+                WHERE id = $2",
+                &[&status, &id],
+            )
+            .await
+            .map_err(Error::Postgres)?;
+
+        Ok(())
     }
 }

@@ -38,8 +38,8 @@ impl BlockListener {
     pub async fn new_with_restore(
         url: &str,
         tx: Sender<RealisEventType>,
-        db: Database,
         status: Arc<AtomicBool>,
+        db: Database,
     ) -> Result<(Self, impl Future), Error> {
         let (tx_copy, mut rx) = BlockListener::subscribe(url, Arc::clone(&status));
         let current = rx.recv().await.ok_or(Error::Disconnected)?;
