@@ -156,6 +156,7 @@ impl BlockListener {
         {
             for event in events {
                 warn!("send to BSC {:?}", event);
+                // TODO add to database
                 self.tx.send(event).await.map_err(|_| Error::Send)?;
             }
         }

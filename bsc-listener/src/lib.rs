@@ -156,6 +156,7 @@ impl BlockListener {
                         let account_id: AccountId = Deserialize::deserialize(json).unwrap();
                         let token_id = TokenId::from_str(&info[0].to_string()).unwrap();
                         info!("{:?}", account_id);
+                        // TODO add new arg, add arg to database
                         match self
                             .tx
                             .send(BscEventType::TransferNftToRealisSuccess(
