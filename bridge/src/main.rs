@@ -151,7 +151,7 @@ fn main() {
         )
         .unwrap();
 
-        let realis_adapter = realis_adapter::RealisAdapter::new(bsc_listen_rx, Arc::clone(&status), url, pair);
+        let realis_adapter = realis_adapter::RealisAdapter::new(bsc_listen_rx, Arc::clone(&status), &url, pair);
 
         modules.push(tokio::spawn({
             async move {

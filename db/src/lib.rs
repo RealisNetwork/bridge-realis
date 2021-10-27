@@ -2,6 +2,7 @@ use primitives::{events::RealisEventType, types::BlockNumber, Error};
 
 use log::{error, trace};
 use postgres::NoTls;
+use primitives::events::BscEventType;
 use rawsql::{self, Loader};
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -44,11 +45,11 @@ impl Database {
 
     /// # Panics
     /// # Errors
-    pub async fn add_extrinsic(&self, response: &RealisEventType) -> Result<(), Error> {
+    pub async fn add_extrinsic_realis(&self, response: &RealisEventType) -> Result<(), Error> {
         self.still_alive().await?;
 
         match response {
-            RealisEventType::TransferTokenToBscSuccess(event, ..)
+            RealisEventType::TransferNftToBscSuccess(event, ..)
             | RealisEventType::TransferTokenToBscError(event, ..) => {
                 let value = serde_json::to_value(&event.amount).unwrap();
 
@@ -62,6 +63,36 @@ impl Database {
                             &event.block.to_string(),
                             &event.from.to_string(),
                             &event.to.to_string(),
+                            &value,
+                        ],
+                    )
+                    .await
+                    .map_err(Error::Postgres)?;
+            }
+            _ => {}
+        }
+
+        Ok(())
+    }
+
+    pub async fn add_extrinsic_bsc(&self, response: &BscEventType) -> Result<(), Error> {
+        self.still_alive().await?;
+
+        match response {
+            BscEventType::TransferNftToRealisSuccess(event, ..)
+            | BscEventType::TransferTokenToRealisError(event, ..) => {
+                let value = serde_json::to_value(&event.amount).unwrap();
+
+                self.client
+                    .execute(
+                        "INSERT INTO extrinsics_realis(hash, block, \
+                        from_account, to_account, value) \
+                    VALUES ($1, $2, $3, $4, $5)",
+                        &[
+                            &event.hash.to_string(),
+                            &event.block.to_string(),
+                            &event.from.to_string(),
+                            &event.dest.to_string(),
                             &value,
                         ],
                     )

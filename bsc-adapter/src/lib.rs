@@ -54,7 +54,7 @@ impl BinanceHandler {
         while let Some(request) = self.rx.recv().await {
             match self.execute(&request).await {
                 Ok(_) => {
-                    info!("Success send transaction to BSC!");
+                    info!("Success send transaction to Realis!");
                 }
                 Err(error) => {
                     error!("Cannot send transaction {:?}", error);

@@ -284,7 +284,7 @@ dependencies = [
  "realis-adapter",
  "realis-listener",
  "rust-lib",
- "substrate-api-client 0.6.0 (git+https://github.com/scs/substrate-api-client.git)",
+ "substrate-api-client 0.6.0 (git+https://github.com/RealisNetwork/substrate-api-client.git)",
  "tokio 1.12.0",
 ]
 
@@ -3984,7 +3984,9 @@ dependencies = [
  "futures 0.3.17",
  "log 0.4.14",
  "node-runtime",
+ "primitive-types 0.10.1",
  "primitives",
+ "realis-bridge",
  "realis-primitives",
  "reqwest 0.11.6",
  "rust-lib",
@@ -3992,7 +3994,7 @@ dependencies = [
  "serde_json",
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
  "sp-runtime 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=master)",
- "substrate-api-client 0.6.0 (git+https://github.com/scs/substrate-api-client.git)",
+ "substrate-api-client 0.6.0 (git+https://github.com/RealisNetwork/substrate-api-client.git)",
  "tokio 1.12.0",
  "web3",
 ]

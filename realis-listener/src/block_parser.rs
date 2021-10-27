@@ -19,6 +19,8 @@ pub struct BlockParser {
 }
 
 impl BlockParser {
+    #[allow(clippy::nonminimal_bool)]
+    #[must_use]
     pub fn new(extrinsic: Extrinsic, block_number: BlockNumber) -> Option<Self> {
         if extrinsic.method.pallet == "realisBridge" && extrinsic.method.method == "transferTokenToBsc"
             || extrinsic.method.pallet == "realisBridge" && extrinsic.method.method == "transferNftToBsc"
@@ -33,8 +35,10 @@ impl BlockParser {
         }
     }
 
+    #[must_use]
+    /// # Panics
     pub fn parse(self) -> Vec<RealisEventType> {
-        error!("Start parse extrinsics {:?}!", self.extrinsic.clone());
+        error!("Start parse extrinsics {:?}!", self.extrinsic);
         let args = self
             .clone()
             .parse_args(serde_json::from_value::<Args>(self.extrinsic.args.clone()).unwrap());
@@ -56,6 +60,8 @@ impl BlockParser {
         }
     }
 
+    #[must_use]
+    /// # Panics
     pub fn parse_args(self, args: Args) -> BridgeExtrinsics {
         if self.extrinsic.method.method == "transferTokenToBsc" {
             BridgeExtrinsics::TransferToken(TransferTokenToBsc {
