@@ -66,6 +66,7 @@ impl BlockListener {
     }
 
     /// # Panics
+    #[allow(clippy::match_same_arms)]
     pub async fn listen(&mut self) {
         loop {
             select! {
@@ -76,10 +77,8 @@ impl BlockListener {
                         match BlockListener::get_block(block_number).await {
                             Ok(block) => match self.process_block(block).await {
                                 Ok(_) => info!("Block {} processed!", block_number),
-                                Err(Error::Disconnected) => {}/*
-                                    self.terminate(Error::Disconnected).await*/,
-                                Err(Error::Send) => {}/*
-                                    self.terminate(Error::Send).await*/,
+                                Err(Error::Disconnected) => self.status.store(false, Ordering::SeqCst),
+                                Err(Error::Send) => self.status.store(false, Ordering::SeqCst),
                                 Err(error) => {
                                     error!(
                                         "Unable to process block with error: {:?}",
@@ -176,15 +175,6 @@ impl BlockListener {
 
         Ok(())
     }
-
-    // #[allow(unused_must_use)]
-    // async fn terminate(&mut self, error: Error) {
-    //     warn!("Terminate listener with error: {:?}", error);
-    //     self.rx.close();
-    //     self.tx.send(error).await;
-    //
-    //     self.status.store(false, Ordering::SeqCst);
-    // }
 }
 
 pub async fn is_alive(status: Arc<AtomicBool>) {

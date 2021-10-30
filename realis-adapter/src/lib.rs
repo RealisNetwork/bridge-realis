@@ -29,6 +29,8 @@ impl RealisAdapter {
         Self { rx, status, api }
     }
 
+    /// # Panics
+    /// # Errors
     pub async fn handle(mut self) {
         loop {
             select! {
@@ -54,7 +56,7 @@ impl RealisAdapter {
         info!("Start send transaction");
 
         match request {
-            BscEventType::TransferTokenToRealisSuccess(request, ..) => {
+            BscEventType::TransferTokenToRealis(request, ..) => {
                 let account_id = request.to.clone();
                 let amount = request.amount;
                 let bsc_account = primitive_types::H160::from_slice(request.from.as_ref());
@@ -74,7 +76,7 @@ impl RealisAdapter {
                 }
                 Ok(())
             }
-            BscEventType::TransferNftToRealisSuccess(request, ..) => {
+            BscEventType::TransferNftToRealis(request, ..) => {
                 let account_id = request.dest.clone();
                 let token_id = request.token_id;
                 let bsc_account = primitive_types::H160::from_slice(request.from.as_ref());
@@ -95,7 +97,6 @@ impl RealisAdapter {
                 }
                 Ok(())
             }
-            BscEventType::TransferTokenToRealisError(..) | BscEventType::TransferNftToRealisError(..) => Ok(()),
         }
     }
 }

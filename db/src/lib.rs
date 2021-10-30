@@ -2,14 +2,14 @@ use primitives::{events::RealisEventType, types::BlockNumber, Error};
 
 use log::{error, trace};
 use postgres::NoTls;
-use primitives::events::BscEventType;
+use primitives::{db::Status, events::BscEventType, types::Hash};
 use rawsql::{self, Loader};
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
 use tokio_postgres::Client;
-use web3::ethabi::ethereum_types::U64;
+use web3::{ethabi::ethereum_types::U64, types::H256};
 
 pub struct Database {
     client: Client,
@@ -51,7 +51,7 @@ impl Database {
         self.still_alive().await?;
 
         match response {
-            RealisEventType::TransferNftToBscSuccess(event, ..) => {
+            RealisEventType::TransferNftToBsc(event, ..) => {
                 let value = serde_json::to_value(&event.token_id).unwrap();
                 let types_nft = 2_u32;
                 let block = event.block as u32;
@@ -72,7 +72,7 @@ impl Database {
                     .await
                     .map_err(Error::Postgres)?;
             }
-            RealisEventType::TransferTokenToBscSuccess(event, ..) => {
+            RealisEventType::TransferTokenToBsc(event, ..) => {
                 let value = serde_json::to_value(&event.amount.to_string()).unwrap();
                 let types_tokens = 1_u32;
                 let block = event.block as u32;
@@ -93,7 +93,6 @@ impl Database {
                     .await
                     .map_err(Error::Postgres)?;
             }
-            _ => {}
         }
 
         Ok(())
@@ -105,7 +104,7 @@ impl Database {
     pub async fn add_extrinsic_bsc(&self, response: &BscEventType) -> Result<(), Error> {
         self.still_alive().await?;
         match response {
-            BscEventType::TransferNftToRealisSuccess(event, ..) => {
+            BscEventType::TransferNftToRealis(event, ..) => {
                 let value = serde_json::to_value(&event.token_id).unwrap();
                 let types_nft = 2_u32;
                 let block = event.block.unwrap().0[0] as u32;
@@ -126,10 +125,10 @@ impl Database {
                     .await
                     .map_err(Error::Postgres)?;
             }
-            BscEventType::TransferTokenToRealisSuccess(event, ..) => {
+            BscEventType::TransferTokenToRealis(event, ..) => {
                 let value = serde_json::to_value(&event.amount.to_string()).unwrap();
                 let types_tokens = 1_u32;
-                let block = event.block.unwrap().0[0] as u32;
+                let block: u32 = event.block.unwrap().0[0].count_ones();
                 self.client
                     .execute(
                         "INSERT INTO extrinsics_bsc(hash, block, \
@@ -147,7 +146,6 @@ impl Database {
                     .await
                     .map_err(Error::Postgres)?;
             }
-            _ => {}
         }
 
         Ok(())
@@ -244,5 +242,39 @@ impl Database {
             .map_err(Error::Postgres)
             .map(u64::from)?;
         Ok(block_number_batch)
+    }
+
+    /// # Panics
+    /// # Errors
+    pub async fn update_status_realis(&self, hash: &Hash, status: Status) -> Result<(), Error> {
+        self.still_alive().await?;
+
+        self.client
+            .execute(
+                "UPDATE extrinsics_realis \
+                SET status = $1 \
+                WHERE hash=$2",
+                &[&(status as u32), &hash.to_string()],
+            )
+            .await
+            .map(|_| ())
+            .map_err(Error::Postgres)
+    }
+
+    /// # Panics
+    /// # Errors
+    pub async fn update_status_bsc(&self, hash: &H256, status: Status) -> Result<(), Error> {
+        self.still_alive().await?;
+
+        self.client
+            .execute(
+                "UPDATE extrinsics_bsc \
+                SET status = $1 \
+                WHERE hash=$2",
+                &[&(status as u32), &hash.to_string()],
+            )
+            .await
+            .map(|_| ())
+            .map_err(Error::Postgres)
     }
 }

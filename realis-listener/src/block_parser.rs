@@ -44,14 +44,14 @@ impl BlockParser {
             .parse_args(serde_json::from_value::<Args>(self.extrinsic.args.clone()).unwrap());
         match args {
             BridgeExtrinsics::TransferToken(args) => {
-                return vec![RealisEventType::TransferTokenToBscSuccess(
+                return vec![RealisEventType::TransferTokenToBsc(
                     args,
                     self.extrinsic.hash,
                     self.block_number,
                 )]
             }
             BridgeExtrinsics::TransferNft(args) => {
-                return vec![RealisEventType::TransferNftToBscSuccess(
+                return vec![RealisEventType::TransferNftToBsc(
                     args,
                     self.extrinsic.hash,
                     self.block_number,

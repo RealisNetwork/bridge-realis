@@ -48,16 +48,12 @@ pub enum BridgeExtrinsics {
 
 #[derive(Debug, Clone)]
 pub enum RealisEventType {
-    TransferTokenToBscSuccess(TransferTokenToBsc, Hash, BlockNumber),
-    TransferTokenToBscError(TransferTokenToBsc, Hash, BlockNumber),
-    TransferNftToBscSuccess(TransferNftToBsc, Hash, BlockNumber),
-    TransferNftToBscError(TransferNftToBsc, Hash, BlockNumber),
+    TransferTokenToBsc(TransferTokenToBsc, Hash, BlockNumber),
+    TransferNftToBsc(TransferNftToBsc, Hash, BlockNumber),
 }
 
 #[derive(Debug, Clone)]
 pub enum BscEventType {
-    TransferTokenToRealisSuccess(TransferTokenToRealis, H256, Option<U64>),
-    TransferNftToRealisSuccess(TransferNftToRealis, H256, Option<U64>),
-    TransferTokenToRealisError(TransferTokenToRealis, H256, Option<U64>),
-    TransferNftToRealisError(TransferNftToRealis, H256, Option<U64>),
+    TransferTokenToRealis(TransferTokenToRealis, H256, Option<U64>),
+    TransferNftToRealis(TransferNftToRealis, H256, Option<U64>),
 }

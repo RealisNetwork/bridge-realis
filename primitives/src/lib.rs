@@ -1,4 +1,5 @@
 pub mod block;
+pub mod db;
 pub mod events;
 pub mod types;
 

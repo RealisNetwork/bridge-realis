@@ -104,7 +104,7 @@ impl BlockListener {
                                 let amount = info[1].clone().into_uint().unwrap().as_u128();
 
                                 info!("{:?}", account_id);
-                                let event = BscEventType::TransferTokenToRealisSuccess(
+                                let event = BscEventType::TransferTokenToRealis(
                                     TransferTokenToRealis {
                                         block: transaction.block_number,
                                         hash: transaction.hash,
@@ -161,7 +161,7 @@ impl BlockListener {
                         let account_id: AccountId = Deserialize::deserialize(json).unwrap();
                         let token_id = TokenId::from_str(&info[0].to_string()).unwrap();
                         info!("{:?}", account_id);
-                        let event = BscEventType::TransferNftToRealisSuccess(
+                        let event = BscEventType::TransferNftToRealis(
                             TransferNftToRealis {
                                 block: transaction.block_number,
                                 hash: transaction.hash,
@@ -174,7 +174,7 @@ impl BlockListener {
                         );
                         match db.add_extrinsic_bsc(&event).await {
                             Ok(()) => info!("Success add extrinsic in Database!"),
-                            Err(error) => error!("Cannot add extrinsoc in Database: {:?}", error),
+                            Err(error) => error!("Cannot add extrinsic in Database: {:?}", error),
                         }
                         match self.tx.send(event).await {
                             Ok(()) => info!("Success send to realis-adapter!"),

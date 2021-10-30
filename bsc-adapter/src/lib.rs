@@ -18,6 +18,7 @@ use std::{
 };
 use web3::{transports::WebSocket, types::U256, Web3};
 
+#[allow(dead_code)]
 pub struct BinanceHandler {
     rx: Receiver<RealisEventType>,
     connection_builder: ConnectionBuilder,
@@ -54,6 +55,8 @@ impl BinanceHandler {
         }
     }
 
+    /// # Panics
+    /// # Errors
     pub async fn handle(mut self) {
         loop {
             select! {
@@ -83,12 +86,12 @@ impl BinanceHandler {
         // let gas_price = connection.eth().gas_price().await.unwrap();
 
         match request {
-            RealisEventType::TransferNftToBscSuccess(request, ..) => {
+            RealisEventType::TransferNftToBsc(request, ..) => {
                 let contract = ConnectionBuilder::nft(connection, &self.nft_contract_address).await?;
 
                 let token_id = U256::from_dec_str(&request.token_id.to_string()).unwrap();
 
-                contract
+                let success_contract = contract
                     .signed_call_with_confirmations(
                         "safeMint",
                         (request.dest, token_id),
@@ -100,14 +103,16 @@ impl BinanceHandler {
                     )
                     .await
                     .map_err(Error::Web3)
-                    .map(|_| ())
+                    .map(|_| ());
+                // self.db.update_status_realis().await;
+                success_contract
             }
-            RealisEventType::TransferTokenToBscSuccess(request, ..) => {
+            RealisEventType::TransferTokenToBsc(request, ..) => {
                 let contract = ConnectionBuilder::token(connection, &self.token_contract_address).await?;
 
                 let amount = web3::types::U128::from(request.amount);
 
-                contract
+                let success_contract = contract
                     .signed_call_with_confirmations(
                         "transferFromRealis",
                         (request.from.to_string(), request.to, amount),
@@ -119,9 +124,10 @@ impl BinanceHandler {
                     )
                     .await
                     .map_err(Error::Web3)
-                    .map(|_| ())
+                    .map(|_| ());
+                // self.db.update_status_realis().await;
+                success_contract
             }
-            RealisEventType::TransferTokenToBscError(..) | RealisEventType::TransferNftToBscError(..) => Ok(()),
         }
     }
 
