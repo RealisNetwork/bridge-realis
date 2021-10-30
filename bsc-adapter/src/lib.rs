@@ -5,8 +5,8 @@ use tokio::{select, sync::mpsc::Receiver};
 
 use log::{error, info};
 use primitives::{events::RealisEventType, Error};
-use secp256k1::SecretKey;
 use rust_lib::healthchecker::HealthChecker;
+use secp256k1::SecretKey;
 
 use db::Database;
 use std::{

@@ -9,9 +9,11 @@ use serde::Deserialize;
 use serde_json::Value;
 use std::{
     str::FromStr,
-    sync::{atomic::AtomicBool, Arc},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
 };
-use std::sync::atomic::Ordering;
 use tokio::sync::mpsc::Sender;
 use web3::{
     self,

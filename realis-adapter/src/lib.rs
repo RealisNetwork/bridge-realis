@@ -1,10 +1,10 @@
 use log::{error, info};
 use primitives::{events::BscEventType, Error};
+use rust_lib::healthchecker::HealthChecker;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
-use rust_lib::healthchecker::HealthChecker;
 
 use substrate_api_client::{
     compose_extrinsic, rpc::WsRpcClient, sp_runtime::app_crypto::sr25519, Api, Pair, UncheckedExtrinsicV4,
@@ -31,7 +31,7 @@ impl RealisAdapter {
 
     pub async fn handle(mut self) {
         loop {
-            select!{
+            select! {
                 () = HealthChecker::is_alive(Arc::clone(&self.status)) => break,
                 option = self.rx.recv() => {
                     if let Some(message) = option {
