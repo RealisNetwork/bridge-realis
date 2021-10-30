@@ -305,6 +305,7 @@ dependencies = [
 name = "bsc-listener"
 version = "0.1.0"
 dependencies = [
+ "db",
  "ethabi 15.0.0",
  "futures 0.3.17",
  "log 0.4.14",

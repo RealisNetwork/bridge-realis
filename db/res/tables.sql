@@ -1,20 +1,32 @@
+-- name: 1-extrinsics-realis
 CREATE TABLE extrinsics_realis (
-                            hash TEXT PRIMARY KEY,
-                            block OID,
-                            from_account TEXT,
-                            to_account  TEXT,
-                            value  jsonb,
-                            type OID
-)
+     hash TEXT PRIMARY KEY,
+     block OID,
+     from_account TEXT,
+     to_account  TEXT,
+     value  jsonb,
+     type OID
+);
 
+-- name: 1.1-extrinsics-bsc
 CREATE TABLE extrinsics_bsc (
-                                   hash TEXT PRIMARY KEY,
-                                   from_account TEXT,
-                                   to_account  TEXT,
-                                   value  jsonb,
-                                   type oid
-)
+     hash TEXT PRIMARY KEY,
+     from_account TEXT,
+     block OID,
+     to_account  TEXT,
+     value  jsonb,
+     type OID
+);
 
+-- name: 1.3-bsc-realis
+CREATE TABLE blocks_realis (
+    block OID
+);
+
+-- name: 1.4-blocks-bsc
+CREATE TABLE blocks_bsc (
+    block OID
+);
 
 -- name: 2-message-status
 CREATE TABLE request_status

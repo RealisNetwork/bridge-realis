@@ -7,6 +7,7 @@ use log::{error, info};
 use primitives::{events::RealisEventType, Error};
 use secp256k1::SecretKey;
 
+use db::Database;
 use std::{
     str::FromStr,
     sync::{
@@ -23,6 +24,7 @@ pub struct BinanceHandler {
     nft_contract_address: String,
     status: Arc<AtomicBool>,
     master_key: SecretKey,
+    db: Arc<Database>,
 }
 
 impl BinanceHandler {
@@ -35,6 +37,7 @@ impl BinanceHandler {
         token_contract_address: String,
         nft_contract_address: String,
         master_key: &str,
+        db: Arc<Database>,
     ) -> Self {
         let connection_builder = ConnectionBuilder::new(url);
         let master_key = SecretKey::from_str(master_key).unwrap();
@@ -46,6 +49,7 @@ impl BinanceHandler {
             nft_contract_address,
             status,
             master_key,
+            db,
         }
     }
 

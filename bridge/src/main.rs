@@ -91,12 +91,7 @@ fn main() {
                 match realis_listener::BlockListener::new_with_restore(
                     &url,
                     binance_tx,
-                    db::Database::new(&format!(
-                        "host={} port={} user={} password={} dbname={}",
-                        db_host, db_port, db_user, db_password, db_name
-                    ))
-                    .await
-                    .unwrap(),
+                    Arc::clone(&db),
                     Arc::clone(&status),
                 )
                 .await
@@ -118,7 +113,8 @@ fn main() {
             }
             Ok(false) | Err(_) => {
                 let mut listener =
-                    realis_listener::BlockListener::new(&url, binance_tx, Arc::clone(&status)).unwrap();
+                    realis_listener::BlockListener::new(&url, binance_tx, Arc::clone(&status), Arc::clone(&db))
+                        .unwrap();
                 modules.push(tokio::spawn({
                     async move {
                         listener.listen().await;
@@ -134,6 +130,7 @@ fn main() {
             token_contract_address,
             nft_contract_address,
             binance_master_key,
+            Arc::clone(&db),
         );
         modules.push(tokio::spawn(binance_handler.handle()));
 
@@ -141,7 +138,7 @@ fn main() {
 
         modules.push(tokio::spawn({
             async move {
-                bsc_listener.listen().await;
+                bsc_listener.listen(Arc::clone(&db)).await;
             }
         }));
 

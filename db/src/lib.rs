@@ -9,6 +9,7 @@ use std::sync::{
     Arc,
 };
 use tokio_postgres::Client;
+use web3::ethabi::ethereum_types::U64;
 
 pub struct Database {
     client: Client,
@@ -45,25 +46,48 @@ impl Database {
 
     /// # Panics
     /// # Errors
+    #[allow(clippy::cast_possible_truncation)]
     pub async fn add_extrinsic_realis(&self, response: &RealisEventType) -> Result<(), Error> {
         self.still_alive().await?;
 
         match response {
-            RealisEventType::TransferNftToBscSuccess(event, ..)
-            | RealisEventType::TransferTokenToBscError(event, ..) => {
-                let value = serde_json::to_value(&event.amount).unwrap();
-
+            RealisEventType::TransferNftToBscSuccess(event, ..) => {
+                let value = serde_json::to_value(&event.token_id).unwrap();
+                let types_nft = 2_u32;
+                let block = event.block as u32;
                 self.client
                     .execute(
                         "INSERT INTO extrinsics_realis(hash, block, \
-                        from_account, to_account, value) \
-                    VALUES ($1, $2, $3, $4, $5)",
+                        from_account, to_account, value, type) \
+                    VALUES ($1, $2, $3, $4, $5, $6)",
                         &[
                             &event.hash.to_string(),
-                            &event.block.to_string(),
+                            &block,
+                            &event.from.to_string(),
+                            &event.dest.to_string(),
+                            &value,
+                            &types_nft,
+                        ],
+                    )
+                    .await
+                    .map_err(Error::Postgres)?;
+            }
+            RealisEventType::TransferTokenToBscSuccess(event, ..) => {
+                let value = serde_json::to_value(&event.amount.to_string()).unwrap();
+                let types_tokens = 1_u32;
+                let block = event.block as u32;
+                self.client
+                    .execute(
+                        "INSERT INTO extrinsics_realis(hash, block, \
+                        from_account, to_account, value, type) \
+                    VALUES ($1, $2, $3, $4, $5, $6)",
+                        &[
+                            &event.hash.to_string(),
+                            &block,
                             &event.from.to_string(),
                             &event.to.to_string(),
                             &value,
+                            &types_tokens,
                         ],
                     )
                     .await
@@ -75,25 +99,49 @@ impl Database {
         Ok(())
     }
 
+    /// # Panics
+    /// # Errors
+    #[allow(clippy::cast_possible_truncation)]
     pub async fn add_extrinsic_bsc(&self, response: &BscEventType) -> Result<(), Error> {
         self.still_alive().await?;
-
         match response {
-            BscEventType::TransferNftToRealisSuccess(event, ..)
-            | BscEventType::TransferTokenToRealisError(event, ..) => {
-                let value = serde_json::to_value(&event.amount).unwrap();
-
+            BscEventType::TransferNftToRealisSuccess(event, ..) => {
+                let value = serde_json::to_value(&event.token_id).unwrap();
+                let types_nft = 2_u32;
+                let block = event.block.unwrap().0[0] as u32;
                 self.client
                     .execute(
-                        "INSERT INTO extrinsics_realis(hash, block, \
-                        from_account, to_account, value) \
-                    VALUES ($1, $2, $3, $4, $5)",
+                        "INSERT INTO extrinsics_bsc(hash, block, \
+                        from_account, to_account, value, type) \
+                    VALUES ($1, $2, $3, $4, $5, $6)",
                         &[
                             &event.hash.to_string(),
-                            &event.block.to_string(),
+                            &block,
                             &event.from.to_string(),
                             &event.dest.to_string(),
                             &value,
+                            &types_nft,
+                        ],
+                    )
+                    .await
+                    .map_err(Error::Postgres)?;
+            }
+            BscEventType::TransferTokenToRealisSuccess(event, ..) => {
+                let value = serde_json::to_value(&event.amount.to_string()).unwrap();
+                let types_tokens = 1_u32;
+                let block = event.block.unwrap().0[0] as u32;
+                self.client
+                    .execute(
+                        "INSERT INTO extrinsics_bsc(hash, block, \
+                        from_account, to_account, value, type) \
+                    VALUES ($1, $2, $3, $4, $5, $6)",
+                        &[
+                            &event.hash.to_string(),
+                            &block,
+                            &event.from.to_string(),
+                            &event.to.to_string(),
+                            &value,
+                            &types_tokens,
                         ],
                     )
                     .await
@@ -130,12 +178,66 @@ impl Database {
 
     /// # Panics
     /// # Errors
-    pub async fn get_last_block(&self) -> Result<BlockNumber, Error> {
+    pub async fn get_last_block_realis(&self) -> Result<BlockNumber, Error> {
         self.still_alive().await?;
 
         let block_number_batch = self
             .client
-            .query_one("SELECT max(block_number) FROM extrinsics_batch", &[])
+            .query_one("SELECT max(block) FROM blocks_realis", &[])
+            .await
+            .map_err(Error::Postgres)?
+            .try_get::<_, u32>(0)
+            .map_err(Error::Postgres)
+            .map(u64::from)?;
+        Ok(block_number_batch)
+    }
+
+    /// # Panics
+    /// # Errors
+    pub async fn update_block_realis(self, block: BlockNumber) -> Result<(), Error> {
+        self.still_alive().await?;
+
+        self.client
+            .query_one(
+                "INSERT INTO block_realis(block) \
+                    VALUES ($1)",
+                &[&block.to_string()],
+            )
+            .await
+            .map_err(Error::Postgres)?
+            .try_get::<_, u32>(0)
+            .map_err(Error::Postgres)
+            .map(u64::from)?;
+        Ok(())
+    }
+
+    /// # Panics
+    /// # Errors
+    pub async fn update_block_bsc(self, block: Option<U64>) -> Result<(), Error> {
+        self.still_alive().await?;
+
+        self.client
+            .query_one(
+                "INSERT INTO block_bsc(block) \
+                    VALUES ($1)",
+                &[&block.unwrap().to_string()],
+            )
+            .await
+            .map_err(Error::Postgres)?
+            .try_get::<_, u32>(0)
+            .map_err(Error::Postgres)
+            .map(u64::from)?;
+        Ok(())
+    }
+
+    /// # Panics
+    /// # Errors
+    pub async fn get_last_block_bsc(&self) -> Result<BlockNumber, Error> {
+        self.still_alive().await?;
+
+        let block_number_batch = self
+            .client
+            .query_one("SELECT max(block) FROM blocks_bsc", &[])
             .await
             .map_err(Error::Postgres)?
             .try_get::<_, u32>(0)

@@ -25,26 +25,35 @@ pub struct BlockListener {
     rx: UnboundedReceiver<BlockNumber>,
     tx: Sender<RealisEventType>,
     status: Arc<AtomicBool>,
+    db: Arc<Database>,
 }
 
 impl BlockListener {
     /// # Errors
-    pub fn new(url: &str, tx: Sender<RealisEventType>, status: Arc<AtomicBool>) -> Result<Self, Error> {
+    pub fn new(
+        url: &str,
+        tx: Sender<RealisEventType>,
+        status: Arc<AtomicBool>,
+        db: Arc<Database>,
+    ) -> Result<Self, Error> {
         let (_, rx) = BlockListener::subscribe(url, Arc::clone(&status));
-        Ok(Self { rx, tx, status })
+        Ok(Self { rx, tx, status, db })
     }
 
     /// # Errors
     pub async fn new_with_restore(
         url: &str,
         tx: Sender<RealisEventType>,
-        db: Database,
+        db: Arc<Database>,
         status: Arc<AtomicBool>,
     ) -> Result<(Self, impl Future), Error> {
         let (tx_copy, mut rx) = BlockListener::subscribe(url, Arc::clone(&status));
         let current = rx.recv().await.ok_or(Error::Disconnected)?;
-        let last = db.get_last_block().await?;
-        Ok((Self { rx, tx, status }, BlockListener::restore(tx_copy, current, last)))
+        let last = db.get_last_block_realis().await?;
+        Ok((
+            Self { rx, tx, status, db },
+            BlockListener::restore(tx_copy, current, last),
+        ))
     }
 
     /// # Panics
@@ -148,6 +157,7 @@ impl BlockListener {
 
     async fn process_block(&self, block: Block) -> Result<(), Error> {
         let block_number = block.number;
+        // self.db.update_block_realis(block_number).await;
         for events in block
             .extrinsics
             .iter()
@@ -156,6 +166,10 @@ impl BlockListener {
         {
             for event in events {
                 warn!("send to BSC {:?}", event);
+                match self.db.add_extrinsic_realis(&event).await {
+                    Ok(()) => info!("Success add to Database!"),
+                    Err(error) => error!("Cannot add extrinsic {:?}", error),
+                };
                 self.tx.send(event).await.map_err(|_| Error::Send)?;
             }
         }
