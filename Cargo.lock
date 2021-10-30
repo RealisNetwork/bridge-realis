@@ -295,6 +295,7 @@ dependencies = [
  "db",
  "log 0.4.14",
  "primitives",
+ "rust-lib",
  "secp256k1",
  "serde_json",
  "tokio 1.12.0",
@@ -698,6 +699,7 @@ dependencies = [
  "serde_json",
  "tokio 1.12.0",
  "tokio-postgres",
+ "uuid",
  "web3",
 ]
 

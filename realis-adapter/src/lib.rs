@@ -4,11 +4,13 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
+use rust_lib::healthchecker::HealthChecker;
+
 use substrate_api_client::{
     compose_extrinsic, rpc::WsRpcClient, sp_runtime::app_crypto::sr25519, Api, Pair, UncheckedExtrinsicV4,
     XtStatus,
 };
-use tokio::sync::mpsc::Receiver;
+use tokio::{select, sync::mpsc::Receiver};
 
 pub struct RealisAdapter {
     rx: Receiver<BscEventType>,
@@ -28,15 +30,21 @@ impl RealisAdapter {
     }
 
     pub async fn handle(mut self) {
-        // TODO check handle still_alive status
-        while let Some(request) = self.rx.recv().await {
-            match self.execute(&request).await {
-                Ok(_) => {
-                    info!("Success send transaction to BSC!");
-                }
-                Err(error) => {
-                    error!("Cannot send transaction {:?}", error);
-                    self.status.store(false, Ordering::SeqCst);
+        loop {
+            select!{
+                () = HealthChecker::is_alive(Arc::clone(&self.status)) => break,
+                option = self.rx.recv() => {
+                    if let Some(message) = option {
+                        match self.execute(&message).await {
+                            Ok(_) => {
+                                info!("Success send transaction to BSC!");
+                            }
+                            Err(error) => {
+                                error!("Cannot send transaction {:?}", error);
+                                self.status.store(false, Ordering::SeqCst);
+                            }
+                        }
+                    }
                 }
             }
         }

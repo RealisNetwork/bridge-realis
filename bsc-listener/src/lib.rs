@@ -3,6 +3,7 @@ use ethabi::ParamType;
 use log::{error, info};
 use primitives::events::{BscEventType, TransferNftToRealis, TransferTokenToRealis};
 use realis_primitives::TokenId;
+
 use runtime::AccountId;
 use serde::Deserialize;
 use serde_json::Value;
@@ -10,6 +11,7 @@ use std::{
     str::FromStr,
     sync::{atomic::AtomicBool, Arc},
 };
+use std::sync::atomic::Ordering;
 use tokio::sync::mpsc::Sender;
 use web3::{
     self,
@@ -118,7 +120,7 @@ impl BlockListener {
                                 match self.tx.send(event).await {
                                     Ok(()) => info!("Success send to realis-adapter!"),
                                     Err(error) => {
-                                        // TODO set terminate
+                                        self.status.store(false, Ordering::SeqCst);
                                         error!("Cannot send to realis-adapter: {:?}", error);
                                     }
                                 }
@@ -175,7 +177,7 @@ impl BlockListener {
                         match self.tx.send(event).await {
                             Ok(()) => info!("Success send to realis-adapter!"),
                             Err(error) => {
-                                // TODO set terminate
+                                self.status.store(false, Ordering::SeqCst);
                                 error!("Cannot send to realis-adapter: {:?}", error);
                             }
                         }

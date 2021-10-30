@@ -17,3 +17,6 @@ log = "0.4"
 [dependencies.tokio]
 version = "1.12.0"
 features = ["sync"]
+
+[dependencies.rust-lib]
+git = "https://github.com/RealisNetwork/rust-lib.git"
