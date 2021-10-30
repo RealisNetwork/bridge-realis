@@ -58,8 +58,8 @@ impl Database {
                 self.client
                     .execute(
                         "INSERT INTO extrinsics_realis(hash, block, \
-                        from_account, to_account, value, type, status) \
-                    VALUES ($1, $2, $3, $4, $5, $6, &7)",
+                        from_account, to_account, value, type) \
+                    VALUES ($1, $2, $3, $4, $5, $6)",
                         &[
                             &event.hash.to_string(),
                             &block,
@@ -67,7 +67,6 @@ impl Database {
                             &event.dest.to_string(),
                             &value,
                             &types_nft,
-                            &(Status::Got as u32),
                         ],
                     )
                     .await
@@ -80,8 +79,8 @@ impl Database {
                 self.client
                     .execute(
                         "INSERT INTO extrinsics_realis(hash, block, \
-                        from_account, to_account, value, type, status) \
-                    VALUES ($1, $2, $3, $4, $5, $6, &7)",
+                        from_account, to_account, value, type) \
+                    VALUES ($1, $2, $3, $4, $5, $6)",
                         &[
                             &event.hash.to_string(),
                             &block,
@@ -89,7 +88,6 @@ impl Database {
                             &event.to.to_string(),
                             &value,
                             &types_tokens,
-                            &(Status::Got as u32),
                         ],
                     )
                     .await
@@ -113,8 +111,8 @@ impl Database {
                 self.client
                     .execute(
                         "INSERT INTO extrinsics_bsc(hash, block, \
-                        from_account, to_account, value, type, status) \
-                    VALUES ($1, $2, $3, $4, $5, $6, &7)",
+                        from_account, to_account, value, type) \
+                    VALUES ($1, $2, $3, $4, $5, $6)",
                         &[
                             &event.hash.to_string(),
                             &block,
@@ -122,7 +120,6 @@ impl Database {
                             &event.dest.to_string(),
                             &value,
                             &types_nft,
-                            &(Status::Got as u32),
                         ],
                     )
                     .await
@@ -135,8 +132,8 @@ impl Database {
                 self.client
                     .execute(
                         "INSERT INTO extrinsics_bsc(hash, block, \
-                        from_account, to_account, value, type, status) \
-                    VALUES ($1, $2, $3, $4, $5, $6, &7)",
+                        from_account, to_account, value, type) \
+                    VALUES ($1, $2, $3, $4, $5, $6)",
                         &[
                             &event.hash.to_string(),
                             &block,
@@ -144,7 +141,6 @@ impl Database {
                             &event.to.to_string(),
                             &value,
                             &types_tokens,
-                            &(Status::Got as u32),
                         ],
                     )
                     .await
