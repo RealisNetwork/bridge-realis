@@ -192,6 +192,7 @@ impl Database {
 
     /// # Panics
     /// # Errors
+    #[allow(clippy::cast_possible_truncation)]
     pub async fn update_block_realis(&self, block: BlockNumber) -> Result<(), Error> {
         self.still_alive().await?;
 
@@ -261,7 +262,7 @@ impl Database {
 
     /// # Panics
     /// # Errors
-    pub async fn update_status_bsc(&self, hash: &H256, status: Status) -> Result<(), Error> {
+    pub async fn update_status_bsc(&self, hash: &str, status: Status) -> Result<(), Error> {
         self.still_alive().await?;
 
         self.client

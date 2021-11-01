@@ -14,6 +14,7 @@ use tokio::{
 };
 
 use crate::block_parser::BlockParser;
+use primitives::db::Status;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     mpsc::channel,
@@ -76,7 +77,7 @@ impl BlockListener {
                         info!("Start process block!");
                         let db = Arc::clone(&self.db);
                         match BlockListener::get_block(block_number).await {
-                            // TODO update block in table?
+                            // TODO CHECK update block in table?
                             Ok(block) => {
                                  match &db.update_block_realis(block_number).await{
                                     Ok(_) => { info!("Success add realis block to database"); }
@@ -175,8 +176,14 @@ impl BlockListener {
         {
             for event in events {
                 warn!("send to BSC {:?}", event);
-                // TODO update status to got
-                // self.db.update_status_bsc();
+                match self.db.update_status_bsc(&block.hash.to_string(), Status::Got).await {
+                    Ok(_) => {
+                        info!("Success update realis status Got");
+                    }
+                    Err(error) => {
+                        error!("Error while updating realis status: {:?}", error);
+                    }
+                }
                 match self.db.add_extrinsic_realis(&event).await {
                     Ok(()) => info!("Success add to Database!"),
                     Err(error) => error!("Cannot add extrinsic {:?}", error),

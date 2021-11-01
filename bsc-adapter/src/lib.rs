@@ -106,7 +106,11 @@ impl BinanceHandler {
                     .await
                     .map_err(Error::Web3)
                     .map(|_| ());
-                match self.db.update_status_realis(&request.hash, Status::InProgress).await {
+                match self
+                    .db
+                    .update_status_realis(&request.hash.to_string(), Status::InProgress)
+                    .await
+                {
                     Ok(_) => {
                         info!("Success realis status InProgress");
                     }
@@ -135,7 +139,11 @@ impl BinanceHandler {
                     .await
                     .map_err(Error::Web3)
                     .map(|_| ());
-                match self.db.update_status_realis(&request.hash, Status::InProgress).await {
+                match self
+                    .db
+                    .update_status_realis(&request.hash.to_string(), Status::InProgress)
+                    .await
+                {
                     Ok(_) => {
                         info!("Update realis status InProgress");
                     }

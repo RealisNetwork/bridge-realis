@@ -1,7 +1,10 @@
 use db::Database;
 use ethabi::ParamType;
 use log::{error, info};
-use primitives::events::{BscEventType, TransferNftToRealis, TransferTokenToRealis};
+use primitives::{
+    db::Status,
+    events::{BscEventType, TransferNftToRealis, TransferTokenToRealis},
+};
 use realis_primitives::TokenId;
 
 use runtime::AccountId;
@@ -48,7 +51,7 @@ impl BlockListener {
 
         while let Some(value) = sub.next().await {
             let block = value.unwrap();
-            // TODO update block_number
+            // TODO CHECK update block_number
             match self.db.update_block_bsc(block.number).await {
                 Ok(_) => {
                     info!("Success add binance block to database");
@@ -82,6 +85,8 @@ impl BlockListener {
         }
         sub.unsubscribe().await.unwrap();
     }
+
+    pub async fn listen_with_restore(&mut self) {}
 }
 
 #[derive(Clone)]
@@ -124,7 +129,11 @@ impl TxSender {
                                 let amount = info[1].clone().into_uint().unwrap().as_u128();
 
                                 info!("{:?}", account_id);
-                                // TODO update status to got
+                                // TODO CHECK update status to got
+                                match db.update_status_bsc(&transaction.hash.to_string(), Status::Got).await {
+                                    Ok(_) => info!("Success update binance status Got"),
+                                    Err(error) => error!("Error while updating binance status: {:?}", error),
+                                }
                                 let event = BscEventType::TransferTokenToRealis(
                                     TransferTokenToRealis {
                                         block: transaction.block_number,
@@ -167,7 +176,15 @@ impl TxSender {
                     info!("Transaction hash: {:?}", transaction.hash);
 
                     let tx = web3.eth().transaction_receipt(transaction.hash).await.unwrap().unwrap();
-                    // TODO update status to got
+                    // TODO CHECK update status to got
+                    match db.update_status_bsc(&transaction.hash.to_string(), Status::Got).await {
+                        Ok(_) => {
+                            info!("Success update binance status Got");
+                        }
+                        Err(error) => {
+                            error!("Error while updating binance status: {:?}", error);
+                        }
+                    }
                     info!("{:?}", tx);
                     for log in tx.logs {
                         info!(

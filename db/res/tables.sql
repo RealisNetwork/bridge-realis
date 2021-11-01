@@ -5,7 +5,10 @@ CREATE TABLE extrinsics_realis (
      from_account TEXT,
      to_account  TEXT,
      value  jsonb,
-     type OID
+     type OID,
+     status oid,
+     CONSTRAINT pk_extrinsic_realis
+        FOREIGN KEY (status) REFERENCES request_status(id)
 );
 
 -- name: 1.1-extrinsics-bsc
@@ -15,7 +18,10 @@ CREATE TABLE extrinsics_bsc (
      block OID,
      to_account  TEXT,
      value  jsonb,
-     type oid
+     type oid,
+     status oid,
+     CONSTRAINT pk_extrinsic_bsc
+         FOREIGN KEY (status) REFERENCES request_status(id)
 );
 
 -- name: 1.3-bsc-realis

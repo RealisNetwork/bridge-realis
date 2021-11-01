@@ -6,6 +6,8 @@ use std::sync::{
     Arc,
 };
 
+use db::Database;
+use primitives::db::Status;
 use substrate_api_client::{
     compose_extrinsic, rpc::WsRpcClient, sp_runtime::app_crypto::sr25519, Api, Pair, UncheckedExtrinsicV4,
     XtStatus,
@@ -16,17 +18,24 @@ pub struct RealisAdapter {
     rx: Receiver<BscEventType>,
     status: Arc<AtomicBool>,
     api: Api<sr25519::Pair, WsRpcClient>,
+    db: Arc<Database>,
 }
 
 impl RealisAdapter {
     #[must_use]
     /// # Panics
-    pub fn new(rx: Receiver<BscEventType>, status: Arc<AtomicBool>, url: &str, master_key: sr25519::Pair) -> Self {
+    pub fn new(
+        rx: Receiver<BscEventType>,
+        status: Arc<AtomicBool>,
+        url: &str,
+        master_key: sr25519::Pair,
+        db: Arc<Database>,
+    ) -> Self {
         let client = WsRpcClient::new(url);
         let api = Api::<sr25519::Pair, WsRpcClient>::new(client)
             .unwrap()
             .set_signer(master_key);
-        Self { rx, status, api }
+        Self { rx, status, api, db }
     }
 
     /// # Panics
@@ -70,10 +79,29 @@ impl RealisAdapter {
                 );
 
                 let tx_result = self.api.send_extrinsic(tx.hex_encode(), XtStatus::InBlock);
-                // TODO if send, change status in progress
+                // TODO CHECK if send, change status in progress
+                match self
+                    .db
+                    .update_status_realis(&request.hash.to_string(), Status::InProgress)
+                    .await
+                {
+                    Ok(_) => info!("Success update realis status InProgress"),
+                    Err(error) => error!("Error while updating realis status: {:?}", error),
+                }
+
                 match tx_result {
-                    // TODO if success, add success status
-                    Ok(result) => info!("Hash: {:?}", result),
+                    // TODO CHECK if success, add success status
+                    Ok(result) => {
+                        info!("Hash: {:?}", result);
+                        match self
+                            .db
+                            .update_status_realis(&request.hash.to_string(), Status::Success)
+                            .await
+                        {
+                            Ok(_) => info!("Success update realis status Success"),
+                            Err(error) => error!("Error while updating realis status: {:?}", error),
+                        }
+                    }
                     Err(error) => error!("Cannot send extrinsic: {:?}", error),
                 }
                 Ok(())
@@ -93,10 +121,28 @@ impl RealisAdapter {
                 );
 
                 let tx_result = self.api.send_extrinsic(tx.hex_encode(), XtStatus::InBlock);
-                // TODO if send, change status in progress
+                // TODO CHECK if send, change status in progress
+                match self
+                    .db
+                    .update_status_realis(&request.hash.to_string(), Status::InProgress)
+                    .await
+                {
+                    Ok(_) => info!("Success update realis status InProgress"),
+                    Err(error) => error!("Error while updating realis status: {:?}", error),
+                }
                 match tx_result {
-                    // TODO if success, add success status
-                    Ok(result) => info!("Hash: {:?}", result),
+                    // TODO CHECK if success, add success status
+                    Ok(result) => {
+                        info!("Hash: {:?}", result);
+                        match self
+                            .db
+                            .update_status_realis(&request.hash.to_string(), Status::Success)
+                            .await
+                        {
+                            Ok(_) => info!("Success update realis status Success"),
+                            Err(error) => error!("Error while updating realis status: {:?}", error),
+                        }
+                    }
                     Err(error) => error!("Cannot send extrinsic: {:?}", error),
                 }
                 Ok(())
