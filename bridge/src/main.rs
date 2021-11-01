@@ -138,7 +138,7 @@ fn main() {
 
         modules.push(tokio::spawn({
             async move {
-                bsc_listener.listen(Arc::clone(&db)).await;
+                bsc_listener.listen().await;
             }
         }));
 

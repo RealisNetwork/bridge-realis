@@ -16,6 +16,8 @@ use std::{
         Arc,
     },
 };
+
+use primitives::db::Status;
 use web3::{transports::WebSocket, types::U256, Web3};
 
 #[allow(dead_code)]
@@ -104,8 +106,15 @@ impl BinanceHandler {
                     .await
                     .map_err(Error::Web3)
                     .map(|_| ());
-                // self.db.update_status_realis().await;
-                // TODO update status to in progress, if got hash, update to complete
+                match self.db.update_status_realis(&request.hash, Status::InProgress).await {
+                    Ok(_) => {
+                        info!("Success realis status InProgress");
+                    }
+                    Err(error) => {
+                        error!("Update realis status send error: {:?}", error);
+                    }
+                }
+                // TODO CHECK update status to in progress, if got hash, update to complete
                 success_contract
             }
             RealisEventType::TransferTokenToBsc(request, ..) => {
@@ -126,8 +135,15 @@ impl BinanceHandler {
                     .await
                     .map_err(Error::Web3)
                     .map(|_| ());
-                // self.db.update_status_realis().await;
-                // TODO update status to in progress, if got hash, update to complete
+                match self.db.update_status_realis(&request.hash, Status::InProgress).await {
+                    Ok(_) => {
+                        info!("Update realis status InProgress");
+                    }
+                    Err(error) => {
+                        error!("Update realis status send error: {:?}", error);
+                    }
+                }
+                // TODO CHECK update status to in progress, if got hash, update to complete
                 success_contract
             }
         }

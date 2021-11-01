@@ -167,6 +167,7 @@ impl BlockListener {
             for event in events {
                 warn!("send to BSC {:?}", event);
                 // TODO update status to got
+                // self.db.update_status_bsc();
                 match self.db.add_extrinsic_realis(&event).await {
                     Ok(()) => info!("Success add to Database!"),
                     Err(error) => error!("Cannot add extrinsic {:?}", error),

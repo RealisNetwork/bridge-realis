@@ -9,4 +9,6 @@ pub enum Status {
     Success,
     // Blockchain fail
     Error,
+    // Success got hash
+    Complete,
 }
