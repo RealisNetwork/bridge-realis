@@ -74,9 +74,17 @@ impl BlockListener {
                 option = self.rx.recv() => {
                     if let Some(block_number) = option {
                         info!("Start process block!");
+                        let db = Arc::clone(&self.db);
                         match BlockListener::get_block(block_number).await {
                             // TODO update block in table?
-                            Ok(block) => match self.process_block(block).await {
+                            Ok(block) => {
+                                 match &db.update_block_realis(block_number).await{
+                                    Ok(_) => { info!("Success add realis block to database"); }
+                                    Err(error) => {
+                                        error!("Can't add realis block to database with error: {:?}", error);
+                                    }
+                                }
+                                match self.process_block(block).await {
                                 Ok(_) => info!("Block {} processed!", block_number),
                                 Err(Error::Disconnected) => self.status.store(false, Ordering::SeqCst),
                                 Err(Error::Send) => self.status.store(false, Ordering::SeqCst),
@@ -86,6 +94,7 @@ impl BlockListener {
                                         error
                                     );
                                 }
+                            }
                             },
                             Err(error) => error!("Unable to get block: {:?}", error),
                         }

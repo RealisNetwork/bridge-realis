@@ -134,7 +134,9 @@ fn main() {
         );
         modules.push(tokio::spawn(binance_handler.handle()));
 
-        let bsc_listener = bsc_listener::BlockListener::new(binance_url, bsc_listen_tx, Arc::clone(&status));
+        let mut bsc_listener =
+            bsc_listener::BlockListener::new(binance_url, bsc_listen_tx, Arc::clone(&status), Arc::clone(&db))
+                .await;
 
         modules.push(tokio::spawn({
             async move {

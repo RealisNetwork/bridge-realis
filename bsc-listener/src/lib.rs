@@ -23,23 +23,22 @@ use web3::{
     Web3,
 };
 
-#[derive(Clone)]
 pub struct BlockListener {
     url: String,
     tx: Sender<BscEventType>,
     status: Arc<AtomicBool>,
+    db: Arc<Database>,
 }
 
 impl BlockListener {
     /// # Errors
-    #[must_use]
-    pub fn new(url: String, tx: Sender<BscEventType>, status: Arc<AtomicBool>) -> Self {
-        Self { url, tx, status }
+    pub async fn new(url: String, tx: Sender<BscEventType>, status: Arc<AtomicBool>, db: Arc<Database>) -> Self {
+        Self { url, tx, status, db }
     }
 
     /// # Panics
     #[allow(clippy::single_match)]
-    pub async fn listen(&self, db: Arc<Database>) {
+    pub async fn listen(&mut self) {
         let ws = web3::transports::WebSocket::new(&self.url).await.unwrap();
         let web3 = web3::Web3::new(ws.clone());
         // Stream
@@ -50,7 +49,14 @@ impl BlockListener {
         while let Some(value) = sub.next().await {
             let block = value.unwrap();
             // TODO update block_number
-            // &db.update_block_bsc(block.number).await;
+            match self.db.update_block_bsc(block.number).await {
+                Ok(_) => {
+                    info!("Success add binance block to database");
+                }
+                Err(error) => {
+                    error!("Can't add binance block with error: {:?}", error);
+                }
+            }
             let some = web3
                 .eth()
                 .block_with_txs(web3::types::BlockId::Hash(block.hash.unwrap()))
@@ -58,15 +64,16 @@ impl BlockListener {
                 .unwrap()
                 .unwrap();
 
+            let tx_sender = TxSender::new(self.tx.clone(), self.status.clone()).await;
             for transaction in some.transactions {
                 match transaction.to {
                     Some(account) => {
                         if account == Address::from_str("0x1c43b4253c33d246ad27e710d949a8d8b62a2c73").unwrap() {
-                            self.clone().send_tokens(transaction, web3.clone(), &db).await;
+                            tx_sender.clone().send_tokens(transaction, web3.clone(), &self.db).await;
                         } else if account
                             == Address::from_str("0xc2f5Fb3eEFE324B263DfF8cDf6d0113ae2B6B19E").unwrap()
                         {
-                            self.clone().send_nft(transaction, web3.clone(), &db).await;
+                            tx_sender.clone().send_nft(transaction, web3.clone(), &self.db).await;
                         }
                     }
                     None => (),
@@ -74,6 +81,18 @@ impl BlockListener {
             }
         }
         sub.unsubscribe().await.unwrap();
+    }
+}
+
+#[derive(Clone)]
+pub struct TxSender {
+    tx: Sender<BscEventType>,
+    status: Arc<AtomicBool>,
+}
+
+impl TxSender {
+    pub async fn new(tx: Sender<BscEventType>, status: Arc<AtomicBool>) -> Self {
+        Self { tx, status }
     }
 
     /// # Panics

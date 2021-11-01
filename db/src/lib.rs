@@ -192,7 +192,7 @@ impl Database {
 
     /// # Panics
     /// # Errors
-    pub async fn update_block_realis(self, block: BlockNumber) -> Result<(), Error> {
+    pub async fn update_block_realis(&self, block: BlockNumber) -> Result<(), Error> {
         self.still_alive().await?;
 
         self.client
@@ -211,7 +211,7 @@ impl Database {
 
     /// # Panics
     /// # Errors
-    pub async fn update_block_bsc(self, block: Option<U64>) -> Result<(), Error> {
+    pub async fn update_block_bsc(&self, block: Option<U64>) -> Result<(), Error> {
         self.still_alive().await?;
 
         self.client
@@ -248,7 +248,6 @@ impl Database {
     /// # Errors
     pub async fn update_status_realis(&self, hash: &Hash, status: Status) -> Result<(), Error> {
         self.still_alive().await?;
-
         self.client
             .execute(
                 "UPDATE extrinsics_realis \
