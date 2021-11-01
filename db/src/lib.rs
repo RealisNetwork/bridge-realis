@@ -2,14 +2,14 @@ use primitives::{events::RealisEventType, types::BlockNumber, Error};
 
 use log::{error, trace};
 use postgres::NoTls;
-use primitives::{db::Status, events::BscEventType, types::Hash};
+use primitives::{db::Status, events::BscEventType};
 use rawsql::{self, Loader};
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
 use tokio_postgres::Client;
-use web3::{ethabi::ethereum_types::U64, types::H256};
+use web3::ethabi::ethereum_types::U64;
 
 pub struct Database {
     client: Client,
@@ -195,17 +195,17 @@ impl Database {
     pub async fn update_block_realis(&self, block: BlockNumber) -> Result<(), Error> {
         self.still_alive().await?;
 
+        let block = block as u32;
+
         self.client
-            .query_one(
-                "INSERT INTO block_realis(block) \
+            .execute(
+                "INSERT INTO blocks_realis(block) \
                     VALUES ($1)",
-                &[&block.to_string()],
+                &[&block],
             )
             .await
-            .map_err(Error::Postgres)?
-            .try_get::<_, u32>(0)
-            .map_err(Error::Postgres)
-            .map(u64::from)?;
+            .map_err(Error::Postgres)?;
+
         Ok(())
     }
 
@@ -214,17 +214,16 @@ impl Database {
     pub async fn update_block_bsc(&self, block: Option<U64>) -> Result<(), Error> {
         self.still_alive().await?;
 
+        let block = block.unwrap().as_u32();
+
         self.client
             .query_one(
                 "INSERT INTO block_bsc(block) \
                     VALUES ($1)",
-                &[&block.unwrap().to_string()],
+                &[&block],
             )
             .await
-            .map_err(Error::Postgres)?
-            .try_get::<_, u32>(0)
-            .map_err(Error::Postgres)
-            .map(u64::from)?;
+            .map_err(Error::Postgres)?;
         Ok(())
     }
 
@@ -274,6 +273,7 @@ impl Database {
             )
             .await
             .map(|_| ())
-            .map_err(Error::Postgres)
+            .map_err(Error::Postgres)?;
+        Ok(())
     }
 }
