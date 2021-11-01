@@ -2075,7 +2075,7 @@ dependencies = [
  "indexmap",
  "slab",
  "tokio 1.11.0",
- "tokio-util 0.6.8",
+ "tokio-util 0.6.9",
  "tracing",
 ]
 
@@ -3512,7 +3512,7 @@ dependencies = [
  "sp-core 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=03d4d0d7c129eec3d3ab2876bddbe5d6dfa1f178)",
  "tokio 1.11.0",
  "tokio-native-tls",
- "tokio-util 0.6.8",
+ "tokio-util 0.6.9",
  "utils",
  "web3",
 ]
@@ -5574,7 +5574,7 @@ dependencies = [
  "thiserror",
  "tokio 1.11.0",
  "tokio-native-tls",
- "tokio-util 0.6.8",
+ "tokio-util 0.6.9",
 ]
 
 [[package]]
@@ -8367,7 +8367,7 @@ dependencies = [
  "postgres-types",
  "socket2 0.4.1",
  "tokio 1.11.0",
- "tokio-util 0.6.8",
+ "tokio-util 0.6.9",
 ]
 
 [[package]]
@@ -8397,9 +8397,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-util"
-version = "0.6.8"
+version = "0.6.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08d3725d3efa29485e87311c5b699de63cde14b00ed4d256b8318aa30ca452cd"
+checksum = "9e99e1983e5d376cd8eb4b66604d2e99e79f5bd988c3055891dcd8c9e2604cc0"
 dependencies = [
  "bytes 1.1.0",
  "futures-core",
@@ -8995,7 +8995,7 @@ dependencies = [
  "tiny-keccak",
  "tokio 1.11.0",
  "tokio-stream",
- "tokio-util 0.6.8",
+ "tokio-util 0.6.9",
  "url 2.2.2",
  "web3-async-native-tls",
 ]
