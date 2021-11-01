@@ -105,6 +105,7 @@ impl BinanceHandler {
                     .map_err(Error::Web3)
                     .map(|_| ());
                 // self.db.update_status_realis().await;
+                // TODO update status to in progress, if got hash, update to complete
                 success_contract
             }
             RealisEventType::TransferTokenToBsc(request, ..) => {
@@ -126,6 +127,7 @@ impl BinanceHandler {
                     .map_err(Error::Web3)
                     .map(|_| ());
                 // self.db.update_status_realis().await;
+                // TODO update status to in progress, if got hash, update to complete
                 success_contract
             }
         }

@@ -49,6 +49,7 @@ impl BlockListener {
 
         while let Some(value) = sub.next().await {
             let block = value.unwrap();
+            // TODO update block_number
             // &db.update_block_bsc(block.number).await;
             let some = web3
                 .eth()
@@ -104,6 +105,7 @@ impl BlockListener {
                                 let amount = info[1].clone().into_uint().unwrap().as_u128();
 
                                 info!("{:?}", account_id);
+                                // TODO update status to got
                                 let event = BscEventType::TransferTokenToRealis(
                                     TransferTokenToRealis {
                                         block: transaction.block_number,
@@ -146,6 +148,7 @@ impl BlockListener {
                     info!("Transaction hash: {:?}", transaction.hash);
 
                     let tx = web3.eth().transaction_receipt(transaction.hash).await.unwrap().unwrap();
+                    // TODO update status to got
                     info!("{:?}", tx);
                     for log in tx.logs {
                         info!(

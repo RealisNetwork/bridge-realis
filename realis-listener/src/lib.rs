@@ -75,6 +75,7 @@ impl BlockListener {
                     if let Some(block_number) = option {
                         info!("Start process block!");
                         match BlockListener::get_block(block_number).await {
+                            // TODO update block in table?
                             Ok(block) => match self.process_block(block).await {
                                 Ok(_) => info!("Block {} processed!", block_number),
                                 Err(Error::Disconnected) => self.status.store(false, Ordering::SeqCst),
@@ -165,6 +166,7 @@ impl BlockListener {
         {
             for event in events {
                 warn!("send to BSC {:?}", event);
+                // TODO update status to got
                 match self.db.add_extrinsic_realis(&event).await {
                     Ok(()) => info!("Success add to Database!"),
                     Err(error) => error!("Cannot add extrinsic {:?}", error),

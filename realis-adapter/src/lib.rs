@@ -70,7 +70,9 @@ impl RealisAdapter {
                 );
 
                 let tx_result = self.api.send_extrinsic(tx.hex_encode(), XtStatus::InBlock);
+                // TODO if send, change status in progress
                 match tx_result {
+                    // TODO if success, add success status
                     Ok(result) => info!("Hash: {:?}", result),
                     Err(error) => error!("Cannot send extrinsic: {:?}", error),
                 }
@@ -91,7 +93,9 @@ impl RealisAdapter {
                 );
 
                 let tx_result = self.api.send_extrinsic(tx.hex_encode(), XtStatus::InBlock);
+                // TODO if send, change status in progress
                 match tx_result {
+                    // TODO if success, add success status
                     Ok(result) => info!("Hash: {:?}", result),
                     Err(error) => error!("Cannot send extrinsic: {:?}", error),
                 }
