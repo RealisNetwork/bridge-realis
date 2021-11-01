@@ -14,7 +14,7 @@ secp256k1 = { version = "0.20", features = ["recovery"] }
 primitive-types = "0.9.1"
 web3 = "0.17.0"
 utils = { path = "../utils" }
-tokio = "1.11"
+tokio = "1.13"
 
 [features]
 default = ["std"]
