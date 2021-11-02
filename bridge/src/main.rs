@@ -39,7 +39,7 @@ fn main() {
     let nft_contract_address = Config::key_from_value("ADDRESS_NFT").expect("Missing env ADDRESS_NFT");
 
     // TODO get from vault
-    let binance_master_key = "98a946173492e8e5b73577341cea3c3b8e92481bfcea038b8fd7c1940d0cd42f";
+    let binance_master_key = "Your mnemonic";
 
     // Read healthchecker options from env file
     let healthchecker_address = Config::key_from_value("HEALTHCHECK").expect("Missing env HEALTHCHECK");
@@ -145,7 +145,7 @@ fn main() {
         }));
 
         let pair = Pair::from_string(
-            "fault pretty bird biology budget table symptom build option wrist time detail",
+            "Your mnemonic",
             None,
         )
         .unwrap();

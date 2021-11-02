@@ -14,7 +14,6 @@ use tokio::{
 };
 
 use crate::block_parser::BlockParser;
-use primitives::db::Status;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     mpsc::channel,

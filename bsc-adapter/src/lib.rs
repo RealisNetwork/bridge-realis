@@ -96,7 +96,7 @@ impl BinanceHandler {
                 let success_contract = contract
                     .signed_call_with_confirmations(
                         "safeMint",
-                        (request.dest, token_id),
+                        (request.from.to_string(), request.dest, token_id),
                         // TODO get this options from blockchain data
                         web3::contract::Options::default(),
                         // TODO check this

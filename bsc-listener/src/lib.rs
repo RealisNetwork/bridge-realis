@@ -1,6 +1,6 @@
 use db::Database;
 use ethabi::ParamType;
-use log::{error, info};
+use log::{error, info, warn};
 use primitives::{
     db::Status,
     events::{BscEventType, TransferNftToRealis, TransferTokenToRealis},
@@ -22,7 +22,7 @@ use web3::{
     self,
     futures::StreamExt,
     transports::WebSocket,
-    types::{Address, Transaction},
+    types::{Address, Transaction, H256},
     Web3,
 };
 
@@ -74,7 +74,7 @@ impl BlockListener {
                         if account == Address::from_str("0x1c43b4253c33d246ad27e710d949a8d8b62a2c73").unwrap() {
                             tx_sender.clone().send_tokens(transaction, web3.clone(), &self.db).await;
                         } else if account
-                            == Address::from_str("0xc2f5Fb3eEFE324B263DfF8cDf6d0113ae2B6B19E").unwrap()
+                            == Address::from_str("0x0875cb9090010e2844aefA88c879a8bBda8d70C8").unwrap()
                         {
                             tx_sender.clone().send_nft(transaction, web3.clone(), &self.db).await;
                         }
@@ -186,40 +186,52 @@ impl TxSender {
                         }
                     }
                     info!("{:?}", tx);
+                    let hash =
+                        H256::from_str("0x50158efb7abc93588bff90584e6f7e94a75c3660da924b938aad8001afa5aa12")
+                            .unwrap();
                     for log in tx.logs {
-                        info!(
-                            "{:?}",
-                            ethabi::decode(&[ParamType::String, ParamType::Uint(256)], &log.data.0)
-                        );
-                        let info = ethabi::decode(
-                            &[ParamType::String, ParamType::Uint(256), ParamType::Address],
-                            &log.data.0,
-                        )
-                        .unwrap();
-                        let json: Value = serde_json::from_str(&info[0].to_string()).unwrap();
-                        let account_id: AccountId = Deserialize::deserialize(json).unwrap();
-                        let token_id = TokenId::from_str(&info[0].to_string()).unwrap();
-                        info!("{:?}", account_id);
-                        let event = BscEventType::TransferNftToRealis(
-                            TransferNftToRealis {
-                                block: transaction.block_number,
-                                hash: transaction.hash,
-                                from: account_from,
-                                dest: account_id,
-                                token_id,
-                            },
-                            transaction.hash,
-                            transaction.block_number,
-                        );
-                        match db.add_extrinsic_bsc(&event).await {
-                            Ok(()) => info!("Success add extrinsic in Database!"),
-                            Err(error) => error!("Cannot add extrinsic in Database: {:?}", error),
-                        }
-                        match self.tx.send(event).await {
-                            Ok(()) => info!("Success send to realis-adapter!"),
-                            Err(error) => {
-                                self.status.store(false, Ordering::SeqCst);
-                                error!("Cannot send to realis-adapter: {:?}", error);
+                        for topic in log.topics {
+                            if topic == hash {
+                                warn!("{:?}", topic);
+                                info!(
+                                    "{:?}",
+                                    ethabi::decode(
+                                        &[ParamType::Address, ParamType::String, ParamType::Uint(256)],
+                                        &log.data.0
+                                    )
+                                );
+                                let info = ethabi::decode(
+                                    &[ParamType::Address, ParamType::String, ParamType::Uint(256)],
+                                    &log.data.0,
+                                )
+                                .unwrap();
+                                let json: Value = serde_json::to_value(&info[1].to_string()).unwrap();
+                                warn!("{:?}", json);
+                                let account_id: AccountId = Deserialize::deserialize(json).unwrap();
+                                let token_id = TokenId::from_str(&info[2].to_string()).unwrap();
+                                info!("{:?}", account_id);
+                                let event = BscEventType::TransferNftToRealis(
+                                    TransferNftToRealis {
+                                        block: transaction.block_number,
+                                        hash: transaction.hash,
+                                        from: account_from,
+                                        dest: account_id,
+                                        token_id,
+                                    },
+                                    transaction.hash,
+                                    transaction.block_number,
+                                );
+                                match db.add_extrinsic_bsc(&event).await {
+                                    Ok(()) => info!("Success add extrinsic in Database!"),
+                                    Err(error) => error!("Cannot add extrinsic in Database: {:?}", error),
+                                }
+                                match self.tx.send(event).await {
+                                    Ok(()) => info!("Success send to realis-adapter!"),
+                                    Err(error) => {
+                                        self.status.store(false, Ordering::SeqCst);
+                                        error!("Cannot send to realis-adapter: {:?}", error);
+                                    }
+                                }
                             }
                         }
                     }

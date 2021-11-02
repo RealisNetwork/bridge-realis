@@ -35,30 +35,6 @@
 				"internalType": "uint256",
 				"name": "tokenId",
 				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint32",
-				"name": "Id",
-				"type": "uint32"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "Link",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "Name",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "Rarity",
-				"type": "string"
 			}
 		],
 		"name": "MintNftFromRealis",
@@ -109,30 +85,6 @@
 				"internalType": "uint256",
 				"name": "tokenId",
 				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint32",
-				"name": "Id",
-				"type": "uint32"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "Link",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "Name",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "Rarity",
-				"type": "string"
 			}
 		],
 		"name": "TransferNftToRealis",
@@ -250,26 +202,6 @@
 				"internalType": "uint256",
 				"name": "tokenId",
 				"type": "uint256"
-			},
-			{
-				"internalType": "uint32",
-				"name": "Id",
-				"type": "uint32"
-			},
-			{
-				"internalType": "string",
-				"name": "Link",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "Name",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "Rarity",
-				"type": "string"
 			}
 		],
 		"name": "safeMint",
