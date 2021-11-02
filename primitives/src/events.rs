@@ -57,3 +57,23 @@ pub enum BscEventType {
     TransferTokenToRealis(TransferTokenToRealis, H256, Option<U64>),
     TransferNftToRealis(TransferNftToRealis, H256, Option<U64>),
 }
+
+impl RealisEventType {
+    #[must_use]
+    pub fn get_hash(&self) -> Hash {
+        match self {
+            RealisEventType::TransferTokenToBsc(request, ..) => request.hash,
+            RealisEventType::TransferNftToBsc(request, ..) => request.hash,
+        }
+    }
+}
+
+impl BscEventType {
+    #[must_use]
+    pub fn get_hash(&self) -> H256 {
+        match self {
+            BscEventType::TransferTokenToRealis(request, _, _) => request.hash,
+            BscEventType::TransferNftToRealis(request, _, _) => request.hash,
+        }
+    }
+}

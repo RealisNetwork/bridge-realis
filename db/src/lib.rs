@@ -50,6 +50,8 @@ impl Database {
     pub async fn add_extrinsic_realis(&self, response: &RealisEventType) -> Result<(), Error> {
         self.still_alive().await?;
 
+        let status = Status::Got as u32;
+
         match response {
             RealisEventType::TransferNftToBsc(event, ..) => {
                 let value = serde_json::to_value(&event.token_id).unwrap();
@@ -58,8 +60,8 @@ impl Database {
                 self.client
                     .execute(
                         "INSERT INTO extrinsics_realis(hash, block, \
-                        from_account, to_account, value, type) \
-                    VALUES ($1, $2, $3, $4, $5, $6)",
+                        from_account, to_account, value, type, status) \
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)",
                         &[
                             &event.hash.to_string(),
                             &block,
@@ -67,6 +69,7 @@ impl Database {
                             &event.dest.to_string(),
                             &value,
                             &types_nft,
+                            &status,
                         ],
                     )
                     .await
@@ -79,8 +82,8 @@ impl Database {
                 self.client
                     .execute(
                         "INSERT INTO extrinsics_realis(hash, block, \
-                        from_account, to_account, value, type) \
-                    VALUES ($1, $2, $3, $4, $5, $6)",
+                        from_account, to_account, value, type, status) \
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)",
                         &[
                             &event.hash.to_string(),
                             &block,
@@ -88,6 +91,7 @@ impl Database {
                             &event.to.to_string(),
                             &value,
                             &types_tokens,
+                            &status,
                         ],
                     )
                     .await

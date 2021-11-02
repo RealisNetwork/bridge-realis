@@ -93,7 +93,7 @@ impl BinanceHandler {
 
                 let token_id = U256::from_dec_str(&request.token_id.to_string()).unwrap();
 
-                let success_contract = contract
+                contract
                     .signed_call_with_confirmations(
                         "safeMint",
                         (request.from.to_string(), request.dest, token_id),
@@ -105,21 +105,7 @@ impl BinanceHandler {
                     )
                     .await
                     .map_err(Error::Web3)
-                    .map(|_| ());
-                match self
-                    .db
-                    .update_status_realis(&request.hash.to_string(), Status::InProgress)
-                    .await
-                {
-                    Ok(_) => {
-                        info!("Success realis status InProgress");
-                    }
-                    Err(error) => {
-                        error!("Update realis status send error: {:?}", error);
-                    }
-                }
-                // TODO CHECK update status to in progress, if got hash, update to complete
-                success_contract
+                    .map(|_| ())
             }
             RealisEventType::TransferTokenToBsc(request, ..) => {
                 let contract = ConnectionBuilder::token(connection, &self.token_contract_address).await?;
@@ -138,21 +124,7 @@ impl BinanceHandler {
                     )
                     .await
                     .map_err(Error::Web3)
-                    .map(|_| ());
-                match self
-                    .db
-                    .update_status_realis(&request.hash.to_string(), Status::InProgress)
-                    .await
-                {
-                    Ok(_) => {
-                        info!("Update realis status InProgress");
-                    }
-                    Err(error) => {
-                        error!("Update realis status send error: {:?}", error);
-                    }
-                }
-                // TODO CHECK update status to in progress, if got hash, update to complete
-                success_contract
+                    .map(|_| ())
             }
         };
 

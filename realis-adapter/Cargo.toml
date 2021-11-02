@@ -13,7 +13,6 @@ primitives = { path = "../primitives" }
 db = { path = "../db" }
 
 #
-realis-bridge = { git =  "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "realis-bridge" }
 runtime = { git =  "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "node-runtime" }
 sp-runtime = { git = "https://github.com/paritytech/substrate.git", branch = "master", package = "sp-runtime" }
 sp-core = { git = "https://github.com/paritytech/substrate.git", branch = "master", package = "sp-core" }
