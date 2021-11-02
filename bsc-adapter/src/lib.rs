@@ -87,7 +87,7 @@ impl BinanceHandler {
 
         // let gas_price = connection.eth().gas_price().await.unwrap();
 
-        match request {
+        let success_contract = match request {
             RealisEventType::TransferNftToBsc(request, ..) => {
                 let contract = ConnectionBuilder::nft(connection, &self.nft_contract_address).await?;
 
@@ -126,7 +126,7 @@ impl BinanceHandler {
 
                 let amount = web3::types::U128::from(request.amount);
 
-                let success_contract = contract
+                contract
                     .signed_call_with_confirmations(
                         "transferFromRealis",
                         (request.from.to_string(), request.to, amount),
@@ -154,7 +154,22 @@ impl BinanceHandler {
                 // TODO CHECK update status to in progress, if got hash, update to complete
                 success_contract
             }
+        };
+
+        match self
+            .db
+            .update_status_realis(&request.get_hash().to_string(), Status::Success)
+            .await
+        {
+            Ok(_) => {
+                info!("Update realis status InProgress");
+            }
+            Err(error) => {
+                error!("Update realis status send error: {:?}", error);
+            }
         }
+
+        success_contract
     }
 
     async fn connect(&mut self) -> Result<Web3<WebSocket>, Error> {

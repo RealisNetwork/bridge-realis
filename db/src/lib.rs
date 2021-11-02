@@ -218,8 +218,8 @@ impl Database {
         let block = block.unwrap().as_u32();
 
         self.client
-            .query_one(
-                "INSERT INTO block_bsc(block) \
+            .execute(
+                "INSERT INTO blocks_bsc(block) \
                     VALUES ($1)",
                 &[&block],
             )
@@ -246,14 +246,14 @@ impl Database {
 
     /// # Panics
     /// # Errors
-    pub async fn update_status_realis(&self, hash: &Hash, status: Status) -> Result<(), Error> {
+    pub async fn update_status_realis(&self, hash: &str, status: Status) -> Result<(), Error> {
         self.still_alive().await?;
         self.client
             .execute(
                 "UPDATE extrinsics_realis \
                 SET status = $1 \
                 WHERE hash=$2",
-                &[&(status as u32), &hash.to_string()],
+                &[&(status as u32), &hash],
             )
             .await
             .map(|_| ())

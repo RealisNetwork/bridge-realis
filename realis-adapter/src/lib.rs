@@ -148,5 +148,7 @@ impl RealisAdapter {
                 Ok(())
             }
         }
+
+        Ok(())
     }
 }

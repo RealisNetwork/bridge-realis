@@ -7,6 +7,7 @@ edition = "2018"
 
 [dependencies]
 realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "realis-primitives" }
+realis-bridge = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "realis-bridge" }
 rust-lib = { git = "https://github.com/RealisNetwork/rust-lib.git" }
 primitives = { path = "../primitives" }
 db = { path = "../db" }
