@@ -281,4 +281,20 @@ impl Database {
             .map_err(Error::Postgres)?;
         Ok(())
     }
+
+    /// # Panics
+    /// # Errors
+    pub async fn add_block(&self, block_number: u32) -> Result<(), Error> {
+        self.still_alive().await?;
+        self.client
+            .execute(
+                "INSERT INTO blocks(block_number) \
+            VALUES ($1) \
+            ON CONFLICT(block_number) DO NOTHING",
+                &[&block_number],
+            )
+            .await
+            .map_err(Error::Postgres)
+            .map(|_| ())
+    }
 }

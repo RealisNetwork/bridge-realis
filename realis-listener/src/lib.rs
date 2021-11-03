@@ -3,7 +3,6 @@ pub mod block_parser;
 use db::Database;
 use primitives::{block::Block, events::RealisEventType, types::BlockNumber, Error};
 
-use futures::Future;
 use log::{error, info, warn};
 use sp_core::sr25519;
 use sp_runtime::{generic, traits::BlakeTwo256};
@@ -30,37 +29,41 @@ pub struct BlockListener {
 
 impl BlockListener {
     /// # Errors
-    pub fn new(
-        url: &str,
-        tx: Sender<RealisEventType>,
-        status: Arc<AtomicBool>,
-        db: Arc<Database>,
-    ) -> Result<Self, Error> {
+    pub async fn new(url: &str, tx: Sender<RealisEventType>, status: Arc<AtomicBool>, db: Arc<Database>) -> Self {
         let (_, rx) = BlockListener::subscribe(url, Arc::clone(&status));
-        Ok(Self { rx, tx, status, db })
+        Self { rx, tx, status, db }
     }
 
     /// # Errors
-    pub async fn new_with_restore(
-        url: &str,
-        tx: Sender<RealisEventType>,
-        db: Arc<Database>,
-        status: Arc<AtomicBool>,
-    ) -> Result<(Self, impl Future), Error> {
-        let (tx_copy, mut rx) = BlockListener::subscribe(url, Arc::clone(&status));
-        let current = rx.recv().await.ok_or(Error::Disconnected)?;
-        let last = db.get_last_block_realis().await?;
-        Ok((
-            Self { rx, tx, status, db },
-            BlockListener::restore(tx_copy, current, last),
-        ))
-    }
-
     /// # Panics
-    pub async fn restore(tx: UnboundedSender<BlockNumber>, current: BlockNumber, last_processed: BlockNumber) {
-        for block_number in last_processed..current {
-            if let Err(error) = tx.send(block_number) {
-                panic!("In restore: {:?}", error);
+
+    #[allow(clippy::match_same_arms)]
+    pub async fn listen_with_restore(&mut self, from: u64) {
+        warn!("Start restore!!!");
+        let block_number = self.rx.recv().await.unwrap();
+        for number in from..block_number {
+            match BlockListener::get_block_sidecar(number).await {
+                Ok(block) => {
+                    match &self.db.update_block_realis(number).await {
+                        Ok(_) => {
+                            info!("Success add realis block to database");
+                        }
+                        Err(error) => {
+                            error!("Can't add realis block to database with error: {:?}", error);
+                        }
+                    }
+                    match self.process_block(block).await {
+                        Ok(_) => {
+                            info!("Block {} restored!", number);
+                        }
+                        Err(Error::Disconnected) => self.status.store(false, Ordering::SeqCst),
+                        Err(Error::Send) => self.status.store(false, Ordering::SeqCst),
+                        Err(error) => {
+                            error!("Unable to restore block with error: {:?}", error);
+                        }
+                    }
+                }
+                Err(error) => error!("Unable to restore block: {:?}", error),
             }
         }
 
@@ -77,7 +80,7 @@ impl BlockListener {
                     if let Some(block_number) = option {
                         info!("Start process block!");
                         let db = Arc::clone(&self.db);
-                        match BlockListener::get_block(block_number).await {
+                        match BlockListener::get_block_sidecar(block_number).await {
                             // TODO CHECK update block in table?
                             Ok(block) => {
                                  match &db.update_block_realis(block_number).await{
@@ -154,7 +157,7 @@ impl BlockListener {
         (async_tx, async_rx)
     }
 
-    async fn get_block(block_number: BlockNumber) -> Result<Block, Error> {
+    async fn get_block_sidecar(block_number: BlockNumber) -> Result<Block, Error> {
         // Create request
         let request = format!("http://135.181.18.215:8080/blocks/{:?}", block_number);
         // Send request and wait response

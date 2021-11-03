@@ -80,7 +80,7 @@ impl RealisAdapter {
         let tx_result = match request {
             BscEventType::TransferTokenToRealis(request, ..) => {
                 let account_id = request.to.clone();
-                let amount = request.amount;
+                let amount = request.amount * 1_000_000_000_000;
                 let bsc_account = H160::from_slice(request.from.as_ref());
 
                 let call: Call = Call::RealisBridge(RealisBridgeCall::transfer_token_to_realis(
