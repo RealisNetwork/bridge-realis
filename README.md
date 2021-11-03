@@ -45,18 +45,7 @@ without launching it:
 make build
 ```
 
-Also, for launching bridge from Realis Network to BSC need launch command:
+Also, for launching bridge need launch command:
 ```
-make run.to_bsc
-```
-
-For launch bridge from BSC to Realis Network:
-
-```
-make run.to_realis
-```
-
-Also, this project have connection to NATS Streaming:
-```
-make run.msg_brok
+make run
 ```
