@@ -63,6 +63,8 @@ impl BlockListener {
                 panic!("In restore: {:?}", error);
             }
         }
+
+        self.listen().await;
     }
 
     /// # Panics
