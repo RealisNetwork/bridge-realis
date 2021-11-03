@@ -30,6 +30,20 @@
 	{
 		"constant": true,
 		"inputs": [],
+		"name": "START_TOKENS",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
 		"name": "decimals",
 		"outputs": [
 			{
@@ -62,6 +76,34 @@
 		],
 		"payable": false,
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "nextMintPossibleDate",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "MINT_AMOUNT",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -104,6 +146,20 @@
 		],
 		"payable": false,
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "MINT_INTERVAL",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -158,14 +214,28 @@
 		"type": "function"
 	},
 	{
+		"constant": true,
+		"inputs": [],
+		"name": "canMint",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_to",
+				"name": "recipient",
 				"type": "string"
 			},
 			{
-				"name": "_value",
+				"name": "amount",
 				"type": "uint256"
 			}
 		],
@@ -184,7 +254,7 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_newOwner",
+				"name": "newOwner",
 				"type": "address"
 			}
 		],
@@ -203,15 +273,15 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "ss58",
+				"name": "sender",
 				"type": "string"
 			},
 			{
-				"name": "_to",
+				"name": "recipient",
 				"type": "address"
 			},
 			{
-				"name": "_value",
+				"name": "amount",
 				"type": "uint256"
 			}
 		],
@@ -233,21 +303,16 @@
 		"type": "constructor"
 	},
 	{
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "fallback"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
 				"indexed": true,
-				"name": "_from",
+				"name": "signer",
 				"type": "address"
 			},
 			{
 				"indexed": false,
-				"name": "_value",
+				"name": "amount",
 				"type": "uint256"
 			}
 		],
@@ -259,12 +324,12 @@
 		"inputs": [
 			{
 				"indexed": true,
-				"name": "_to",
+				"name": "signer",
 				"type": "address"
 			},
 			{
 				"indexed": false,
-				"name": "_value",
+				"name": "amount",
 				"type": "uint256"
 			}
 		],
@@ -276,17 +341,17 @@
 		"inputs": [
 			{
 				"indexed": true,
-				"name": "from",
+				"name": "signer",
 				"type": "address"
 			},
 			{
 				"indexed": true,
-				"name": "to",
+				"name": "recipient",
 				"type": "address"
 			},
 			{
 				"indexed": false,
-				"name": "value",
+				"name": "amount",
 				"type": "uint256"
 			}
 		],
@@ -298,22 +363,22 @@
 		"inputs": [
 			{
 				"indexed": true,
-				"name": "from",
+				"name": "signer",
 				"type": "address"
 			},
 			{
 				"indexed": false,
-				"name": "ss58",
+				"name": "sender",
 				"type": "string"
 			},
 			{
 				"indexed": true,
-				"name": "to",
+				"name": "recipient",
 				"type": "address"
 			},
 			{
 				"indexed": false,
-				"name": "value",
+				"name": "amount",
 				"type": "uint256"
 			}
 		],
@@ -325,17 +390,17 @@
 		"inputs": [
 			{
 				"indexed": true,
-				"name": "from",
+				"name": "signer",
 				"type": "address"
 			},
 			{
 				"indexed": false,
-				"name": "to",
+				"name": "recipient",
 				"type": "string"
 			},
 			{
 				"indexed": false,
-				"name": "value",
+				"name": "amount",
 				"type": "uint256"
 			}
 		],
@@ -347,12 +412,12 @@
 		"inputs": [
 			{
 				"indexed": true,
-				"name": "_previousOwner",
-				"type": "address" 
+				"name": "previousOwner",
+				"type": "address"
 			},
 			{
 				"indexed": true,
-				"name": "_newOwner",
+				"name": "newOwner",
 				"type": "address"
 			}
 		],

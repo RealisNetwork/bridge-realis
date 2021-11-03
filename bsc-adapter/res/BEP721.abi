@@ -35,18 +35,6 @@
 				"internalType": "uint256",
 				"name": "tokenId",
 				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint8",
-				"name": "tokenType",
-				"type": "uint8"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "rarity",
-				"type": "string"
 			}
 		],
 		"name": "MintNftFromRealis",
@@ -97,18 +85,6 @@
 				"internalType": "uint256",
 				"name": "tokenId",
 				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint8",
-				"name": "tokenType",
-				"type": "uint8"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "rarity",
-				"type": "string"
 			}
 		],
 		"name": "TransferNftToRealis",
@@ -226,16 +202,6 @@
 				"internalType": "uint256",
 				"name": "tokenId",
 				"type": "uint256"
-			},
-			{
-				"internalType": "uint8",
-				"name": "tokenType",
-				"type": "uint8"
-			},
-			{
-				"internalType": "string",
-				"name": "rarity",
-				"type": "string"
 			}
 		],
 		"name": "safeMint",
@@ -254,19 +220,6 @@
 			}
 		],
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
-			}
-		],
-		"name": "transferNftToRealisApproved",
-		"outputs": [],
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{

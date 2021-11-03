@@ -1,20 +1,17 @@
 [workspace]
 
 members = [
+    "db",
     "bridge",
-    "bsc-adapter",
-    "bsc-sender",
-    "realis-adapter",
-    "realis-sender",
-    "utils",
-    "tests",
-    "message-broker",
     "primitives",
-    "realis-responser"
+    "bsc-adapter",
+    "bsc-listener",
+    "realis-adapter",
+    "realis-listener",
 ]
 
 [patch.'https://github.com//paritytech/substrate']
-sp-core = { git = "https://github.com/paritytech/substrate" }
+sp-core = { git = "https://github.com/paritytech/substrate"}
 
 [profile.dev]
 split-debuginfo = "unpacked"

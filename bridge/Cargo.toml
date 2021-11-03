@@ -6,19 +6,17 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bsc-adapter = { version = "0.1.0", path = "../bsc-adapter" }
-bsc-sender = { version = "0.1.0", path = "../bsc-sender" }
-realis-adapter = { version = "0.1.0", path = "../realis-adapter" }
-realis-sender = { version = "0.1.0", path = "../realis-sender" }
-message-broker = { version = "0.1.0", path = "../message-broker" }
-chrono = "0.4"
-slog = { version = "2.7", features = ["release_max_level_trace", "max_level_trace"] }
-slog-async = "2.5"
-slog-envlogger = "2.2"
-slog-json = "2.3"
-slog-scope = "4.3"
-slog-stdlog = "4.0"
-slog-term = "2.8.0"
-tokio = "1.11"
-futures = "0.3.17"
-
+# Custom dependencies
+realis-listener = { path = "../realis-listener" }
+realis-adapter = { path = "../realis-adapter" }
+bsc-listener = { path = "../bsc-listener" }
+bsc-adapter = { path = "../bsc-adapter" }
+primitives = { path = "../primitives" }
+db = { path = "../db" }
+#
+substrate-api-client = { git = "https://github.com/RealisNetwork/substrate-api-client.git" }
+rust-lib = { git = "https://github.com/RealisNetwork/rust-lib.git" }
+tokio = { version = "1", features = ["full"] }
+env_logger = "0.9.0"
+futures = "0.3.16"
+log = "0.4"

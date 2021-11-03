@@ -1,45 +1,55 @@
-mod config;
-mod request;
+pub mod block;
+pub mod db;
+pub mod events;
+pub mod types;
 
-pub use config::*;
-pub use request::*;
+use thiserror::Error;
+use web3::Error as Web3Error;
 
-use serde::{Deserialize, Serialize};
-
-pub type UserId = String;
-pub type TransactionHash = String;
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(tag = "method")]
-pub enum Request {
-    #[serde(rename = "transfer_token_to_bsc")]
-    TransferTokenToBSC(Raw<TransferToBSC>),
-
-    #[serde(rename = "transfer_nft_to_bsc")]
-    TransferNftToBSC(Raw<AddNftToBsc>),
-
-    #[serde(rename = "transfer_token_to_realis")]
-    TransferTokenToRealis(Raw<TransferToRealis>),
-
-    #[serde(rename = "transfer_nft_to_realis")]
-    TransferNftToRealis(Raw<AddNftToRealis>),
-
-    #[serde(rename = "withdraw_from_bsc")]
-    WithdrawFromBSC(Raw<WithdrawToBsc>),
-
-    #[serde(rename = "withdraw_from_bsc")]
-    WithdrawFromRealis(Raw<WithdrawToRealis>),
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("Error while send throw channel!")]
+    Send,
+    #[error("Error while trying use tokio_postgres: {0}")]
+    Postgres(tokio_postgres::Error),
+    #[error("Error while trying parse: {0}")]
+    SerdeJSON(serde_json::error::Error),
+    #[error("Disconnected from Database!")]
+    Disconnected,
+    #[error("Cannot found this file in this path {0}!")]
+    FileNotFound(String),
+    #[error("Cannot decode this value!")]
+    CannotDecode,
+    #[error("User not found!")]
+    NotInteresting,
+    #[error("Binance error: {0}")]
+    Web3(Web3Error),
+    #[error("{0}")]
+    Custom(String),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum ResponderRequest {
-    TransferTokenToBSC(Raw<TransferToBSC>),
+pub enum Status {
+    Got = 0,
+    RealisError = 1,
+    RealisSuccess = 2,
+    BinanceError = 3,
+    BinanceSuccess = 4,
+    RollbackError = 5,
+    RollbackSuccess = 6,
+}
 
-    TransferNftToBSC(Raw<AddNftToBsc>),
-
-    TransferTokenToRealis(Raw<TransferToRealis>),
-
-    TransferNftToRealis(Raw<AddNftToRealis>),
-
-    Error(String),
+impl Status {
+    #[must_use]
+    pub fn new(number: u32) -> Option<Self> {
+        match number {
+            0 => Some(Self::Got),
+            1 => Some(Self::RealisError),
+            2 => Some(Self::RealisSuccess),
+            3 => Some(Self::BinanceError),
+            4 => Some(Self::BinanceSuccess),
+            5 => Some(Self::RollbackError),
+            6 => Some(Self::RollbackSuccess),
+            _ => None,
+        }
+    }
 }

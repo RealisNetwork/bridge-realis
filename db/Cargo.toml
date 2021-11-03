@@ -1,5 +1,5 @@
 [package]
-name = "realis-responser"
+name = "db"
 version = "0.1.0"
 edition = "2018"
 
@@ -10,13 +10,11 @@ edition = "2018"
 primitives = { path = "../primitives" }
 
 #
-ratsio = { git = "https://github.com/mnetship/ratsio.git", rev = "f49ddf2ea90c52f5ead051b31b36126cd3d38f56" }
+tokio-postgres = { version = "0.7.4", features = ["with-serde_json-1", "with-uuid-0_8"] }
 tokio = { version = "1", features = ["sync"] }
 serde_json = "1.0.68"
-log = "0.4"
-
-[features]
-default = ["std"]
-std = [
-    "tokio/sync",
-]
+postgres = "0.19.1"
+rawsql = "0.1.0"
+web3 = "0.17.0"
+uuid = "0.8.2"
+log = "^0.4"

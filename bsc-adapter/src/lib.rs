@@ -1,228 +1,156 @@
-use ethabi::{Address, Uint};
-use futures::join;
-// use log::{error, info};
-use log::{error, info, trace};
-use realis_sender::RealisSender;
-use runtime::AccountId;
-use sp_core::{crypto::Ss58Codec, H160, U256};
-use utils::contract;
-use web3::{
-    contract::{Contract, Result as web3Result},
-    transports::WebSocket,
+mod connection_builder;
+
+use crate::connection_builder::ConnectionBuilder;
+use tokio::{select, sync::mpsc::Receiver};
+
+use log::{error, info};
+use primitives::{events::RealisEventType, Error};
+use rust_lib::healthchecker::HealthChecker;
+use secp256k1::SecretKey;
+
+use db::Database;
+use std::{
+    str::FromStr,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
 };
 
-struct BSCListener(Contract<WebSocket>);
+use primitives::db::Status;
+use web3::{transports::WebSocket, types::U256, Web3};
 
-impl BSCListener {
-    pub fn new(contract: Contract<WebSocket>) -> Self {
-        Self(contract)
-    }
-
-    pub async fn listen_token(
-        &self,
-    ) -> Result<Option<sp_core::H256>, substrate_api_client::ApiClientError> {
-        loop {
-            let logs: web3::contract::Result<Vec<(Address, String, Uint)>> =
-                self.0.events("TransferToRealis", (), (), ()).await;
-            match logs {
-                Ok(events) => {
-                    // Process all events
-                    for event in events {
-                        // Log event
-                        trace!("Get event {:?}", event);
-                        // Unpack event arguments
-                        let (from, to, value) = event;
-                        // Convert argument
-                        let account_id = AccountId::from_ss58check(&to).unwrap();
-                        // Log arguments
-                        trace!(
-                            "TransferTokenToRealis: {:?} => {:?}, {:?}",
-                            from,
-                            to,
-                            value
-                        );
-                        let tx_realis = RealisSender::send_token_to_realis(
-                            H160::from(from.0),
-                            &account_id,
-                            value.as_u128(),
-                        );
-                        match tx_realis {
-                            Ok(tx_hash) => {
-                                info!("Transaction send: {:?}", tx_hash);
-                                return Ok(tx_hash);
-                            }
-                            Err(error) => {
-                                error!("Transaction fail: {:?}", error);
-                                return Err(error);
-                            }
-                        }
-                    }
-                }
-                Err(error) => {
-                    error!("Error while listen {:?}", error);
-                }
-            }
-        }
-    }
-
-    pub async fn listen_nft(
-        &self,
-    ) -> Result<Option<sp_core::H256>, substrate_api_client::ApiClientError> {
-        loop {
-            #[allow(clippy::type_complexity)]
-            let logs: web3Result<
-                Vec<(Address, String, Uint, u8, String)>,
-            > = self.0.events("TransferNftToRealis", (), (), ()).await;
-
-            match logs {
-                Ok(events) => {
-                    // Process all events
-                    for (from, to, token_id_from_mint, basic, rarity) in events {
-                        // Log event
-                        trace!(
-                            "Get event {:?}",
-                            (from, &to, token_id_from_mint, basic, &rarity)
-                        );
-                        // Convert arguments
-                        let account_id = AccountId::from_ss58check(&to).unwrap();
-                        // Log arguments
-                        info!(
-                            "TransferNftToRealis: {:?}, {:?}, {:?}",
-                            to, token_id_from_mint, basic
-                        );
-                        let rarity_str = rarity.parse().unwrap();
-                        let token_id = U256::from(token_id_from_mint.as_u32());
-                        let tx_realis = RealisSender::send_nft_to_realis(
-                            H160::from(from.0),
-                            &account_id,
-                            token_id,
-                            basic,
-                            rarity_str,
-                        );
-                        match tx_realis {
-                            Ok(tx_hash) => {
-                                info!("Transaction send: {:?}", tx_hash);
-                                return Ok(tx_hash);
-                            }
-                            Err(error) => {
-                                error!("Transaction fail: {:?}", error);
-                                return Err(error);
-                            }
-                        }
-                    }
-                }
-                Err(error) => {
-                    error!("Error while listen {:?}", error);
-                }
-            }
-        }
-    }
-
-    pub async fn listen_token_success(
-        &self,
-    ) -> Result<Option<sp_core::H256>, substrate_api_client::ApiClientError> {
-        loop {
-            let logs: web3::contract::Result<Vec<(Address, String, Address, Uint)>> =
-                self.0.events("TransferFromRealis", (), (), ()).await;
-            match logs {
-                Ok(events) => {
-                    // Process all events
-                    for event in events {
-                        trace!("Get event {:?}", event);
-                        // Unpack event arguments
-                        let (_, from, to, amount) = event;
-                        // Convert argument
-                        let account_id = AccountId::from_ss58check(&from).unwrap();
-                        // Log arguments
-                        info!(
-                            "TokenSuccessOnBsc: {:?} => {:?}, {:?}",
-                            account_id, to, amount
-                        );
-                        let tx_realis = RealisSender::send_token_approve_to_realis(
-                            account_id,
-                            amount.as_u128(),
-                        )
-                        .await;
-                        match tx_realis {
-                            Ok(tx_hash) => {
-                                info!("Transaction send: {:?}", tx_hash);
-                                return Ok(tx_hash);
-                            }
-                            Err(error) => {
-                                error!("Transaction fail: {:?}", error);
-                                return Err(error);
-                            }
-                        }
-                    }
-                }
-                Err(error) => {
-                    println!("Error while listen {:?}", error);
-                }
-            }
-        }
-    }
-
-    pub async fn listen_nft_success(
-        &self,
-    ) -> Result<Option<sp_core::H256>, substrate_api_client::ApiClientError> {
-        loop {
-            let logs: web3::contract::Result<Vec<(String, Address, Uint, u8)>> =
-                self.0.events("MintNftFromRealis", (), (), ()).await;
-            match logs {
-                Ok(events) => {
-                    // Process all events
-                    for (from, to, token_id_from_mint, basic) in events {
-                        trace!(
-                            "Get event {:?}",
-                            (&from, to, token_id_from_mint, basic)
-                        );
-                        // Convert argument
-                        let account_id = AccountId::from_ss58check(&from).unwrap();
-                        let token_id =
-                            primitive_types::U256::from(token_id_from_mint.as_u32());
-                        info!(
-                            "TransferNftToRealis: {:?} => {:?}, {:?}, {:?}",
-                            account_id, to, token_id, basic
-                        );
-                        let tx_realis =
-                            RealisSender::send_nft_approve_to_realis_from_bsc(
-                                account_id, token_id,
-                            )
-                            .await;
-                        match tx_realis {
-                            Ok(tx_hash) => {
-                                info!("Transaction send: {:?}", tx_hash);
-                                return Ok(tx_hash);
-                            }
-                            Err(error) => {
-                                error!("Transaction fail: {:?}", error);
-                                return Err(error);
-                            }
-                        }
-                    }
-                }
-                Err(error) => {
-                    error!("Error while listen {:?}", error);
-                }
-            }
-        }
-    }
+#[allow(dead_code)]
+pub struct BinanceHandler {
+    rx: Receiver<RealisEventType>,
+    connection_builder: ConnectionBuilder,
+    token_contract_address: String,
+    nft_contract_address: String,
+    status: Arc<AtomicBool>,
+    master_key: SecretKey,
+    db: Arc<Database>,
 }
 
-pub struct BSCAdapter {}
+impl BinanceHandler {
+    #[must_use]
+    /// # Panics
+    pub fn new(
+        rx: Receiver<RealisEventType>,
+        status: Arc<AtomicBool>,
+        url: &str,
+        token_contract_address: String,
+        nft_contract_address: String,
+        master_key: &str,
+        db: Arc<Database>,
+    ) -> Self {
+        let connection_builder = ConnectionBuilder::new(url);
+        let master_key = SecretKey::from_str(master_key).unwrap();
 
-impl BSCAdapter {
-    pub async fn listen() {
-        let token_listener = BSCListener::new(contract::token_new().await);
-        let nft_listener = BSCListener::new(contract::nft_new().await);
-        let token_listener_success = BSCListener::new(contract::token_new().await);
-        let nft_listener_success = BSCListener::new(contract::nft_new().await);
+        Self {
+            rx,
+            connection_builder,
+            token_contract_address,
+            nft_contract_address,
+            status,
+            master_key,
+            db,
+        }
+    }
 
-        join!(
-            token_listener.listen_token(),
-            nft_listener.listen_nft(),
-            token_listener_success.listen_token_success(),
-            nft_listener_success.listen_nft_success()
-        );
+    /// # Panics
+    /// # Errors
+    pub async fn handle(mut self) {
+        loop {
+            select! {
+                () = HealthChecker::is_alive(Arc::clone(&self.status)) => break,
+                option = self.rx.recv() => {
+                    if let Some(request) = option {
+                        match self.execute(&request).await {
+                            Ok(_) => {
+                                info!("Success send transaction to Realis!");
+                            }
+                            Err(error) => {
+                                error!("Cannot send transaction {:?}", error);
+                                self.status.store(false, Ordering::SeqCst);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    async fn execute(&mut self, request: &RealisEventType) -> Result<(), Error> {
+        let connection = self.connect().await?;
+
+        info!("Start send transaction");
+
+        // let gas_price = connection.eth().gas_price().await.unwrap();
+
+        let success_contract = match request {
+            RealisEventType::TransferNftToBsc(request, ..) => {
+                let contract = ConnectionBuilder::nft(connection, &self.nft_contract_address).await?;
+
+                let token_id = U256::from_dec_str(&request.token_id.to_string()).unwrap();
+
+                contract
+                    .signed_call_with_confirmations(
+                        "safeMint",
+                        (request.from.to_string(), request.dest, token_id),
+                        // TODO get this options from blockchain data
+                        web3::contract::Options::default(),
+                        // TODO check this
+                        1,
+                        &self.master_key,
+                    )
+                    .await
+                    .map_err(Error::Web3)
+                    .map(|_| ())
+            }
+            RealisEventType::TransferTokenToBsc(request, ..) => {
+                let contract = ConnectionBuilder::token(connection, &self.token_contract_address).await?;
+
+                let amount = web3::types::U128::from(request.amount);
+
+                contract
+                    .signed_call_with_confirmations(
+                        "transferFromRealis",
+                        (request.from.to_string(), request.to, amount),
+                        // TODO get this options from blockchain data
+                        web3::contract::Options::default(),
+                        // TODO check this
+                        1,
+                        &self.master_key,
+                    )
+                    .await
+                    .map_err(Error::Web3)
+                    .map(|_| ())
+            }
+        };
+
+        match self
+            .db
+            .update_status_realis(&request.get_hash().to_string(), Status::Success)
+            .await
+        {
+            Ok(_) => {
+                info!("Update realis status InProgress");
+            }
+            Err(error) => {
+                error!("Update realis status send error: {:?}", error);
+            }
+        }
+
+        success_contract
+    }
+
+    async fn connect(&mut self) -> Result<Web3<WebSocket>, Error> {
+        for _ in 0..10 {
+            if let Ok(connection) = self.connection_builder.connect().await {
+                return Ok(connection);
+            }
+        }
+
+        Err(Error::Custom(String::from("Can't connect to binance!")))
     }
 }
