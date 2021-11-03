@@ -1,10 +1,7 @@
 use db::Database;
 use ethabi::ParamType;
 use log::{error, info, warn};
-use primitives::{
-    db::Status,
-    events::{BscEventType, TransferNftToRealis, TransferTokenToRealis},
-};
+use primitives::events::{BscEventType, TransferNftToRealis, TransferTokenToRealis};
 use realis_primitives::TokenId;
 
 use runtime::AccountId;
@@ -178,11 +175,6 @@ impl TxSender {
                                 let amount = info[1].clone().into_uint().unwrap().as_u128();
 
                                 info!("{:?}", account_id);
-                                // TODO CHECK update status to got
-                                match db.update_status_bsc(&transaction.hash.to_string(), Status::Got).await {
-                                    Ok(_) => info!("Success update binance status Got"),
-                                    Err(error) => error!("Error while updating binance status: {:?}", error),
-                                }
                                 let event = BscEventType::TransferTokenToRealis(
                                     TransferTokenToRealis {
                                         block: transaction.block_number,
@@ -225,15 +217,6 @@ impl TxSender {
                     info!("Transaction hash: {:?}", transaction.hash);
 
                     let tx = web3.eth().transaction_receipt(transaction.hash).await.unwrap().unwrap();
-                    // TODO CHECK update status to got
-                    match db.update_status_bsc(&transaction.hash.to_string(), Status::Got).await {
-                        Ok(_) => {
-                            info!("Success update binance status Got");
-                        }
-                        Err(error) => {
-                            error!("Error while updating binance status: {:?}", error);
-                        }
-                    }
                     info!("{:?}", tx);
                     let hash =
                         H256::from_str("0x50158efb7abc93588bff90584e6f7e94a75c3660da924b938aad8001afa5aa12")

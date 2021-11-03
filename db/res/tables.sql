@@ -14,8 +14,8 @@ CREATE TABLE extrinsics_realis (
 -- name: 1.1-extrinsics-bsc
 CREATE TABLE extrinsics_bsc (
      hash TEXT PRIMARY KEY,
-     from_account TEXT,
      block OID,
+     from_account TEXT,
      to_account  TEXT,
      value  jsonb,
      type oid,

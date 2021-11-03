@@ -22,8 +22,18 @@ impl BlockParser {
     #[allow(clippy::nonminimal_bool)]
     #[must_use]
     pub fn new(extrinsic: Extrinsic, block_number: BlockNumber) -> Option<Self> {
-        if extrinsic.method.pallet == "realisBridge" && extrinsic.method.method == "transferTokenToBsc"
-            || extrinsic.method.pallet == "realisBridge" && extrinsic.method.method == "transferNftToBsc"
+        if extrinsic.method.pallet == "realisBridge"
+            && extrinsic.method.method == "transferTokenToBsc"
+            && extrinsic
+                .events
+                .iter()
+                .any(|x| x.method.method.contains("ExtrinsicSuccess"))
+            || extrinsic.method.pallet == "realisBridge"
+                && extrinsic.method.method == "transferNftToBsc"
+                && extrinsic
+                    .events
+                    .iter()
+                    .any(|x| x.method.method.contains("ExtrinsicSuccess"))
         {
             info!("Start proccess extrinsic!");
             Some(Self {

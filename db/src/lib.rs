@@ -63,10 +63,10 @@ impl Database {
                         from_account, to_account, value, type, status) \
                     VALUES ($1, $2, $3, $4, $5, $6, $7)",
                         &[
-                            &event.hash.to_string(),
+                            &format!("{:?}", event.hash),
                             &block,
                             &event.from.to_string(),
-                            &event.dest.to_string(),
+                            &format!("{:?}", event.dest),
                             &value,
                             &types_nft,
                             &status,
@@ -85,10 +85,10 @@ impl Database {
                         from_account, to_account, value, type, status) \
                     VALUES ($1, $2, $3, $4, $5, $6, $7)",
                         &[
-                            &event.hash.to_string(),
+                            &format!("{:?}", event.hash),
                             &block,
                             &event.from.to_string(),
-                            &event.to.to_string(),
+                            &format!("{:?}", event.to),
                             &value,
                             &types_tokens,
                             &status,
@@ -107,6 +107,7 @@ impl Database {
     #[allow(clippy::cast_possible_truncation)]
     pub async fn add_extrinsic_bsc(&self, response: &BscEventType) -> Result<(), Error> {
         self.still_alive().await?;
+        let status = Status::Got as u32;
         match response {
             BscEventType::TransferNftToRealis(event, ..) => {
                 let value = serde_json::to_value(&event.token_id).unwrap();
@@ -115,12 +116,12 @@ impl Database {
                 self.client
                     .execute(
                         "INSERT INTO extrinsics_bsc(hash, block, \
-                        from_account, to_account, value, type) \
-                    VALUES ($1, $2, $3, $4, $5, $6)",
+                        from_account, to_account, value, type, status) \
+                    VALUES ($1, $2, $3, $4, $5, $6, &7)",
                         &[
-                            &event.hash.to_string(),
+                            &format!("{:?}", event.hash),
                             &block,
-                            &event.from.to_string(),
+                            &format!("{:?}", event.from),
                             &event.dest.to_string(),
                             &value,
                             &types_nft,
@@ -137,16 +138,16 @@ impl Database {
                 self.client
                     .execute(
                         "INSERT INTO extrinsics_bsc(hash, block, \
-                        from_account, to_account, value, type) \
-                    VALUES ($1, $2, $3, $4, $5, $6)",
+                        from_account, to_account, value, type, status) \
+                    VALUES ($1, $2, $3, $4, $5, $6, &7)",
                         &[
-                            &event.hash.to_string(),
+                            &format!("{:?}", event.hash),
                             &block,
-                            &event.from.to_string(),
+                            &format!("{:?}", event.from),
                             &event.to.to_string(),
                             &value,
                             &types_tokens,
-                            &status
+                            &status,
                         ],
                     )
                     .await
