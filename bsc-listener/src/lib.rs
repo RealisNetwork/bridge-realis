@@ -22,12 +22,12 @@ use web3::{
     self,
     futures::StreamExt,
     transports::WebSocket,
-    types::{Address, Transaction, H256},
+    types::{Address, BlockNumber, Transaction, H256},
     Web3,
 };
 
 pub struct BlockListener {
-    url: String,
+    web3: Web3<WebSocket>,
     tx: Sender<BscEventType>,
     status: Arc<AtomicBool>,
     db: Arc<Database>,
@@ -35,17 +35,61 @@ pub struct BlockListener {
 
 impl BlockListener {
     /// # Errors
+    /// # Panics
     pub async fn new(url: String, tx: Sender<BscEventType>, status: Arc<AtomicBool>, db: Arc<Database>) -> Self {
-        Self { url, tx, status, db }
+        let ws = web3::transports::WebSocket::new(&url).await.unwrap();
+        let web3 = web3::Web3::new(ws);
+        Self { web3, tx, status, db }
+    }
+
+    /// # Errors
+    /// # Panics
+    #[allow(clippy::match_same_arms)]
+    pub async fn listen_with_restore(&mut self, from: u64) {
+        warn!("Start restore BSC!!!");
+        let block_number = self.web3.eth().block_number().await.unwrap().as_u64();
+        for number in from..block_number {
+            warn!("Start restore!!!");
+            let block = self
+                .web3
+                .eth()
+                .block(web3::types::BlockId::Number(BlockNumber::from(number)))
+                .await
+                .unwrap()
+                .unwrap();
+            let some = self
+                .web3
+                .eth()
+                .block_with_txs(web3::types::BlockId::Hash(block.hash.unwrap()))
+                .await
+                .unwrap()
+                .unwrap();
+
+            let tx_sender = TxSender::new(self.tx.clone(), self.status.clone()).await;
+            for transaction in some.transactions {
+                if let Some(account) = transaction.to {
+                    if account == Address::from_str("0x1c43b4253c33d246ad27e710d949a8d8b62a2c73").unwrap() {
+                        tx_sender
+                            .clone()
+                            .send_tokens(transaction, self.web3.clone(), &self.db)
+                            .await;
+                    } else if account == Address::from_str("0x0875cb9090010e2844aefA88c879a8bBda8d70C8").unwrap() {
+                        tx_sender
+                            .clone()
+                            .send_nft(transaction, self.web3.clone(), &self.db)
+                            .await;
+                    }
+                }
+            }
+        }
+        self.listen().await;
     }
 
     /// # Panics
     #[allow(clippy::single_match)]
     pub async fn listen(&mut self) {
-        let ws = web3::transports::WebSocket::new(&self.url).await.unwrap();
-        let web3 = web3::Web3::new(ws.clone());
         // Stream
-        let mut sub = web3.eth_subscribe().subscribe_new_heads().await.unwrap();
+        let mut sub = self.web3.eth_subscribe().subscribe_new_heads().await.unwrap();
 
         info!("Got subscription id: {:?}", sub.id());
 
@@ -60,7 +104,8 @@ impl BlockListener {
                     error!("Can't add binance block with error: {:?}", error);
                 }
             }
-            let some = web3
+            let some = self
+                .web3
                 .eth()
                 .block_with_txs(web3::types::BlockId::Hash(block.hash.unwrap()))
                 .await
@@ -72,11 +117,17 @@ impl BlockListener {
                 match transaction.to {
                     Some(account) => {
                         if account == Address::from_str("0x1c43b4253c33d246ad27e710d949a8d8b62a2c73").unwrap() {
-                            tx_sender.clone().send_tokens(transaction, web3.clone(), &self.db).await;
+                            tx_sender
+                                .clone()
+                                .send_tokens(transaction, self.web3.clone(), &self.db)
+                                .await;
                         } else if account
                             == Address::from_str("0x0875cb9090010e2844aefA88c879a8bBda8d70C8").unwrap()
                         {
-                            tx_sender.clone().send_nft(transaction, web3.clone(), &self.db).await;
+                            tx_sender
+                                .clone()
+                                .send_nft(transaction, self.web3.clone(), &self.db)
+                                .await;
                         }
                     }
                     None => (),
@@ -85,8 +136,6 @@ impl BlockListener {
         }
         sub.unsubscribe().await.unwrap();
     }
-
-    pub async fn listen_with_restore(&mut self) {}
 }
 
 #[derive(Clone)]

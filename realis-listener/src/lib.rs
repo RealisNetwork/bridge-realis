@@ -36,10 +36,9 @@ impl BlockListener {
 
     /// # Errors
     /// # Panics
-
     #[allow(clippy::match_same_arms)]
     pub async fn listen_with_restore(&mut self, from: u64) {
-        warn!("Start restore!!!");
+        warn!("Start restore Realis!!!");
         let block_number = self.rx.recv().await.unwrap();
         for number in from..block_number {
             match BlockListener::get_block_sidecar(number).await {
