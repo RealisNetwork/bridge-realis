@@ -124,6 +124,7 @@ impl Database {
                             &event.dest.to_string(),
                             &value,
                             &types_nft,
+                            &status,
                         ],
                     )
                     .await
@@ -145,6 +146,7 @@ impl Database {
                             &event.to.to_string(),
                             &value,
                             &types_tokens,
+                            &status
                         ],
                     )
                     .await
