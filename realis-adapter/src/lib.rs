@@ -1,7 +1,6 @@
 use log::{error, info};
 use primitives::Error;
-use realis_bridge::Call as RealisBridgeCall;
-use runtime::Call;
+
 use rust_lib::healthchecker::HealthChecker;
 use std::sync::{
     Arc,
@@ -14,10 +13,11 @@ use substrate_api_client::{
     Api,
     compose_extrinsic_offline,
     Pair,
-    rpc::WsRpcClient, sp_runtime::app_crypto::{sp_core::H160, sr25519}, UncheckedExtrinsicV4, XtStatus,
+    rpc::WsRpcClient, sp_runtime::app_crypto::sr25519, UncheckedExtrinsicV4, XtStatus,
 };
 use tokio::{select, sync::mpsc::Receiver};
 use primitives::events::bsc::BscEventType;
+use primitives::events::traits::Event;
 
 pub struct RealisAdapter {
     rx: Receiver<BscEventType>,
@@ -78,56 +78,27 @@ impl RealisAdapter {
             Err(error) => error!("Error while updating realis status: {:?}", error),
         };
 
-        let tx_result = match request {
+        let call = match request {
             BscEventType::TransferTokenToRealis(request, ..) => {
-                let account_id = request.to.clone();
-                let amount = request.amount * 1_000_000_000_000;
-                let bsc_account = H160::from_slice(request.from.as_ref());
-
-                let call: Call = Call::RealisBridge(RealisBridgeCall::transfer_token_to_realis(
-                    bsc_account,
-                    account_id,
-                    amount,
-                ));
-
-                let tx: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
-                    self.api.signer.clone().unwrap(),
-                    call,
-                    self.api.get_nonce().unwrap(),
-                    Era::Immortal,
-                    self.api.genesis_hash,
-                    self.api.genesis_hash,
-                    self.api.runtime_version.spec_version,
-                    self.api.runtime_version.transaction_version
-                );
-
-                self.api.send_extrinsic(tx.hex_encode(), XtStatus::InBlock)
+                request.get_realis_call()
             }
             BscEventType::TransferNftToRealis(request, ..) => {
-                let account_id = request.dest.clone();
-                let token_id = request.token_id;
-                let bsc_account = H160::from_slice(request.from.as_ref());
-
-                let call: Call = Call::RealisBridge(RealisBridgeCall::transfer_nft_to_realis(
-                    bsc_account,
-                    account_id,
-                    token_id,
-                ));
-
-                let tx: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
-                    self.api.signer.clone().unwrap(),
-                    call,
-                    self.api.get_nonce().unwrap(),
-                    Era::Immortal,
-                    self.api.genesis_hash,
-                    self.api.genesis_hash,
-                    self.api.runtime_version.spec_version,
-                    self.api.runtime_version.transaction_version
-                );
-
-                self.api.send_extrinsic(tx.hex_encode(), XtStatus::InBlock)
+                request.get_realis_call()
             }
         };
+
+        let tx: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
+            self.api.signer.clone().unwrap(),
+            call,
+            self.api.get_nonce().unwrap(),
+            Era::Immortal,
+            self.api.genesis_hash,
+            self.api.genesis_hash,
+            self.api.runtime_version.spec_version,
+            self.api.runtime_version.transaction_version
+        );
+
+        let tx_result = self.api.send_extrinsic(tx.hex_encode(), XtStatus::InBlock);
 
         let status = match tx_result {
             Ok(result) => {

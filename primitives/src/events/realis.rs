@@ -1,8 +1,12 @@
+use ethabi::Token;
 use crate::types::{BlockNumber, Hash};
+use crate::events::traits::Event;
+
 use realis_primitives::TokenId;
-use runtime::AccountId;
+use runtime::{AccountId, Call, realis_game_api as RealisGameApi};
 use serde::{Deserialize, Serialize};
-use web3::types::H160;
+use web3::contract::tokens::Tokenizable;
+use web3::types::{H160, U128};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TransferTokenToBsc {
@@ -13,6 +17,24 @@ pub struct TransferTokenToBsc {
     pub amount: u128,
 }
 
+impl Event for TransferTokenToBsc {
+    // Rollback
+    fn get_realis_call(&self) -> Call {
+        // TODO not sure about this call
+        Call::RealisGameApi(RealisGameApi::Call::transfer_from_pallet(
+            self.from.clone(),
+            self.amount
+        ))
+    }
+
+    fn get_binance_call(&self) -> (String, (Token, Token, Token)) {
+        (
+            String::from("transferFromRealis"),
+            (self.from.to_string().into_token(), self.to.into_token(), U128::from(self.amount).into_token())
+        )
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TransferNftToBsc {
     pub block: BlockNumber,
@@ -20,6 +42,24 @@ pub struct TransferNftToBsc {
     pub from: AccountId,
     pub dest: H160,
     pub token_id: TokenId,
+}
+
+impl Event for TransferNftToBsc {
+    // Rollback
+    fn get_realis_call(&self) -> Call {
+        todo!()
+    }
+
+    fn get_binance_call(&self) -> (String, (Token, Token, Token)) {
+        (
+            String::from("safeMint"),
+            (
+                self.from.to_string().into_token(),
+                self.dest.into_token(),
+                U128::from_dec_str(&self.token_id.to_string()).unwrap().into_token()
+            )
+        )
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -3552,7 +3552,9 @@ name = "primitives"
 version = "0.1.0"
 dependencies = [
  "dotenv",
+ "ethabi 14.1.0",
  "node-runtime",
+ "realis-bridge",
  "realis-primitives",
  "serde",
  "serde_json",

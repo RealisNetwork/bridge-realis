@@ -18,8 +18,9 @@ use std::{
 };
 
 use primitives::db::Status;
-use web3::{transports::WebSocket, types::U256, Web3};
+use web3::{transports::WebSocket, Web3};
 use primitives::events::realis::RealisEventType;
+use primitives::events::traits::Event;
 
 #[allow(dead_code)]
 pub struct BinanceHandler {
@@ -71,6 +72,7 @@ impl BinanceHandler {
                                 info!("Success send transaction to Realis!");
                             }
                             Err(error) => {
+                                // TODO send to realis-adapter
                                 error!("Cannot send transaction {:?}", error);
                                 self.status.store(false, Ordering::SeqCst);
                             }
@@ -88,46 +90,33 @@ impl BinanceHandler {
 
         // let gas_price = connection.eth().gas_price().await.unwrap();
 
-        let success_contract = match request {
+        let (contract, (func, params)) = match request {
             RealisEventType::TransferNftToBsc(request, ..) => {
-                let contract = ConnectionBuilder::nft(connection, &self.nft_contract_address).await?;
-
-                let token_id = U256::from_dec_str(&request.token_id.to_string()).unwrap();
-
-                contract
-                    .signed_call_with_confirmations(
-                        "safeMint",
-                        (request.from.to_string(), request.dest, token_id),
-                        // TODO get this options from blockchain data
-                        web3::contract::Options::default(),
-                        // TODO check this
-                        1,
-                        &self.master_key,
-                    )
-                    .await
-                    .map_err(Error::Web3)
-                    .map(|_| ())
+                (
+                    ConnectionBuilder::nft(connection, &self.nft_contract_address).await?,
+                    request.get_binance_call()
+                )
             }
             RealisEventType::TransferTokenToBsc(request, ..) => {
-                let contract = ConnectionBuilder::token(connection, &self.token_contract_address).await?;
-
-                let amount = web3::types::U128::from(request.amount);
-
-                contract
-                    .signed_call_with_confirmations(
-                        "transferFromRealis",
-                        (request.from.to_string(), request.to, amount),
-                        // TODO get this options from blockchain data
-                        web3::contract::Options::default(),
-                        // TODO check this
-                        1,
-                        &self.master_key,
-                    )
-                    .await
-                    .map_err(Error::Web3)
-                    .map(|_| ())
+                (
+                    ConnectionBuilder::token(connection, &self.token_contract_address).await?,
+                    request.get_binance_call()
+                )
             }
         };
+
+        let success_contract = contract.signed_call_with_confirmations(
+                &func,
+                params,
+                // TODO get this options from blockchain data
+                web3::contract::Options::default(),
+                // TODO check this
+                1,
+                &self.master_key,
+            )
+            .await
+            .map_err(Error::Web3)
+            .map(|_| ());
 
         let status = match success_contract {
             Ok(_) => Status::Success,
