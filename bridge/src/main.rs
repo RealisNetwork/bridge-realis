@@ -137,13 +137,9 @@ fn main() {
         match Config::key_from_value("RESTORE").map(|value| value == *"true") {
             Ok(true) => {
                 let last_block = db.get_last_block_bsc().await.unwrap();
-                let mut bsc_listener = bsc_listener::BlockListener::new(
-                    binance_url,
-                    realis_tx,
-                    Arc::clone(&status),
-                    Arc::clone(&db),
-                )
-                .await;
+                let mut bsc_listener =
+                    bsc_listener::BlockListener::new(binance_url, realis_tx, Arc::clone(&status), Arc::clone(&db))
+                        .await;
                 modules.push(tokio::spawn({
                     async move {
                         bsc_listener.listen_with_restore(last_block).await;
@@ -151,13 +147,9 @@ fn main() {
                 }));
             }
             Ok(false) | Err(_) => {
-                let mut bsc_listener = bsc_listener::BlockListener::new(
-                    binance_url,
-                    realis_tx,
-                    Arc::clone(&status),
-                    Arc::clone(&db),
-                )
-                .await;
+                let mut bsc_listener =
+                    bsc_listener::BlockListener::new(binance_url, realis_tx, Arc::clone(&status), Arc::clone(&db))
+                        .await;
                 modules.push(tokio::spawn({
                     async move {
                         bsc_listener.listen().await;

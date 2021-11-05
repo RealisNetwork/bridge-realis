@@ -3,9 +3,9 @@ pub mod db;
 pub mod events;
 pub mod types;
 
+use substrate_api_client::ApiClientError;
 use thiserror::Error;
 use web3::Error as Web3Error;
-use substrate_api_client::ApiClientError;
 
 #[derive(Error, Debug)]
 pub enum Error {

@@ -3,20 +3,17 @@ use primitives::Error;
 
 use rust_lib::healthchecker::HealthChecker;
 use std::sync::{
-    Arc,
     atomic::{AtomicBool, Ordering},
+    Arc,
 };
 
 use db::Database;
-use primitives::db::Status;
+use primitives::{db::Status, events::bsc::BscEventType};
 use substrate_api_client::{
-    Api,
-    compose_extrinsic_offline,
-    Pair,
-    rpc::WsRpcClient, sp_runtime::app_crypto::sr25519, UncheckedExtrinsicV4, XtStatus,
+    compose_extrinsic_offline, rpc::WsRpcClient, sp_runtime::app_crypto::sr25519, Api, Pair, UncheckedExtrinsicV4,
+    XtStatus,
 };
 use tokio::{select, sync::mpsc::Receiver};
-use primitives::events::bsc::BscEventType;
 
 pub struct RealisAdapter {
     rx: Receiver<BscEventType>,
@@ -68,11 +65,7 @@ impl RealisAdapter {
     async fn execute(&mut self, request: &BscEventType) -> Result<(), Error> {
         info!("Start send transaction");
 
-        match self
-            .db
-            .update_status_bsc(&request.get_hash(), Status::InProgress)
-            .await
-        {
+        match self.db.update_status_bsc(&request.get_hash(), Status::InProgress).await {
             Ok(_) => info!("Success update realis status InProgress"),
             Err(error) => error!("Error while updating realis status: {:?}", error),
         };
@@ -95,7 +88,7 @@ impl RealisAdapter {
 
         let status = match tx_result {
             Ok(_) => Status::Success,
-            Err(_) => Status::Error
+            Err(_) => Status::Error,
         };
 
         match self.db.update_status_bsc(&request.get_hash().to_string(), status).await {

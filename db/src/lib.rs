@@ -1,17 +1,18 @@
-use primitives::{Error, types::BlockNumber};
+use primitives::{types::BlockNumber, Error};
 
 use log::{error, trace};
 use postgres::NoTls;
-use primitives::db::Status;
+use primitives::{
+    db::Status,
+    events::{bsc::BscEventType, realis::RealisEventType},
+};
 use rawsql::{self, Loader};
 use std::sync::{
-    Arc,
     atomic::{AtomicBool, Ordering},
+    Arc,
 };
 use tokio_postgres::Client;
 use web3::ethabi::ethereum_types::U64;
-use primitives::events::bsc::BscEventType;
-use primitives::events::realis::RealisEventType;
 
 pub struct Database {
     client: Client,
@@ -158,12 +159,8 @@ impl Database {
                     .map_err(Error::Postgres)
                     .map(|_| ())
             }
-            BscEventType::TransferTokenToBscFail(_event) => {
-                Ok(())
-            }
-            BscEventType::TransferNftToBscFail(_event) => {
-                Ok(())
-            }
+            BscEventType::TransferTokenToBscFail(_event) => Ok(()),
+            BscEventType::TransferNftToBscFail(_event) => Ok(()),
         }
     }
 

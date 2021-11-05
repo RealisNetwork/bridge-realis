@@ -1,7 +1,10 @@
 mod connection_builder;
 
 use crate::connection_builder::ConnectionBuilder;
-use tokio::{select, sync::mpsc::{Receiver, Sender}};
+use tokio::{
+    select,
+    sync::mpsc::{Receiver, Sender},
+};
 
 use log::{error, info};
 use primitives::Error;
@@ -12,16 +15,16 @@ use db::Database;
 use std::{
     str::FromStr,
     sync::{
-        Arc,
         atomic::{AtomicBool, Ordering},
+        Arc,
     },
 };
 
-use primitives::db::Status;
+use primitives::{
+    db::Status,
+    events::{bsc::BscEventType, realis::RealisEventType, traits::Event},
+};
 use web3::{transports::WebSocket, Web3};
-use primitives::events::realis::RealisEventType;
-use primitives::events::bsc::BscEventType;
-use primitives::events::traits::Event;
 
 #[allow(dead_code)]
 pub struct BinanceHandler {
@@ -109,21 +112,18 @@ impl BinanceHandler {
         // let gas_price = connection.eth().gas_price().await.unwrap();
 
         let (contract, (func, params)) = match request {
-            RealisEventType::TransferNftToBsc(request, ..) => {
-                (
-                    ConnectionBuilder::nft(connection, &self.nft_contract_address).await?,
-                    request.get_binance_call()
-                )
-            }
-            RealisEventType::TransferTokenToBsc(request, ..) => {
-                (
-                    ConnectionBuilder::token(connection, &self.token_contract_address).await?,
-                    request.get_binance_call()
-                )
-            }
+            RealisEventType::TransferNftToBsc(request, ..) => (
+                ConnectionBuilder::nft(connection, &self.nft_contract_address).await?,
+                request.get_binance_call(),
+            ),
+            RealisEventType::TransferTokenToBsc(request, ..) => (
+                ConnectionBuilder::token(connection, &self.token_contract_address).await?,
+                request.get_binance_call(),
+            ),
         };
 
-        let success_contract = contract.signed_call_with_confirmations(
+        let success_contract = contract
+            .signed_call_with_confirmations(
                 &func,
                 params,
                 // TODO get this options from blockchain data

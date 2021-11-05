@@ -175,15 +175,13 @@ impl TxSender {
                                 let amount = info[1].clone().into_uint().unwrap().as_u128();
 
                                 info!("{:?}", account_id);
-                                let event = BscEventType::TransferTokenToRealis(
-                                    TransferTokenToRealis {
-                                        block: transaction.block_number,
-                                        hash: transaction.hash,
-                                        from: account_from,
-                                        to: account_id,
-                                        amount,
-                                    }
-                                );
+                                let event = BscEventType::TransferTokenToRealis(TransferTokenToRealis {
+                                    block: transaction.block_number,
+                                    hash: transaction.hash,
+                                    from: account_from,
+                                    to: account_id,
+                                    amount,
+                                });
                                 match db.add_extrinsic_bsc(&event).await {
                                     Ok(()) => info!("Success add extrinsic in Database!"),
                                     Err(error) => error!("Cannot add extrinsoc in Database: {:?}", error),
@@ -240,15 +238,13 @@ impl TxSender {
                                 let account_id: AccountId = Deserialize::deserialize(json).unwrap();
                                 let token_id = TokenId::from_str(&info[2].to_string()).unwrap();
                                 info!("{:?}", account_id);
-                                let event = BscEventType::TransferNftToRealis(
-                                    TransferNftToRealis {
-                                        block: transaction.block_number,
-                                        hash: transaction.hash,
-                                        from: account_from,
-                                        dest: account_id,
-                                        token_id,
-                                    }
-                                );
+                                let event = BscEventType::TransferNftToRealis(TransferNftToRealis {
+                                    block: transaction.block_number,
+                                    hash: transaction.hash,
+                                    from: account_from,
+                                    dest: account_id,
+                                    token_id,
+                                });
                                 match db.add_extrinsic_bsc(&event).await {
                                     Ok(()) => info!("Success add extrinsic in Database!"),
                                     Err(error) => error!("Cannot add extrinsic in Database: {:?}", error),

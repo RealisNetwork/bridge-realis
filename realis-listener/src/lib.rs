@@ -1,25 +1,25 @@
 pub mod extrinsic_parser;
 
 use db::Database;
-use primitives::{block::Block, Error, types::BlockNumber};
+use primitives::{block::Block, types::BlockNumber, Error};
 
 use log::{error, info, warn};
 use sp_core::sr25519;
 use sp_runtime::{generic, traits::BlakeTwo256};
-use substrate_api_client::{Api, rpc::WsRpcClient};
+use substrate_api_client::{rpc::WsRpcClient, Api};
 use tokio::{
     select,
-    sync::mpsc::{Sender, unbounded_channel, UnboundedReceiver, UnboundedSender},
+    sync::mpsc::{unbounded_channel, Sender, UnboundedReceiver, UnboundedSender},
 };
 
 use crate::extrinsic_parser::ExtrinsicParser;
+use primitives::events::realis::RealisEventType;
 use std::sync::{
-    Arc,
     atomic::{AtomicBool, Ordering},
     mpsc::channel,
+    Arc,
 };
-use tokio::time::{Duration, sleep};
-use primitives::events::realis::RealisEventType;
+use tokio::time::{sleep, Duration};
 
 pub struct BlockListener {
     rx: UnboundedReceiver<BlockNumber>,

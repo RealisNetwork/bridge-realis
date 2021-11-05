@@ -1,12 +1,16 @@
+use crate::{
+    events::traits::Event,
+    types::{BlockNumber, Hash},
+};
 use ethabi::Token;
-use crate::types::{BlockNumber, Hash};
-use crate::events::traits::Event;
 
 use realis_primitives::TokenId;
-use runtime::{AccountId, Call, realis_game_api as RealisGameApi};
+use runtime::{realis_game_api as RealisGameApi, AccountId, Call};
 use serde::{Deserialize, Serialize};
-use web3::contract::tokens::Tokenizable;
-use web3::types::{H160, U128};
+use web3::{
+    contract::tokens::Tokenizable,
+    types::{H160, U128},
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TransferTokenToBsc {
@@ -23,14 +27,18 @@ impl Event for TransferTokenToBsc {
         // TODO not sure about this call
         Call::RealisGameApi(RealisGameApi::Call::transfer_from_pallet(
             self.from.clone(),
-            self.amount
+            self.amount,
         ))
     }
 
     fn get_binance_call(&self) -> (String, (Token, Token, Token)) {
         (
             String::from("transferFromRealis"),
-            (self.from.to_string().into_token(), self.to.into_token(), U128::from(self.amount).into_token())
+            (
+                self.from.to_string().into_token(),
+                self.to.into_token(),
+                U128::from(self.amount).into_token(),
+            ),
         )
     }
 }
@@ -56,8 +64,8 @@ impl Event for TransferNftToBsc {
             (
                 self.from.to_string().into_token(),
                 self.dest.into_token(),
-                U128::from_dec_str(&self.token_id.to_string()).unwrap().into_token()
-            )
+                U128::from_dec_str(&self.token_id.to_string()).unwrap().into_token(),
+            ),
         )
     }
 }

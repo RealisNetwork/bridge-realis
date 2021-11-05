@@ -2,13 +2,15 @@ use primitives::block::Extrinsic;
 use std::str::FromStr;
 
 use log::{error, info};
-use primitives::types::BlockNumber;
+use primitives::{
+    events::realis::{BridgeExtrinsics, RealisEventType, TransferNftToBsc, TransferTokenToBsc},
+    types::BlockNumber,
+};
 use runtime::AccountId;
 use rust_lib::primitives::adapter::request::token_id_from_string;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use web3::types::H160;
-use primitives::events::realis::{BridgeExtrinsics, RealisEventType, TransferNftToBsc, TransferTokenToBsc};
 
 #[derive(Clone)]
 pub struct ExtrinsicParser {
@@ -51,12 +53,8 @@ impl ExtrinsicParser {
             .clone()
             .parse_args(serde_json::from_value::<Args>(self.extrinsic.args.clone()).unwrap());
         match args {
-            BridgeExtrinsics::TransferToken(args) => {
-                return vec![RealisEventType::TransferTokenToBsc(args)]
-            }
-            BridgeExtrinsics::TransferNft(args) => {
-                return vec![RealisEventType::TransferNftToBsc(args)]
-            }
+            BridgeExtrinsics::TransferToken(args) => return vec![RealisEventType::TransferTokenToBsc(args)],
+            BridgeExtrinsics::TransferNft(args) => return vec![RealisEventType::TransferNftToBsc(args)],
         }
     }
 
