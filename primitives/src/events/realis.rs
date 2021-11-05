@@ -1,5 +1,6 @@
 use crate::{
     events::traits::Event,
+    events::bsc::{TransferNftToRealis, TransferTokenToRealis},
     types::{BlockNumber, Hash},
 };
 use ethabi::Token;
@@ -80,14 +81,18 @@ pub enum BridgeExtrinsics {
 pub enum RealisEventType {
     TransferTokenToBsc(TransferTokenToBsc),
     TransferNftToBsc(TransferNftToBsc),
+    TransferTokenToRealisFail(TransferTokenToRealis),
+    TransferNftToRealisFail(TransferNftToRealis),
 }
 
 impl RealisEventType {
     #[must_use]
-    pub fn get_hash(&self) -> Hash {
+    pub fn get_hash(&self) -> String {
         match self {
-            RealisEventType::TransferTokenToBsc(request) => request.hash,
-            RealisEventType::TransferNftToBsc(request) => request.hash,
+            RealisEventType::TransferTokenToBsc(request) => request.hash.to_string(),
+            RealisEventType::TransferNftToBsc(request) => request.hash.to_string(),
+            RealisEventType::TransferTokenToRealisFail(request) => request.hash.to_string(),
+            RealisEventType::TransferNftToRealisFail(request) => request.hash.to_string(),
         }
     }
 }

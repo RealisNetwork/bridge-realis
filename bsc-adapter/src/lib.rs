@@ -112,14 +112,22 @@ impl BinanceHandler {
         // let gas_price = connection.eth().gas_price().await.unwrap();
 
         let (contract, (func, params)) = match request {
-            RealisEventType::TransferNftToBsc(request, ..) => (
+            RealisEventType::TransferNftToBsc(request) => (
                 ConnectionBuilder::nft(connection, &self.nft_contract_address).await?,
                 request.get_binance_call(),
             ),
-            RealisEventType::TransferTokenToBsc(request, ..) => (
+            RealisEventType::TransferTokenToBsc(request) => (
                 ConnectionBuilder::token(connection, &self.token_contract_address).await?,
                 request.get_binance_call(),
             ),
+            RealisEventType::TransferNftToRealisFail(request) => (
+                ConnectionBuilder::nft(connection, &self.nft_contract_address).await?,
+                request.get_binance_call(),
+            ),
+            RealisEventType::TransferTokenToRealisFail(request) => (
+                ConnectionBuilder::token(connection, &self.token_contract_address).await?,
+                request.get_binance_call(),
+            )
         };
 
         let success_contract = contract

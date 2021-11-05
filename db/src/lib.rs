@@ -56,7 +56,7 @@ impl Database {
         let status = Status::Got as u32;
 
         match response {
-            RealisEventType::TransferNftToBsc(event, ..) => {
+            RealisEventType::TransferNftToBsc(event) => {
                 let value = serde_json::to_value(&event.token_id).unwrap();
                 let types_nft = 2_u32;
                 let block = event.block as u32;
@@ -76,9 +76,10 @@ impl Database {
                         ],
                     )
                     .await
-                    .map_err(Error::Postgres)?;
+                    .map_err(Error::Postgres)
+                    .map(|_| ())
             }
-            RealisEventType::TransferTokenToBsc(event, ..) => {
+            RealisEventType::TransferTokenToBsc(event) => {
                 let value = serde_json::to_value(&event.amount.to_string()).unwrap();
                 let types_tokens = 1_u32;
                 let block = event.block as u32;
@@ -98,11 +99,12 @@ impl Database {
                         ],
                     )
                     .await
-                    .map_err(Error::Postgres)?;
+                    .map_err(Error::Postgres)
+                    .map(|_| ())
             }
+            RealisEventType::TransferTokenToRealisFail(_event) => Ok(()),
+            RealisEventType::TransferNftToRealisFail(_event) => Ok(())
         }
-
-        Ok(())
     }
 
     /// # Panics
@@ -159,6 +161,7 @@ impl Database {
                     .map_err(Error::Postgres)
                     .map(|_| ())
             }
+            // TODO impl rollback logging
             BscEventType::TransferTokenToBscFail(_event) => Ok(()),
             BscEventType::TransferNftToBscFail(_event) => Ok(()),
         }

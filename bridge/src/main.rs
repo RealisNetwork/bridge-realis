@@ -104,7 +104,7 @@ fn main() {
         .unwrap();
 
         let realis_adapter =
-            realis_adapter::RealisAdapter::new(realis_rx, Arc::clone(&status), &url, pair, Arc::clone(&db));
+            realis_adapter::RealisAdapter::new(realis_rx, binance_tx.clone(), Arc::clone(&status), &url, pair, Arc::clone(&db));
 
         modules.push(tokio::spawn({
             async move {
