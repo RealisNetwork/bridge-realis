@@ -11,12 +11,12 @@ use web3::types::H160;
 use primitives::events::realis::{BridgeExtrinsics, RealisEventType, TransferNftToBsc, TransferTokenToBsc};
 
 #[derive(Clone)]
-pub struct BlockParser {
+pub struct ExtrinsicParser {
     extrinsic: Extrinsic,
     block_number: BlockNumber,
 }
 
-impl BlockParser {
+impl ExtrinsicParser {
     #[allow(clippy::nonminimal_bool)]
     #[must_use]
     pub fn new(extrinsic: Extrinsic, block_number: BlockNumber) -> Option<Self> {
@@ -52,18 +52,10 @@ impl BlockParser {
             .parse_args(serde_json::from_value::<Args>(self.extrinsic.args.clone()).unwrap());
         match args {
             BridgeExtrinsics::TransferToken(args) => {
-                return vec![RealisEventType::TransferTokenToBsc(
-                    args,
-                    self.extrinsic.hash,
-                    self.block_number,
-                )]
+                return vec![RealisEventType::TransferTokenToBsc(args)]
             }
             BridgeExtrinsics::TransferNft(args) => {
-                return vec![RealisEventType::TransferNftToBsc(
-                    args,
-                    self.extrinsic.hash,
-                    self.block_number,
-                )]
+                return vec![RealisEventType::TransferNftToBsc(args)]
             }
         }
     }

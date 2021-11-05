@@ -182,9 +182,7 @@ impl TxSender {
                                         from: account_from,
                                         to: account_id,
                                         amount,
-                                    },
-                                    transaction.hash,
-                                    transaction.block_number,
+                                    }
                                 );
                                 match db.add_extrinsic_bsc(&event).await {
                                     Ok(()) => info!("Success add extrinsic in Database!"),
@@ -249,9 +247,7 @@ impl TxSender {
                                         from: account_from,
                                         dest: account_id,
                                         token_id,
-                                    },
-                                    transaction.hash,
-                                    transaction.block_number,
+                                    }
                                 );
                                 match db.add_extrinsic_bsc(&event).await {
                                     Ok(()) => info!("Success add extrinsic in Database!"),

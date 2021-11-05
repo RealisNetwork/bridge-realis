@@ -56,11 +56,10 @@ impl Event for TransferNftToRealis {
     }
 }
 
-// TODO can remove Hash and Option<U64> variants from args?
 #[derive(Debug, Clone)]
 pub enum BscEventType {
-    TransferTokenToRealis(TransferTokenToRealis, H256, Option<U64>),
-    TransferNftToRealis(TransferNftToRealis, H256, Option<U64>),
+    TransferTokenToRealis(TransferTokenToRealis),
+    TransferNftToRealis(TransferNftToRealis),
 
     TransferTokenToBscFail(TransferTokenToBsc),
     TransferNftToBscFail(TransferNftToBsc),
@@ -69,8 +68,8 @@ pub enum BscEventType {
 impl BscEventType {
     pub fn get_call(&self) -> Call {
         match self {
-            BscEventType::TransferTokenToRealis(request, ..) => request.get_realis_call(),
-            BscEventType::TransferNftToRealis(request, ..) => request.get_realis_call(),
+            BscEventType::TransferTokenToRealis(request) => request.get_realis_call(),
+            BscEventType::TransferNftToRealis(request) => request.get_realis_call(),
             BscEventType::TransferTokenToBscFail(request) => request.get_realis_call(),
             BscEventType::TransferNftToBscFail(request) => request.get_realis_call(),
         }
@@ -81,8 +80,8 @@ impl BscEventType {
     #[must_use]
     pub fn get_hash(&self) -> String {
         match self {
-            BscEventType::TransferTokenToRealis(request, _, _) => request.hash.to_string(),
-            BscEventType::TransferNftToRealis(request, _, _) => request.hash.to_string(),
+            BscEventType::TransferTokenToRealis(request) => request.hash.to_string(),
+            BscEventType::TransferNftToRealis(request) => request.hash.to_string(),
             BscEventType::TransferTokenToBscFail(request) => request.hash.to_string(),
             BscEventType::TransferNftToBscFail(request) => request.hash.to_string(),
         }

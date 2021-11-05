@@ -1,4 +1,4 @@
-pub mod block_parser;
+pub mod extrinsic_parser;
 
 use db::Database;
 use primitives::{block::Block, Error, types::BlockNumber};
@@ -12,7 +12,7 @@ use tokio::{
     sync::mpsc::{Sender, unbounded_channel, UnboundedReceiver, UnboundedSender},
 };
 
-use crate::block_parser::BlockParser;
+use crate::extrinsic_parser::ExtrinsicParser;
 use std::sync::{
     Arc,
     atomic::{AtomicBool, Ordering},
@@ -175,7 +175,7 @@ impl BlockListener {
         for events in block
             .extrinsics
             .iter()
-            .filter_map(|xt| BlockParser::new(xt.clone(), block_number))
+            .filter_map(|xt| ExtrinsicParser::new(xt.clone(), block_number))
             .map(|block| block.parse())
         {
             for event in events {

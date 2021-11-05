@@ -68,19 +68,18 @@ pub enum BridgeExtrinsics {
     TransferToken(TransferTokenToBsc),
 }
 
-// TODO can remove Hash and BlockNumber variants from args?
 #[derive(Debug, Clone)]
 pub enum RealisEventType {
-    TransferTokenToBsc(TransferTokenToBsc, Hash, BlockNumber),
-    TransferNftToBsc(TransferNftToBsc, Hash, BlockNumber),
+    TransferTokenToBsc(TransferTokenToBsc),
+    TransferNftToBsc(TransferNftToBsc),
 }
 
 impl RealisEventType {
     #[must_use]
     pub fn get_hash(&self) -> Hash {
         match self {
-            RealisEventType::TransferTokenToBsc(request, ..) => request.hash,
-            RealisEventType::TransferNftToBsc(request, ..) => request.hash,
+            RealisEventType::TransferTokenToBsc(request) => request.hash,
+            RealisEventType::TransferNftToBsc(request) => request.hash,
         }
     }
 }
