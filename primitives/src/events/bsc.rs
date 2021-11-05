@@ -1,5 +1,6 @@
 use ethabi::Token;
 use crate::events::traits::Event;
+use crate::events::realis::{TransferTokenToBsc, TransferNftToBsc};
 
 use realis_primitives::TokenId;
 use runtime::{AccountId, Call};
@@ -60,16 +61,30 @@ impl Event for TransferNftToRealis {
 pub enum BscEventType {
     TransferTokenToRealis(TransferTokenToRealis, H256, Option<U64>),
     TransferNftToRealis(TransferNftToRealis, H256, Option<U64>),
+
+    TransferTokenToBscFail(TransferTokenToBsc),
+    TransferNftToBscFail(TransferNftToBsc),
 }
 
-
+impl BscEventType {
+    pub fn get_call(&self) -> Call {
+        match self {
+            BscEventType::TransferTokenToRealis(request, ..) => request.get_realis_call(),
+            BscEventType::TransferNftToRealis(request, ..) => request.get_realis_call(),
+            BscEventType::TransferTokenToBscFail(request) => request.get_realis_call(),
+            BscEventType::TransferNftToBscFail(request) => request.get_realis_call(),
+        }
+    }
+}
 
 impl BscEventType {
     #[must_use]
-    pub fn get_hash(&self) -> H256 {
+    pub fn get_hash(&self) -> String {
         match self {
-            BscEventType::TransferTokenToRealis(request, _, _) => request.hash,
-            BscEventType::TransferNftToRealis(request, _, _) => request.hash,
+            BscEventType::TransferTokenToRealis(request, _, _) => request.hash.to_string(),
+            BscEventType::TransferNftToRealis(request, _, _) => request.hash.to_string(),
+            BscEventType::TransferTokenToBscFail(request) => request.hash.to_string(),
+            BscEventType::TransferNftToBscFail(request) => request.hash.to_string(),
         }
     }
 }

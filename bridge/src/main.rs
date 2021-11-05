@@ -31,9 +31,7 @@ fn main() {
     }
 
     let (binance_tx, binance_rx) = mpsc::channel(1024);
-    let (bsc_listen_tx, bsc_listen_rx) = mpsc::channel(1024);
-    // let (rollback_tx, rollback_rx) = mpsc::channel(1024);
-    // let status = Arc::new(AtomicBool::new(true));
+    let (realis_tx, realis_rx) = mpsc::channel(1024);
 
     let binance_url = Config::key_from_value("BINANCE_URL").expect("Missing env BINANCE_URL");
     let token_contract_address = Config::key_from_value("ADDRESS_TOKENS").expect("Missing env ADDRESS_TOKENS");
@@ -89,6 +87,7 @@ fn main() {
 
         let binance_handler = BinanceHandler::new(
             binance_rx,
+            realis_tx.clone(),
             Arc::clone(&status),
             &binance_url,
             token_contract_address,
@@ -105,7 +104,7 @@ fn main() {
         .unwrap();
 
         let realis_adapter =
-            realis_adapter::RealisAdapter::new(bsc_listen_rx, Arc::clone(&status), &url, pair, Arc::clone(&db));
+            realis_adapter::RealisAdapter::new(realis_rx, Arc::clone(&status), &url, pair, Arc::clone(&db));
 
         modules.push(tokio::spawn({
             async move {
@@ -140,7 +139,7 @@ fn main() {
                 let last_block = db.get_last_block_bsc().await.unwrap();
                 let mut bsc_listener = bsc_listener::BlockListener::new(
                     binance_url,
-                    bsc_listen_tx,
+                    realis_tx,
                     Arc::clone(&status),
                     Arc::clone(&db),
                 )
@@ -154,7 +153,7 @@ fn main() {
             Ok(false) | Err(_) => {
                 let mut bsc_listener = bsc_listener::BlockListener::new(
                     binance_url,
-                    bsc_listen_tx,
+                    realis_tx,
                     Arc::clone(&status),
                     Arc::clone(&db),
                 )

@@ -5,6 +5,7 @@ pub mod types;
 
 use thiserror::Error;
 use web3::Error as Web3Error;
+use substrate_api_client::ApiClientError;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -20,8 +21,8 @@ pub enum Error {
     FileNotFound(String),
     #[error("Cannot decode this value!")]
     CannotDecode,
-    #[error("User not found!")]
-    NotInteresting,
+    #[error("Realis error: {0}")]
+    Api(ApiClientError),
     #[error("Binance error: {0}")]
     Web3(Web3Error),
     #[error("{0}")]

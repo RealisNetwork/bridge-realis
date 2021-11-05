@@ -110,6 +110,7 @@ impl Database {
     pub async fn add_extrinsic_bsc(&self, response: &BscEventType) -> Result<(), Error> {
         self.still_alive().await?;
         let status = Status::Got as u32;
+
         match response {
             BscEventType::TransferNftToRealis(event, ..) => {
                 let value = serde_json::to_value(&event.token_id).unwrap();
@@ -131,7 +132,8 @@ impl Database {
                         ],
                     )
                     .await
-                    .map_err(Error::Postgres)?;
+                    .map_err(Error::Postgres)
+                    .map(|_| ())
             }
             BscEventType::TransferTokenToRealis(event, ..) => {
                 let value = serde_json::to_value(&event.amount.to_string()).unwrap();
@@ -153,11 +155,16 @@ impl Database {
                         ],
                     )
                     .await
-                    .map_err(Error::Postgres)?;
+                    .map_err(Error::Postgres)
+                    .map(|_| ())
+            }
+            BscEventType::TransferTokenToBscFail(_event) => {
+                Ok(())
+            }
+            BscEventType::TransferNftToBscFail(_event) => {
+                Ok(())
             }
         }
-
-        Ok(())
     }
 
     /// # Panics

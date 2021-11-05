@@ -17,7 +17,6 @@ use substrate_api_client::{
 };
 use tokio::{select, sync::mpsc::Receiver};
 use primitives::events::bsc::BscEventType;
-use primitives::events::traits::Event;
 
 pub struct RealisAdapter {
     rx: Receiver<BscEventType>,
@@ -71,25 +70,16 @@ impl RealisAdapter {
 
         match self
             .db
-            .update_status_bsc(&request.get_hash().to_string(), Status::InProgress)
+            .update_status_bsc(&request.get_hash(), Status::InProgress)
             .await
         {
             Ok(_) => info!("Success update realis status InProgress"),
             Err(error) => error!("Error while updating realis status: {:?}", error),
         };
 
-        let call = match request {
-            BscEventType::TransferTokenToRealis(request, ..) => {
-                request.get_realis_call()
-            }
-            BscEventType::TransferNftToRealis(request, ..) => {
-                request.get_realis_call()
-            }
-        };
-
         let tx: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
             self.api.signer.clone().unwrap(),
-            call,
+            request.get_call(),
             self.api.get_nonce().unwrap(),
             Era::Immortal,
             self.api.genesis_hash,
@@ -98,17 +88,14 @@ impl RealisAdapter {
             self.api.runtime_version.transaction_version
         );
 
-        let tx_result = self.api.send_extrinsic(tx.hex_encode(), XtStatus::InBlock);
+        let tx_result = self
+            .api
+            .send_extrinsic(tx.hex_encode(), XtStatus::InBlock)
+            .map_err(Error::Api);
 
         let status = match tx_result {
-            Ok(result) => {
-                info!("Hash: {:?}", result);
-                Status::Success
-            }
-            Err(error) => {
-                error!("Cannot send extrinsic: {:?}", error);
-                Status::Error
-            }
+            Ok(_) => Status::Success,
+            Err(_) => Status::Error
         };
 
         match self.db.update_status_bsc(&request.get_hash().to_string(), status).await {
@@ -116,6 +103,6 @@ impl RealisAdapter {
             Err(error) => error!("Error while updating realis status: {:?}", error),
         }
 
-        Ok(())
+        tx_result.map(|_| ())
     }
 }

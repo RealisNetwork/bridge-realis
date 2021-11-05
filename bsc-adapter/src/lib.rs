@@ -1,7 +1,7 @@
 mod connection_builder;
 
 use crate::connection_builder::ConnectionBuilder;
-use tokio::{select, sync::mpsc::Receiver};
+use tokio::{select, sync::mpsc::{Receiver, Sender}};
 
 use log::{error, info};
 use primitives::Error;
@@ -20,11 +20,13 @@ use std::{
 use primitives::db::Status;
 use web3::{transports::WebSocket, Web3};
 use primitives::events::realis::RealisEventType;
+use primitives::events::bsc::BscEventType;
 use primitives::events::traits::Event;
 
 #[allow(dead_code)]
 pub struct BinanceHandler {
     rx: Receiver<RealisEventType>,
+    tx: Sender<BscEventType>,
     connection_builder: ConnectionBuilder,
     token_contract_address: String,
     nft_contract_address: String,
@@ -38,6 +40,7 @@ impl BinanceHandler {
     /// # Panics
     pub fn new(
         rx: Receiver<RealisEventType>,
+        tx: Sender<BscEventType>,
         status: Arc<AtomicBool>,
         url: &str,
         token_contract_address: String,
@@ -50,6 +53,7 @@ impl BinanceHandler {
 
         Self {
             rx,
+            tx,
             connection_builder,
             token_contract_address,
             nft_contract_address,
@@ -72,9 +76,23 @@ impl BinanceHandler {
                                 info!("Success send transaction to Realis!");
                             }
                             Err(error) => {
-                                // TODO send to realis-adapter
-                                error!("Cannot send transaction {:?}", error);
-                                self.status.store(false, Ordering::SeqCst);
+                                let rollback_request = match request {
+                                    RealisEventType::TransferNftToBsc(request, ..) => {
+                                        Some(BscEventType::TransferNftToBscFail(request))
+                                    }
+                                    RealisEventType::TransferTokenToBsc(request, ..) => {
+                                        Some(BscEventType::TransferTokenToBscFail(request))
+                                    }
+                                    // If rollback request fail
+                                    _ => None
+                                };
+                                if let Some(rollback_request) = rollback_request {
+                                    // TODO handle result
+                                    let _result = self.tx.send(rollback_request).await;
+                                } else {
+                                    error!("Rollback fail: {:?}", error);
+                                    self.status.store(false, Ordering::SeqCst);
+                                }
                             }
                         }
                     }
