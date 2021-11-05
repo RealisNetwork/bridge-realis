@@ -1,15 +1,17 @@
-use primitives::{events::RealisEventType, types::BlockNumber, Error};
+use primitives::{Error, types::BlockNumber};
 
 use log::{error, trace};
 use postgres::NoTls;
-use primitives::{db::Status, events::BscEventType};
+use primitives::db::Status;
 use rawsql::{self, Loader};
 use std::sync::{
-    atomic::{AtomicBool, Ordering},
     Arc,
+    atomic::{AtomicBool, Ordering},
 };
 use tokio_postgres::Client;
 use web3::ethabi::ethereum_types::U64;
+use primitives::events::bsc::BscEventType;
+use primitives::events::realis::RealisEventType;
 
 pub struct Database {
     client: Client,

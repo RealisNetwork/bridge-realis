@@ -1,24 +1,25 @@
 pub mod block_parser;
 
 use db::Database;
-use primitives::{block::Block, events::RealisEventType, types::BlockNumber, Error};
+use primitives::{block::Block, Error, types::BlockNumber};
 
 use log::{error, info, warn};
 use sp_core::sr25519;
 use sp_runtime::{generic, traits::BlakeTwo256};
-use substrate_api_client::{rpc::WsRpcClient, Api};
+use substrate_api_client::{Api, rpc::WsRpcClient};
 use tokio::{
     select,
-    sync::mpsc::{unbounded_channel, Sender, UnboundedReceiver, UnboundedSender},
+    sync::mpsc::{Sender, unbounded_channel, UnboundedReceiver, UnboundedSender},
 };
 
 use crate::block_parser::BlockParser;
 use std::sync::{
+    Arc,
     atomic::{AtomicBool, Ordering},
     mpsc::channel,
-    Arc,
 };
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
+use primitives::events::realis::RealisEventType;
 
 pub struct BlockListener {
     rx: UnboundedReceiver<BlockNumber>,

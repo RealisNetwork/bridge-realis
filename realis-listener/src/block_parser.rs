@@ -1,16 +1,14 @@
-use primitives::{
-    block::Extrinsic,
-    events::{RealisEventType, TransferNftToBsc, TransferTokenToBsc},
-};
+use primitives::block::Extrinsic;
 use std::str::FromStr;
 
 use log::{error, info};
-use primitives::{events::BridgeExtrinsics, types::BlockNumber};
+use primitives::types::BlockNumber;
 use runtime::AccountId;
 use rust_lib::primitives::adapter::request::token_id_from_string;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use web3::types::H160;
+use primitives::events::realis::{BridgeExtrinsics, RealisEventType, TransferNftToBsc, TransferTokenToBsc};
 
 #[derive(Clone)]
 pub struct BlockParser {

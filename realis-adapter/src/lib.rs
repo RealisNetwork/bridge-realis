@@ -1,22 +1,23 @@
 use log::{error, info};
-use primitives::{events::BscEventType, Error};
+use primitives::Error;
 use realis_bridge::Call as RealisBridgeCall;
 use runtime::Call;
 use rust_lib::healthchecker::HealthChecker;
 use std::sync::{
-    atomic::{AtomicBool, Ordering},
     Arc,
+    atomic::{AtomicBool, Ordering},
 };
 
 use db::Database;
 use primitives::db::Status;
 use substrate_api_client::{
+    Api,
     compose_extrinsic_offline,
-    rpc::WsRpcClient,
-    sp_runtime::app_crypto::{sp_core::H160, sr25519},
-    Api, Pair, UncheckedExtrinsicV4, XtStatus,
+    Pair,
+    rpc::WsRpcClient, sp_runtime::app_crypto::{sp_core::H160, sr25519}, UncheckedExtrinsicV4, XtStatus,
 };
 use tokio::{select, sync::mpsc::Receiver};
+use primitives::events::bsc::BscEventType;
 
 pub struct RealisAdapter {
     rx: Receiver<BscEventType>,

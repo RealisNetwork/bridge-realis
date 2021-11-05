@@ -4,7 +4,7 @@ use crate::connection_builder::ConnectionBuilder;
 use tokio::{select, sync::mpsc::Receiver};
 
 use log::{error, info};
-use primitives::{events::RealisEventType, Error};
+use primitives::Error;
 use rust_lib::healthchecker::HealthChecker;
 use secp256k1::SecretKey;
 
@@ -12,13 +12,14 @@ use db::Database;
 use std::{
     str::FromStr,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     },
 };
 
 use primitives::db::Status;
 use web3::{transports::WebSocket, types::U256, Web3};
+use primitives::events::realis::RealisEventType;
 
 #[allow(dead_code)]
 pub struct BinanceHandler {
@@ -128,9 +129,14 @@ impl BinanceHandler {
             }
         };
 
+        let status = match success_contract {
+            Ok(_) => Status::Success,
+            Err(_) => Status::Error,
+        };
+
         match self
             .db
-            .update_status_realis(&request.get_hash().to_string(), Status::Success)
+            .update_status_realis(&request.get_hash().to_string(), status)
             .await
         {
             Ok(_) => {

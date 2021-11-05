@@ -1,7 +1,7 @@
 use db::Database;
 use ethabi::ParamType;
 use log::{error, info, warn};
-use primitives::events::{BscEventType, TransferNftToRealis, TransferTokenToRealis};
+use primitives::events::bsc::{BscEventType, TransferNftToRealis, TransferTokenToRealis};
 use realis_primitives::TokenId;
 
 use runtime::AccountId;
