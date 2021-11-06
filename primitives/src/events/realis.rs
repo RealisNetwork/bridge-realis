@@ -38,14 +38,14 @@ impl Event for TransferTokenToBsc {
         ))
     }
 
-    fn get_binance_call(&self) -> (String, (Token, Token, Token)) {
+    fn get_binance_call(&self) -> (String, Vec<Token>) {
         (
             String::from("transferFromRealis"),
-            (
+            vec![
                 self.from.to_string().into_token(),
                 self.to.into_token(),
                 U128::from(self.amount).into_token(),
-            ),
+            ],
         )
     }
 }
@@ -69,14 +69,14 @@ impl Event for TransferNftToBsc {
         todo!()
     }
 
-    fn get_binance_call(&self) -> (String, (Token, Token, Token)) {
+    fn get_binance_call(&self) -> (String, Vec<Token>) {
         (
             String::from("safeMint"),
-            (
+            vec![
                 self.from.to_string().into_token(),
                 self.dest.into_token(),
                 U128::from_dec_str(&self.token_id.to_string()).unwrap().into_token(),
-            ),
+            ],
         )
     }
 }

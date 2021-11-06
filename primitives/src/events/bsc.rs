@@ -9,7 +9,8 @@ use realis_primitives::TokenId;
 use runtime::{AccountId, Call};
 use serde::{Deserialize, Serialize};
 use substrate_api_client::sp_runtime::app_crypto::sp_core;
-use web3::types::{H160, H256, U64};
+use web3::contract::tokens::Tokenizable;
+use web3::types::{H160, H256, U128, U64};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TransferTokenToRealis {
@@ -34,8 +35,11 @@ impl Event for TransferTokenToRealis {
     }
 
     // Rollback
-    fn get_binance_call(&self) -> (String, (Token, Token, Token)) {
-        todo!()
+    fn get_binance_call(&self) -> (String, Vec<Token>) {
+        (
+            String::from("transfer"),
+            vec![self.from.into_token(), U128::from(self.amount).into_token()]
+        )
     }
 }
 
@@ -61,7 +65,7 @@ impl Event for TransferNftToRealis {
         ))
     }
 
-    fn get_binance_call(&self) -> (String, (Token, Token, Token)) {
+    fn get_binance_call(&self) -> (String, Vec<Token>) {
         todo!()
     }
 }

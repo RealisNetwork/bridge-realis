@@ -90,6 +90,7 @@ impl BinanceHandler {
                                     _ => None
                                 };
                                 if let Some(rollback_request) = rollback_request {
+                                    error!("Extrinsic execute: {:?}", error);
                                     // TODO handle result
                                     let _result = self.tx.send(rollback_request).await;
                                 } else {
@@ -111,38 +112,73 @@ impl BinanceHandler {
 
         // let gas_price = connection.eth().gas_price().await.unwrap();
 
-        let (contract, (func, params)) = match request {
-            RealisEventType::TransferNftToBsc(request) => (
-                ConnectionBuilder::nft(connection, &self.nft_contract_address).await?,
-                request.get_binance_call(),
-            ),
-            RealisEventType::TransferTokenToBsc(request) => (
-                ConnectionBuilder::token(connection, &self.token_contract_address).await?,
-                request.get_binance_call(),
-            ),
-            RealisEventType::TransferNftToRealisFail(request) => (
-                ConnectionBuilder::nft(connection, &self.nft_contract_address).await?,
-                request.get_binance_call(),
-            ),
-            RealisEventType::TransferTokenToRealisFail(request) => (
-                ConnectionBuilder::token(connection, &self.token_contract_address).await?,
-                request.get_binance_call(),
-            ),
+        // TODO simplify
+        let success_contract = match request {
+            RealisEventType::TransferNftToBsc(request) => {
+                let (func, params) = request.get_binance_call();
+                ConnectionBuilder::nft(connection, &self.nft_contract_address).await?
+                    .signed_call_with_confirmations(
+                        &func,
+                        (params[0].clone(), params[1].clone(), params[2].clone()),
+                        // TODO get this options from blockchain data
+                        web3::contract::Options::default(),
+                        // TODO check this
+                        1,
+                        &self.master_key,
+                    )
+                    .await
+                    .map_err(Error::Web3)
+                    .map(|_| ())
+            },
+            RealisEventType::TransferTokenToBsc(request) => {
+                let (func, params) = request.get_binance_call();
+                ConnectionBuilder::token(connection, &self.token_contract_address).await?
+                    .signed_call_with_confirmations(
+                        &func,
+                        (params[0].clone(), params[1].clone(), params[2].clone()),
+                        // TODO get this options from blockchain data
+                        web3::contract::Options::default(),
+                        // TODO check this
+                        1,
+                        &self.master_key,
+                    )
+                    .await
+                    .map_err(Error::Web3)
+                    .map(|_| ())
+            },
+            RealisEventType::TransferNftToRealisFail(request) => {
+                let (func, params) = request.get_binance_call();
+                ConnectionBuilder::nft(connection, &self.nft_contract_address).await?
+                    .signed_call_with_confirmations(
+                        &func,
+                        (params[0].clone(), params[1].clone(), params[2].clone()),
+                        // TODO get this options from blockchain data
+                        web3::contract::Options::default(),
+                        // TODO check this
+                        1,
+                        &self.master_key,
+                    )
+                    .await
+                    .map_err(Error::Web3)
+                    .map(|_| ())
+            },
+            RealisEventType::TransferTokenToRealisFail(request) => {
+                let (func, params) = request.get_binance_call();
+                ConnectionBuilder::token(connection, &self.token_contract_address).await?
+                    .signed_call_with_confirmations(
+                        &func,
+                        (params[0].clone(), params[1].clone()),
+                        // TODO get this options from blockchain data
+                        web3::contract::Options::default(),
+                        // TODO check this
+                        1,
+                        &self.master_key,
+                    )
+                    .await
+                    .map_err(Error::Web3)
+                    .map(|_| ())
+            },
         };
-
-        let success_contract = contract
-            .signed_call_with_confirmations(
-                &func,
-                params,
-                // TODO get this options from blockchain data
-                web3::contract::Options::default(),
-                // TODO check this
-                1,
-                &self.master_key,
-            )
-            .await
-            .map_err(Error::Web3)
-            .map(|_| ());
 
         let status = match success_contract {
             Ok(_) => Status::Success,
