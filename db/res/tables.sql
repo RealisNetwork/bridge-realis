@@ -22,23 +22,23 @@ CREATE TABLE request_status
 
 -- name: 2.1-in-progress
 INSERT INTO request_status (id, name)
-VALUES ('0', 'Got');
+VALUES ('1', 'Got');
 
 -- name: 2.2-in-progress
 INSERT INTO request_status (id, name)
-VALUES ('1', 'InProgress');
+VALUES ('2', 'InProgress');
 
 -- name: 2.3-in-progress
 INSERT INTO request_status (id, name)
-VALUES ('2', 'Success');
+VALUES ('3', 'Success');
 
 -- name: 2.4-in-progress
 INSERT INTO request_status (id, name)
-VALUES ('3', 'Error');
+VALUES ('4', 'Error');
 
 -- name: 2.5-in-progress
 INSERT INTO request_status (id, name)
-VALUES ('4', 'Rollbacked');
+VALUES ('5', 'Rollbacked');
 
 
 -- name: 3.1-extrinsics-realis

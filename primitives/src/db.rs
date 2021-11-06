@@ -1,14 +1,14 @@
 /// This enum is being casted to u32 so order matters, starts from 1.
 #[derive(Debug, Clone, Copy)]
 pub enum Status {
-    // Got from message-broker
+    // Got from events
     Got,
-    // Sent to blockchain , wait for result
+    // Sent to blockchain, wait for result
     InProgress,
-    // In block
+    // Blockchain inBlock
     Success,
     // Blockchain fail
     Error,
-    // Success got hash
-    Complete,
+    // Rollback success
+    Rollbacked,
 }
