@@ -24,7 +24,11 @@ use primitives::{
     db::Status,
     events::{bsc::BscEventType, realis::RealisEventType, traits::Event},
 };
-use web3::{contract::Contract, transports::WebSocket, Web3};
+use web3::{
+    contract::{tokens::Tokenize, Contract},
+    transports::WebSocket,
+    Web3,
+};
 
 #[allow(dead_code)]
 pub struct BinanceHandler {
@@ -161,18 +165,13 @@ impl BinanceHandler {
 
         let (func, params) = event.get_binance_call();
 
-        let result = contract
-            .signed_call_with_confirmations(
+        let result = self
+            .send_to_blockchain(
+                contract,
                 &func,
                 (params[0].clone(), params[1].clone(), params[2].clone()),
-                // TODO get this options from blockchain data
-                web3::contract::Options::default(),
-                // TODO check this
-                1,
-                &self.master_key,
             )
-            .await
-            .map_err(Error::Web3);
+            .await;
 
         // TODO handle this result
         let _result = self
@@ -183,40 +182,22 @@ impl BinanceHandler {
             )
             .await;
 
-        result.map(|_| ())
+        result
     }
 
     async fn rollback(&self, event: &impl Event, contract: Contract<WebSocket>) -> Result<(), Error> {
         let (func, params) = event.get_binance_call();
 
         let result = if params.len() == 3 {
-            contract
-                .signed_call_with_confirmations(
-                    &func,
-                    (params[0].clone(), params[1].clone(), params[2].clone()),
-                    // TODO get this options from blockchain data
-                    web3::contract::Options::default(),
-                    // TODO check this
-                    1,
-                    &self.master_key,
-                )
-                .await
-                .map_err(Error::Web3)
-                .map(|_| ())
+            self.send_to_blockchain(
+                contract,
+                &func,
+                (params[0].clone(), params[1].clone(), params[2].clone()),
+            )
+            .await
         } else {
-            contract
-                .signed_call_with_confirmations(
-                    &func,
-                    (params[0].clone(), params[1].clone()),
-                    // TODO get this options from blockchain data
-                    web3::contract::Options::default(),
-                    // TODO check this
-                    1,
-                    &self.master_key,
-                )
+            self.send_to_blockchain(contract, &func, (params[0].clone(), params[1].clone()))
                 .await
-                .map_err(Error::Web3)
-                .map(|_| ())
         };
 
         // TODO handle this result
@@ -229,5 +210,28 @@ impl BinanceHandler {
             .await;
 
         result
+    }
+
+    async fn send_to_blockchain(
+        &self,
+        contract: Contract<WebSocket>,
+        func: &str,
+        params: impl Tokenize,
+    ) -> Result<(), Error> {
+        contract
+            .signed_call_with_confirmations(
+                &func,
+                params,
+                // TODO get this options from blockchain data
+                web3::contract::Options::default(),
+                // TODO check this
+                1,
+                &self.master_key,
+            )
+            .await
+            .map_err(Error::Web3)
+            .map(|_| ())
+
+        // TODO add extrinsic confirmation
     }
 }
