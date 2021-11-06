@@ -141,12 +141,12 @@ impl Database {
             BscEventType::TransferNftToRealis(event, ..) => {
                 let value = serde_json::to_value(&event.token_id).unwrap();
                 let types_nft = 2_u32;
-                let block = event.block.unwrap().0[0] as u32;
+                let block = event.block.unwrap().as_u32();
                 self.client
                     .execute(
                         "INSERT INTO extrinsics_bsc(hash, block, \
                         from_account, to_account, value, type, status) \
-                    VALUES ($1, $2, $3, $4, $5, $6, &7)",
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)",
                         &[
                             &format!("{:?}", event.hash),
                             &block,
@@ -164,12 +164,12 @@ impl Database {
             BscEventType::TransferTokenToRealis(event, ..) => {
                 let value = serde_json::to_value(&event.amount.to_string()).unwrap();
                 let types_tokens = 1_u32;
-                let block: u32 = event.block.unwrap().0[0].count_ones();
+                let block: u32 = event.block.unwrap().as_u32();
                 self.client
                     .execute(
                         "INSERT INTO extrinsics_bsc(hash, block, \
                         from_account, to_account, value, type, status) \
-                    VALUES ($1, $2, $3, $4, $5, $6, &7)",
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)",
                         &[
                             &format!("{:?}", event.hash),
                             &block,
