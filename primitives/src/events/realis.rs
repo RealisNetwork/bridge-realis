@@ -23,6 +23,10 @@ pub struct TransferTokenToBsc {
 }
 
 impl Event for TransferTokenToBsc {
+    fn get_hash(&self) -> String {
+        self.hash.to_string()
+    }
+
     // Rollback
     fn get_realis_call(&self) -> Call {
         // TODO not sure about this call
@@ -54,6 +58,10 @@ pub struct TransferNftToBsc {
 }
 
 impl Event for TransferNftToBsc {
+    fn get_hash(&self) -> String {
+        self.hash.to_string()
+    }
+
     // Rollback
     fn get_realis_call(&self) -> Call {
         todo!()

@@ -21,6 +21,10 @@ pub struct TransferTokenToRealis {
 }
 
 impl Event for TransferTokenToRealis {
+    fn get_hash(&self) -> String {
+        self.hash.to_string()
+    }
+
     fn get_realis_call(&self) -> Call {
         Call::RealisBridge(RealisBridgeCall::transfer_token_to_realis(
             sp_core::H160::from_slice(self.from.as_ref()),
@@ -45,6 +49,10 @@ pub struct TransferNftToRealis {
 }
 
 impl Event for TransferNftToRealis {
+    fn get_hash(&self) -> String {
+        self.hash.to_string()
+    }
+
     fn get_realis_call(&self) -> Call {
         Call::RealisBridge(RealisBridgeCall::transfer_nft_to_realis(
             sp_core::H160::from_slice(self.from.as_ref()),

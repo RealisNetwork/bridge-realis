@@ -15,6 +15,8 @@ use ethabi::token::Token;
 /// In this case `get_realis_call` is main call for Realis blockchain
 /// and `get_binance_call` is a rollback call if Realis blockchain call fail
 pub trait Event {
+    fn get_hash(&self) -> String;
+
     fn get_realis_call(&self) -> Call;
 
     fn get_binance_call(&self) -> (String, (Token, Token, Token));
