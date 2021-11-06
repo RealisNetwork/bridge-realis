@@ -22,7 +22,7 @@ pub struct TransferTokenToRealis {
 
 impl Event for TransferTokenToRealis {
     fn get_hash(&self) -> String {
-        self.hash.to_string()
+        format!("{:?}", self.hash)
     }
 
     fn get_realis_call(&self) -> Call {
@@ -50,7 +50,7 @@ pub struct TransferNftToRealis {
 
 impl Event for TransferNftToRealis {
     fn get_hash(&self) -> String {
-        self.hash.to_string()
+        format!("{:?}", self.hash)
     }
 
     fn get_realis_call(&self) -> Call {

@@ -24,7 +24,7 @@ pub struct TransferTokenToBsc {
 
 impl Event for TransferTokenToBsc {
     fn get_hash(&self) -> String {
-        self.hash.to_string()
+        format!("{:?}", self.hash)
     }
 
     // Rollback
@@ -59,7 +59,7 @@ pub struct TransferNftToBsc {
 
 impl Event for TransferNftToBsc {
     fn get_hash(&self) -> String {
-        self.hash.to_string()
+        format!("{:?}", self.hash)
     }
 
     // Rollback
