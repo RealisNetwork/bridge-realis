@@ -36,6 +36,7 @@ impl Event for TransferTokenToRealis {
 
     // Rollback
     fn get_binance_call(&self) -> (String, Vec<Token>) {
+        // TODO not sure about this call
         (
             String::from("transfer"),
             vec![self.from.into_token(), U128::from(self.amount).into_token()]
@@ -66,7 +67,15 @@ impl Event for TransferNftToRealis {
     }
 
     fn get_binance_call(&self) -> (String, Vec<Token>) {
-        todo!()
+        // TODO not sure about this call
+        (
+            String::from("safeMint"),
+            vec![
+                self.dest.to_string().into_token(),
+                self.from.into_token(),
+                U128::from_dec_str(&self.token_id.to_string()).unwrap().into_token(),
+            ],
+        )
     }
 }
 
