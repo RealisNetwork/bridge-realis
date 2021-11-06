@@ -1,20 +1,25 @@
-use log::{error, info};
+use db::Database;
 use primitives::Error;
+use primitives::events::traits::Event;
+use primitives::events::realis::RealisEventType;
+use primitives::{db::Status, events::bsc::BscEventType};
 
 use rust_lib::healthchecker::HealthChecker;
+use substrate_api_client::{
+    compose_extrinsic_offline, rpc::WsRpcClient, sp_runtime::app_crypto::sr25519, Api, Hash,
+    Pair, XtStatus,
+    sp_runtime::app_crypto::sp_core::H256,
+};
+use frame_system::{Phase, EventRecord};
+use runtime::{Event as RuntimeEvent, Block, Address};
+
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
 
-use db::Database;
-use primitives::{db::Status, events::bsc::BscEventType};
-use substrate_api_client::{
-    compose_extrinsic_offline, rpc::WsRpcClient, sp_runtime::app_crypto::sr25519, Api, Pair, UncheckedExtrinsicV4,
-    XtStatus,
-};
 use tokio::{select, sync::mpsc::{Receiver, Sender}};
-use primitives::events::realis::RealisEventType;
+use log::{error, info};
 
 pub struct RealisAdapter {
     rx: Receiver<BscEventType>,
@@ -80,17 +85,36 @@ impl RealisAdapter {
         }
     }
 
-    async fn execute(&mut self, request: &BscEventType) -> Result<(), Error> {
-        info!("Start send transaction");
+    async fn execute(&self, request: &BscEventType) -> Result<(), Error> {
+        match request {
+            BscEventType::TransferTokenToRealis(event) => self.process(event).await,
+            BscEventType::TransferNftToRealis(event) => self.process(event).await,
+            BscEventType::TransferTokenToBscFail(event) => self.rollback(event).await,
+            BscEventType::TransferNftToBscFail(event) => self.rollback(event).await,
+        }
+    }
 
-        match self.db.update_status_bsc(&request.get_hash(), Status::InProgress).await {
-            Ok(_) => info!("Success update realis status InProgress"),
-            Err(error) => error!("Error while updating realis status: {:?}", error),
-        };
+    async fn process(&self, event: &impl Event) -> Result<(), Error> {
+        // TODO handle result
+        let _result = self.db.update_status_bsc(&event.get_hash(), Status::InProgress).await;
+        let tx_result = self.send_to_blockchain(event);
+        // TODO handle result
+        let _result = self.db.update_status_bsc(&event.get_hash(), tx_result.as_ref().map(|_| Status::Success).unwrap_or(Status::Error)).await;
 
-        let tx: UncheckedExtrinsicV4<_> = compose_extrinsic_offline!(
+        tx_result
+    }
+
+    async fn rollback(&self, event: &impl Event) -> Result<(), Error> {
+        let tx_result = self.send_to_blockchain(event);
+        // TODO handle result
+        let _result = self.db.update_status_realis(&event.get_hash(), tx_result.as_ref().map(|_| Status::Rollbacked).unwrap_or(Status::Error)).await;
+        tx_result
+    }
+
+    fn send_to_blockchain(&self, event: &impl Event) -> Result<(), Error> {
+        let tx = compose_extrinsic_offline!(
             self.api.signer.clone().unwrap(),
-            request.get_call(),
+            event.get_realis_call(),
             self.api.get_nonce().unwrap(),
             Era::Immortal,
             self.api.genesis_hash,
@@ -99,21 +123,44 @@ impl RealisAdapter {
             self.api.runtime_version.transaction_version
         );
 
-        let tx_result = self
+        let hash = self
             .api
             .send_extrinsic(tx.hex_encode(), XtStatus::InBlock)
-            .map_err(Error::Api);
+            .map_err(Error::Api)?;
 
-        let status = match tx_result {
-            Ok(_) => Status::Success,
-            Err(_) => Status::Error,
-        };
+        self.check_extrinsic(hash)
+    }
 
-        match self.db.update_status_bsc(&request.get_hash().to_string(), status).await {
-            Ok(_) => info!("Success update realis status"),
-            Err(error) => error!("Error while updating realis status: {:?}", error),
+    fn check_extrinsic(
+        &self,
+        block_hash: Option<Hash>,
+    ) -> Result<(), Error> {
+        let block = self
+            .api
+            .get_block::<Block>(block_hash)
+            .map_err(Error::Api)?
+            .ok_or(Error::Custom(String::from("Missing block!")))?;
+
+        let events = self
+            .api
+            .get_storage_value::<Vec<EventRecord<RuntimeEvent, H256>>>("System", "Events", block_hash)
+            .map_err(Error::Api)?
+            .ok_or(Error::Custom(String::from("Missing events!")))?;
+
+        for event in events {
+            if let RuntimeEvent::System(frame_system::Event::ExtrinsicSuccess(_)) = event.event {
+                if let Phase::ApplyExtrinsic(index) = event.phase {
+                    let xt = block.extrinsics.get(index as usize).unwrap();
+                    if xt.signature.is_some() {
+                        if let Address::Id(account_id) = &xt.signature.as_ref().unwrap().0 {
+                            if account_id.clone() == self.api.signer_account().unwrap() {
+                                return Ok(())
+                            }
+                        }
+                    }
+                }
+            }
         }
-
-        tx_result.map(|_| ())
+        Err(Error::Custom(String::from("Not confirmation found")))
     }
 }

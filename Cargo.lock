@@ -3985,6 +3985,7 @@ name = "realis-adapter"
 version = "0.1.0"
 dependencies = [
  "db",
+ "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=e7b93e1b1abcf0865824c68d10850bbb451e295f)",
  "futures 0.3.17",
  "log 0.4.14",
  "node-runtime",
