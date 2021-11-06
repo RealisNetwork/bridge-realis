@@ -127,7 +127,7 @@ impl BinanceHandler {
             RealisEventType::TransferTokenToRealisFail(request) => (
                 ConnectionBuilder::token(connection, &self.token_contract_address).await?,
                 request.get_binance_call(),
-            )
+            ),
         };
 
         let success_contract = contract

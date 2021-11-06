@@ -126,7 +126,7 @@ impl Database {
                     .map(|_| ())
             }
             RealisEventType::TransferTokenToRealisFail(_event) => Ok(()),
-            RealisEventType::TransferNftToRealisFail(_event) => Ok(())
+            RealisEventType::TransferNftToRealisFail(_event) => Ok(()),
         }
     }
 

@@ -1,6 +1,8 @@
 use crate::{
-    events::traits::Event,
-    events::bsc::{TransferNftToRealis, TransferTokenToRealis},
+    events::{
+        bsc::{TransferNftToRealis, TransferTokenToRealis},
+        traits::Event,
+    },
     types::{BlockNumber, Hash},
 };
 use ethabi::Token;

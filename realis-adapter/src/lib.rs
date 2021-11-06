@@ -1,25 +1,30 @@
 use db::Database;
-use primitives::Error;
-use primitives::events::traits::Event;
-use primitives::events::realis::RealisEventType;
-use primitives::{db::Status, events::bsc::BscEventType};
+use primitives::{
+    db::Status,
+    events::{bsc::BscEventType, realis::RealisEventType, traits::Event},
+    Error,
+};
 
+use frame_system::{EventRecord, Phase};
+use runtime::{Address, Block, Event as RuntimeEvent};
 use rust_lib::healthchecker::HealthChecker;
 use substrate_api_client::{
-    compose_extrinsic_offline, rpc::WsRpcClient, sp_runtime::app_crypto::sr25519, Api, Hash,
-    Pair, XtStatus,
-    sp_runtime::app_crypto::sp_core::H256,
+    compose_extrinsic_offline,
+    rpc::WsRpcClient,
+    sp_runtime::app_crypto::{sp_core::H256, sr25519},
+    Api, Hash, Pair, XtStatus,
 };
-use frame_system::{Phase, EventRecord};
-use runtime::{Event as RuntimeEvent, Block, Address};
 
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
 
-use tokio::{select, sync::mpsc::{Receiver, Sender}};
 use log::{error, info};
+use tokio::{
+    select,
+    sync::mpsc::{Receiver, Sender},
+};
 
 pub struct RealisAdapter {
     rx: Receiver<BscEventType>,
@@ -44,7 +49,13 @@ impl RealisAdapter {
         let api = Api::<sr25519::Pair, WsRpcClient>::new(client)
             .unwrap()
             .set_signer(master_key);
-        Self { rx, tx, status, api, db }
+        Self {
+            rx,
+            tx,
+            status,
+            api,
+            db,
+        }
     }
 
     /// # Panics
@@ -99,7 +110,13 @@ impl RealisAdapter {
         let _result = self.db.update_status_bsc(&event.get_hash(), Status::InProgress).await;
         let tx_result = self.send_to_blockchain(event);
         // TODO handle result
-        let _result = self.db.update_status_bsc(&event.get_hash(), tx_result.as_ref().map(|_| Status::Success).unwrap_or(Status::Error)).await;
+        let _result = self
+            .db
+            .update_status_bsc(
+                &event.get_hash(),
+                tx_result.as_ref().map(|_| Status::Success).unwrap_or(Status::Error),
+            )
+            .await;
 
         tx_result
     }
@@ -107,7 +124,13 @@ impl RealisAdapter {
     async fn rollback(&self, event: &impl Event) -> Result<(), Error> {
         let tx_result = self.send_to_blockchain(event);
         // TODO handle result
-        let _result = self.db.update_status_realis(&event.get_hash(), tx_result.as_ref().map(|_| Status::Rollbacked).unwrap_or(Status::Error)).await;
+        let _result = self
+            .db
+            .update_status_realis(
+                &event.get_hash(),
+                tx_result.as_ref().map(|_| Status::Rollbacked).unwrap_or(Status::Error),
+            )
+            .await;
         tx_result
     }
 
@@ -131,10 +154,7 @@ impl RealisAdapter {
         self.check_extrinsic(hash)
     }
 
-    fn check_extrinsic(
-        &self,
-        block_hash: Option<Hash>,
-    ) -> Result<(), Error> {
+    fn check_extrinsic(&self, block_hash: Option<Hash>) -> Result<(), Error> {
         let block = self
             .api
             .get_block::<Block>(block_hash)
@@ -154,7 +174,7 @@ impl RealisAdapter {
                     if xt.signature.is_some() {
                         if let Address::Id(account_id) = &xt.signature.as_ref().unwrap().0 {
                             if account_id.clone() == self.api.signer_account().unwrap() {
-                                return Ok(())
+                                return Ok(());
                             }
                         }
                     }
