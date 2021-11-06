@@ -65,11 +65,13 @@ impl BlockListener {
             let tx_sender = TxSender::new(self.tx.clone(), self.status.clone()).await;
             for transaction in some.transactions {
                 if let Some(account) = transaction.to {
-                    if account == Address::from_str("0x1c43b4253c33d246ad27e710d949a8d8b62a2c73").unwrap() {
+                    // FIXME magic address string
+                    if account == Address::from_str("0x1f2dc9face361851ef1d2adeb15cbeb206ec104c").unwrap() {
                         tx_sender
                             .clone()
                             .send_tokens(transaction, self.web3.clone(), &self.db)
                             .await;
+                        // FIXME magic address string
                     } else if account == Address::from_str("0x0875cb9090010e2844aefA88c879a8bBda8d70C8").unwrap() {
                         tx_sender
                             .clone()
@@ -113,11 +115,13 @@ impl BlockListener {
             for transaction in some.transactions {
                 match transaction.to {
                     Some(account) => {
-                        if account == Address::from_str("0x1c43b4253c33d246ad27e710d949a8d8b62a2c73").unwrap() {
+                        // FIXME magic address string
+                        if account == Address::from_str("0x1f2dc9face361851ef1d2adeb15cbeb206ec104c").unwrap() {
                             tx_sender
                                 .clone()
                                 .send_tokens(transaction, self.web3.clone(), &self.db)
                                 .await;
+                            // FIXME magic address string
                         } else if account
                             == Address::from_str("0x0875cb9090010e2844aefA88c879a8bBda8d70C8").unwrap()
                         {
@@ -151,6 +155,7 @@ impl TxSender {
     pub async fn send_tokens(self, transaction: Transaction, web3: Web3<WebSocket>, db: &Database) {
         match transaction.from {
             Some(account_from) => {
+                // FIXME magic address string
                 if account_from != Address::from_str("0x12815AF79eE96Ef72167C3746a4aD251105F1981").unwrap() {
                     info!("[Transactions] - {:?}", transaction);
                     info!("Transaction hash: {:?}", transaction.hash);
@@ -210,12 +215,14 @@ impl TxSender {
     pub async fn send_nft(self, transaction: Transaction, web3: Web3<WebSocket>, db: &Database) {
         match transaction.from {
             Some(account_from) => {
+                // FIXME magic address string
                 if account_from != Address::from_str("0x12815AF79eE96Ef72167C3746a4aD251105F1981").unwrap() {
                     info!("[Transactions] - {:?}", transaction);
                     info!("Transaction hash: {:?}", transaction.hash);
 
                     let tx = web3.eth().transaction_receipt(transaction.hash).await.unwrap().unwrap();
                     info!("{:?}", tx);
+                    // FIXME magic hash string
                     let hash =
                         H256::from_str("0x50158efb7abc93588bff90584e6f7e94a75c3660da924b938aad8001afa5aa12")
                             .unwrap();
