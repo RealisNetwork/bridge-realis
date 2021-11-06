@@ -49,6 +49,29 @@ impl Database {
 
     /// # Panics
     /// # Errors
+    pub async fn import_tables_from_file(&self, path: &str) -> Result<(), Error> {
+        self.still_alive().await?;
+
+        let queries = Loader::get_queries_from(path)
+            .map_err(|_| Error::FileNotFound(String::from(path)))?
+            .queries;
+
+        let mut queries = queries.iter().collect::<Vec<(&String, &String)>>();
+
+        queries.sort();
+
+        for query in queries {
+            match self.client.execute(query.1.as_str(), &[]).await {
+                Ok(_value) => trace!("Successful send query!"),
+                Err(error) => error!("Cannot send query: {:?}", error),
+            }
+        }
+
+        Ok(())
+    }
+
+    /// # Panics
+    /// # Errors
     #[allow(clippy::cast_possible_truncation)]
     pub async fn add_extrinsic_realis(&self, response: &RealisEventType) -> Result<(), Error> {
         self.still_alive().await?;
@@ -169,29 +192,6 @@ impl Database {
 
     /// # Panics
     /// # Errors
-    pub async fn import_tables_from_file(&self, path: &str) -> Result<(), Error> {
-        self.still_alive().await?;
-
-        let queries = Loader::get_queries_from(path)
-            .map_err(|_| Error::FileNotFound(String::from(path)))?
-            .queries;
-
-        let mut queries = queries.iter().collect::<Vec<(&String, &String)>>();
-
-        queries.sort();
-
-        for query in queries {
-            match self.client.execute(query.1.as_str(), &[]).await {
-                Ok(_value) => trace!("Successful send query!"),
-                Err(error) => error!("Cannot send query: {:?}", error),
-            }
-        }
-
-        Ok(())
-    }
-
-    /// # Panics
-    /// # Errors
     pub async fn get_last_block_realis(&self) -> Result<BlockNumber, Error> {
         self.still_alive().await?;
 
@@ -228,6 +228,22 @@ impl Database {
 
     /// # Panics
     /// # Errors
+    pub async fn get_last_block_bsc(&self) -> Result<BlockNumber, Error> {
+        self.still_alive().await?;
+
+        let block_number_batch = self
+            .client
+            .query_one("SELECT max(block) FROM blocks_bsc", &[])
+            .await
+            .map_err(Error::Postgres)?
+            .try_get::<_, u32>(0)
+            .map_err(Error::Postgres)
+            .map(u64::from)?;
+        Ok(block_number_batch)
+    }
+
+    /// # Panics
+    /// # Errors
     pub async fn update_block_bsc(&self, block: Option<U64>) -> Result<(), Error> {
         self.still_alive().await?;
 
@@ -242,22 +258,6 @@ impl Database {
             .await
             .map_err(Error::Postgres)?;
         Ok(())
-    }
-
-    /// # Panics
-    /// # Errors
-    pub async fn get_last_block_bsc(&self) -> Result<BlockNumber, Error> {
-        self.still_alive().await?;
-
-        let block_number_batch = self
-            .client
-            .query_one("SELECT max(block) FROM blocks_bsc", &[])
-            .await
-            .map_err(Error::Postgres)?
-            .try_get::<_, u32>(0)
-            .map_err(Error::Postgres)
-            .map(u64::from)?;
-        Ok(block_number_batch)
     }
 
     /// # Panics
@@ -292,21 +292,5 @@ impl Database {
             .map(|_| ())
             .map_err(Error::Postgres)?;
         Ok(())
-    }
-
-    /// # Panics
-    /// # Errors
-    pub async fn add_block(&self, block_number: u32) -> Result<(), Error> {
-        self.still_alive().await?;
-        self.client
-            .execute(
-                "INSERT INTO blocks(block_number) \
-            VALUES ($1) \
-            ON CONFLICT(block_number) DO NOTHING",
-                &[&block_number],
-            )
-            .await
-            .map_err(Error::Postgres)
-            .map(|_| ())
     }
 }
