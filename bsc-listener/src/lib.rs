@@ -171,7 +171,9 @@ impl TxSender {
                             serde_json::to_value(&info[0].to_string());
                         match json {
                             Ok(value) => {
+                                // FIXME remove this unwrap can cause to drop
                                 let account_id: AccountId = Deserialize::deserialize(value).unwrap();
+                                // FIXME remove this unwrap can cause to drop
                                 let amount = info[1].clone().into_uint().unwrap().as_u128();
 
                                 info!("{:?}", account_id);
@@ -235,7 +237,9 @@ impl TxSender {
                                 .unwrap();
                                 let json: Value = serde_json::to_value(&info[1].to_string()).unwrap();
                                 warn!("{:?}", json);
+                                // FIXME remove this unwrap can cause to drop
                                 let account_id: AccountId = Deserialize::deserialize(json).unwrap();
+                                // FIXME remove this unwrap can cause to drop
                                 let token_id = TokenId::from_str(&info[2].to_string()).unwrap();
                                 info!("{:?}", account_id);
                                 let event = BscEventType::TransferNftToRealis(TransferNftToRealis {
