@@ -167,42 +167,48 @@ impl TxSender {
                             "{:?}",
                             ethabi::decode(&[ParamType::String, ParamType::Uint(256)], &log.data.0)
                         );
-                        let info = ethabi::decode(
+                        match ethabi::decode(
                             &[ParamType::String, ParamType::Uint(256), ParamType::Address],
                             &log.data.0,
-                        )
-                        .unwrap();
-                        let json: Result<Value, serde_json::error::Error> =
-                            serde_json::to_value(&info[0].to_string());
-                        match json {
-                            Ok(value) => {
-                                // FIXME remove this unwrap can cause to drop
-                                let account_id: AccountId = Deserialize::deserialize(value).unwrap();
-                                // FIXME remove this unwrap can cause to drop
-                                let amount = info[1].clone().into_uint().unwrap().as_u128();
+                        ) {
+                            Ok(info) => {
+                                let json: Result<Value, serde_json::error::Error> =
+                                    serde_json::to_value(&info[0].to_string());
+                                match json {
+                                    Ok(value) => {
+                                        // FIXME remove this unwrap can cause to drop
+                                        let account_id: AccountId = Deserialize::deserialize(value).unwrap();
+                                        // FIXME remove this unwrap can cause to drop
+                                        let amount = info[1].clone().into_uint().unwrap().as_u128();
 
-                                info!("{:?}", account_id);
-                                let event = BscEventType::TransferTokenToRealis(TransferTokenToRealis {
-                                    block: transaction.block_number,
-                                    hash: transaction.hash,
-                                    from: account_from,
-                                    to: account_id,
-                                    amount,
-                                });
-                                match db.add_extrinsic_bsc(&event).await {
-                                    Ok(()) => info!("Success add extrinsic in Database!"),
-                                    Err(error) => error!("Cannot add extrinsoc in Database: {:?}", error),
-                                }
-                                match self.tx.send(event).await {
-                                    Ok(()) => info!("Success send to realis-adapter!"),
-                                    Err(error) => {
-                                        self.status.store(false, Ordering::SeqCst);
-                                        error!("Cannot send to realis-adapter: {:?}", error);
+                                        info!("{:?}", account_id);
+                                        let event = BscEventType::TransferTokenToRealis(TransferTokenToRealis {
+                                            block: transaction.block_number,
+                                            hash: transaction.hash,
+                                            from: account_from,
+                                            to: account_id,
+                                            amount,
+                                        });
+                                        match db.add_extrinsic_bsc(&event).await {
+                                            Ok(()) => info!("Success add extrinsic in Database!"),
+                                            Err(error) => error!("Cannot add extrinsoc in Database: {:?}", error),
+                                        }
+                                        match self.tx.send(event).await {
+                                            Ok(()) => info!("Success send to realis-adapter!"),
+                                            Err(error) => {
+                                                self.status.store(false, Ordering::SeqCst);
+                                                error!("Cannot send to realis-adapter: {:?}", error);
+                                            }
+                                        }
                                     }
+                                    Err(error) => error!("Cannot parse Realis account: {:?}", error),
                                 }
                             }
-                            Err(error) => error!("Cannot parse Realis account: {:?}", error),
+                            Err(error) => {
+                                error!("Decode token event: {:?}", error);
+                            }
                         }
+
                     }
                 }
             }
@@ -237,34 +243,40 @@ impl TxSender {
                                         &log.data.0
                                     )
                                 );
-                                let info = ethabi::decode(
+                                // TODO get rid of this unwrap
+                                match ethabi::decode(
                                     &[ParamType::Address, ParamType::String, ParamType::Uint(256)],
                                     &log.data.0,
-                                )
-                                .unwrap();
-                                let json: Value = serde_json::to_value(&info[1].to_string()).unwrap();
-                                warn!("{:?}", json);
-                                // FIXME remove this unwrap can cause to drop
-                                let account_id: AccountId = Deserialize::deserialize(json).unwrap();
-                                // FIXME remove this unwrap can cause to drop
-                                let token_id = TokenId::from_str(&info[2].to_string()).unwrap();
-                                info!("{:?}", account_id);
-                                let event = BscEventType::TransferNftToRealis(TransferNftToRealis {
-                                    block: transaction.block_number,
-                                    hash: transaction.hash,
-                                    from: account_from,
-                                    dest: account_id,
-                                    token_id,
-                                });
-                                match db.add_extrinsic_bsc(&event).await {
-                                    Ok(()) => info!("Success add extrinsic in Database!"),
-                                    Err(error) => error!("Cannot add extrinsic in Database: {:?}", error),
-                                }
-                                match self.tx.send(event).await {
-                                    Ok(()) => info!("Success send to realis-adapter!"),
+                                ){
+                                    Ok(info) => {
+                                        let json: Value = serde_json::to_value(&info[1].to_string()).unwrap();
+                                        warn!("{:?}", json);
+                                        // FIXME remove this unwrap can cause to drop
+                                        let account_id: AccountId = Deserialize::deserialize(json).unwrap();
+                                        // FIXME remove this unwrap can cause to drop
+                                        let token_id = TokenId::from_str(&info[2].to_string()).unwrap();
+                                        info!("{:?}", account_id);
+                                        let event = BscEventType::TransferNftToRealis(TransferNftToRealis {
+                                            block: transaction.block_number,
+                                            hash: transaction.hash,
+                                            from: account_from,
+                                            dest: account_id,
+                                            token_id,
+                                        });
+                                        match db.add_extrinsic_bsc(&event).await {
+                                            Ok(()) => info!("Success add extrinsic in Database!"),
+                                            Err(error) => error!("Cannot add extrinsic in Database: {:?}", error),
+                                        }
+                                        match self.tx.send(event).await {
+                                            Ok(()) => info!("Success send to realis-adapter!"),
+                                            Err(error) => {
+                                                self.status.store(false, Ordering::SeqCst);
+                                                error!("Cannot send to realis-adapter: {:?}", error);
+                                            }
+                                        }
+                                    }
                                     Err(error) => {
-                                        self.status.store(false, Ordering::SeqCst);
-                                        error!("Cannot send to realis-adapter: {:?}", error);
+                                        error!("Decode nft event: {:?}", error);
                                     }
                                 }
                             }
