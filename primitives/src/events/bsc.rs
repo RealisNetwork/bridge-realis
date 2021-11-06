@@ -9,8 +9,10 @@ use realis_primitives::TokenId;
 use runtime::{AccountId, Call};
 use serde::{Deserialize, Serialize};
 use substrate_api_client::sp_runtime::app_crypto::sp_core;
-use web3::contract::tokens::Tokenizable;
-use web3::types::{H160, H256, U128, U64};
+use web3::{
+    contract::tokens::Tokenizable,
+    types::{H160, H256, U128, U64},
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TransferTokenToRealis {
@@ -39,7 +41,7 @@ impl Event for TransferTokenToRealis {
         // TODO not sure about this call
         (
             String::from("transfer"),
-            vec![self.from.into_token(), U128::from(self.amount).into_token()]
+            vec![self.from.into_token(), U128::from(self.amount).into_token()],
         )
     }
 }

@@ -208,7 +208,6 @@ impl TxSender {
                                 error!("Decode token event: {:?}", error);
                             }
                         }
-
                     }
                 }
             }
@@ -247,7 +246,7 @@ impl TxSender {
                                 match ethabi::decode(
                                     &[ParamType::Address, ParamType::String, ParamType::Uint(256)],
                                     &log.data.0,
-                                ){
+                                ) {
                                     Ok(info) => {
                                         let json: Value = serde_json::to_value(&info[1].to_string()).unwrap();
                                         warn!("{:?}", json);

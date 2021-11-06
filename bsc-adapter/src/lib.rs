@@ -111,10 +111,34 @@ impl BinanceHandler {
         info!("Start send transaction");
 
         match request {
-            RealisEventType::TransferNftToBsc(event) => self.process(event, ConnectionBuilder::nft(connection, &self.nft_contract_address).await?).await,
-            RealisEventType::TransferTokenToBsc(event) => self.process(event, ConnectionBuilder::token(connection, &self.token_contract_address).await?).await,
-            RealisEventType::TransferNftToRealisFail(event) => self.rollback(event, ConnectionBuilder::nft(connection, &self.nft_contract_address).await?).await,
-            RealisEventType::TransferTokenToRealisFail(event) => self.rollback(event, ConnectionBuilder::token(connection, &self.token_contract_address).await?).await,
+            RealisEventType::TransferNftToBsc(event) => {
+                self.process(
+                    event,
+                    ConnectionBuilder::nft(connection, &self.nft_contract_address).await?,
+                )
+                .await
+            }
+            RealisEventType::TransferTokenToBsc(event) => {
+                self.process(
+                    event,
+                    ConnectionBuilder::token(connection, &self.token_contract_address).await?,
+                )
+                .await
+            }
+            RealisEventType::TransferNftToRealisFail(event) => {
+                self.rollback(
+                    event,
+                    ConnectionBuilder::nft(connection, &self.nft_contract_address).await?,
+                )
+                .await
+            }
+            RealisEventType::TransferTokenToRealisFail(event) => {
+                self.rollback(
+                    event,
+                    ConnectionBuilder::token(connection, &self.token_contract_address).await?,
+                )
+                .await
+            }
         }
     }
 
@@ -130,11 +154,15 @@ impl BinanceHandler {
 
     async fn process(&self, event: &impl Event, contract: Contract<WebSocket>) -> Result<(), Error> {
         // TODO handle this result
-        let _result = self.db.update_status_realis(&event.get_hash(), Status::InProgress).await;
+        let _result = self
+            .db
+            .update_status_realis(&event.get_hash(), Status::InProgress)
+            .await;
 
         let (func, params) = event.get_binance_call();
 
-        let result = contract.signed_call_with_confirmations(
+        let result = contract
+            .signed_call_with_confirmations(
                 &func,
                 (params[0].clone(), params[1].clone(), params[2].clone()),
                 // TODO get this options from blockchain data
@@ -144,48 +172,61 @@ impl BinanceHandler {
                 &self.master_key,
             )
             .await
-            .map_err(Error::Web3)
-            .map(|_| ());
+            .map_err(Error::Web3);
 
         // TODO handle this result
-        let _result = self.db.update_status_realis(&event.get_hash(), result.as_ref().map(|_| Status::Success).unwrap_or(Status::Error)).await;
+        let _result = self
+            .db
+            .update_status_realis(
+                &event.get_hash(),
+                result.as_ref().map(|_| Status::Success).unwrap_or(Status::Error),
+            )
+            .await;
 
-        result
+        result.map(|_| ())
     }
 
     async fn rollback(&self, event: &impl Event, contract: Contract<WebSocket>) -> Result<(), Error> {
         let (func, params) = event.get_binance_call();
 
         let result = if params.len() == 3 {
-            contract.signed_call_with_confirmations(
-                &func,
-                (params[0].clone(), params[1].clone(), params[2].clone()),
-                // TODO get this options from blockchain data
-                web3::contract::Options::default(),
-                // TODO check this
-                1,
-                &self.master_key,
-            )
+            contract
+                .signed_call_with_confirmations(
+                    &func,
+                    (params[0].clone(), params[1].clone(), params[2].clone()),
+                    // TODO get this options from blockchain data
+                    web3::contract::Options::default(),
+                    // TODO check this
+                    1,
+                    &self.master_key,
+                )
                 .await
                 .map_err(Error::Web3)
                 .map(|_| ())
         } else {
-            contract.signed_call_with_confirmations(
-                &func,
-                (params[0].clone(), params[1].clone()),
-                // TODO get this options from blockchain data
-                web3::contract::Options::default(),
-                // TODO check this
-                1,
-                &self.master_key,
-            )
+            contract
+                .signed_call_with_confirmations(
+                    &func,
+                    (params[0].clone(), params[1].clone()),
+                    // TODO get this options from blockchain data
+                    web3::contract::Options::default(),
+                    // TODO check this
+                    1,
+                    &self.master_key,
+                )
                 .await
                 .map_err(Error::Web3)
                 .map(|_| ())
         };
 
         // TODO handle this result
-        let _result = self.db.update_status_realis(&event.get_hash(), result.as_ref().map(|_| Status::Rollbacked).unwrap_or(Status::Error)).await;
+        let _result = self
+            .db
+            .update_status_realis(
+                &event.get_hash(),
+                result.as_ref().map(|_| Status::Rollbacked).unwrap_or(Status::Error),
+            )
+            .await;
 
         result
     }
