@@ -39,7 +39,6 @@ fn main() {
 
     // TODO get from vault
     let binance_master_key = "98a946173492e8e5b73577341cea3c3b8e92481bfcea038b8fd7c1940d0cd42f";
-    let master_wallet = Config::key_from_value("OWNER").expect("Missing env OWNER");
 
     // Read healthchecker options from env file
     let healthchecker_address = Config::key_from_value("HEALTHCHECK").expect("Missing env HEALTHCHECK");
@@ -149,7 +148,6 @@ fn main() {
                     realis_tx,
                     Arc::clone(&status),
                     Arc::clone(&db),
-                    &master_wallet,
                     &token_contract_address,
                     &nft_contract_address,
                 )
@@ -166,7 +164,6 @@ fn main() {
                     realis_tx,
                     Arc::clone(&status),
                     Arc::clone(&db),
-                    &master_wallet,
                     &token_contract_address,
                     &nft_contract_address,
                 )
