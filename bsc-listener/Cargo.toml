@@ -8,16 +8,16 @@ edition = "2018"
 [dependencies]
 runtime = { git =  "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "node-runtime" }
 realis-primitives = { git =  "https://github.com/RealisNetwork/Realis.Network.git", branch = "main" }
-rust-lib = { git = "https://github.com/RealisNetwork/rust-lib.git" }
+#
 substrate-api-client = { git = "https://github.com/RealisNetwork/substrate-api-client.git" }
-
+rust-lib = { git = "https://github.com/RealisNetwork/rust-lib.git" }
+#
 primitives = { path = "../primitives" }
 db = { path = "../db" }
+#
+tokio = { version = "1.12.0", features = ["sync"] }
 serde_json = "1.0.68"
-thiserror = "1.0.30"
 futures = "0.3.17"
-serde = "1.0.130"
 ethabi = "14.1.0"
-tokio = "1.12.0"
 web3 = "0.17.0"
 log = "0.4.0"
