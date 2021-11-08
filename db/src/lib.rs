@@ -13,6 +13,7 @@ use std::sync::{
 };
 use tokio_postgres::Client;
 use web3::ethabi::ethereum_types::U64;
+use primitives::types::RawEvent;
 
 pub struct Database {
     client: Client,
@@ -291,5 +292,19 @@ impl Database {
             .map(|_| ())
             .map_err(Error::Postgres)?;
         Ok(())
+    }
+
+    pub async fn add_raw_event(&self, raw_event: RawEvent) -> Result<(), Error> {
+        self.still_alive().await?;
+
+        self.client.execute(
+            "INSERT INTO undecoded_events(block, hash, data)",
+            &[&raw_event.block_number.unwrap().as_u32(),
+            &format!("{:?}", raw_event.hash),
+            &raw_event.data]
+        )
+            .await
+            .map_err(Error::Postgres)
+            .map(|_| ())
     }
 }

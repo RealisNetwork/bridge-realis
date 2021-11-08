@@ -161,8 +161,9 @@ impl BlockListener {
                     }
                 }
                 Err(error) => {
-                    // TODO add logging to db
                     error!("Error while decode event: {:?}", error);
+                    // TODO handle this result
+                    let _result = self.db.add_raw_event(error.get_event()).await;
                 }
             }
         }

@@ -58,7 +58,7 @@ CREATE TABLE extrinsics_realis
     CONSTRAINT fk_extrinsic_status_realis
         FOREIGN KEY (status) REFERENCES request_status (id),
     CONSTRAINT fk_extrinsic_type_realis
-            FOREIGN KEY (type) REFERENCES types (id)
+        FOREIGN KEY (type) REFERENCES types (id)
 );
 
 -- name: 3.2-extrinsics-bsc
@@ -87,4 +87,12 @@ CREATE TABLE blocks_realis
 CREATE TABLE blocks_bsc
 (
     block OID
+);
+
+-- name: 5
+CREATE TABLE undecoded_events
+(
+    block OID,
+    hash  TEXT PRIMARY KEY,
+    data  BYTEA
 );
