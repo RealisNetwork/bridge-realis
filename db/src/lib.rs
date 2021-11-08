@@ -298,7 +298,8 @@ impl Database {
         self.still_alive().await?;
 
         self.client.execute(
-            "INSERT INTO undecoded_events(block, hash, data)",
+            "INSERT INTO undecoded_events(block, hash, data) \
+            VALUES($1, $2, $3)",
             &[&raw_event.block_number.unwrap().as_u32(),
             &format!("{:?}", raw_event.hash),
             &raw_event.data]

@@ -163,7 +163,9 @@ impl BlockListener {
                 Err(error) => {
                     error!("Error while decode event: {:?}", error);
                     // TODO handle this result
-                    let _result = self.db.add_raw_event(error.get_event()).await;
+                    if let Err(error) = self.db.add_raw_event(error.get_event()).await{
+                        error!("[BSC Listener] - logging undecoded event - {:?}", error);
+                    }
                 }
             }
         }
