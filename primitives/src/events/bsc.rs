@@ -10,9 +10,9 @@ use runtime::{AccountId, Call};
 use serde::{Deserialize, Serialize};
 use substrate_api_client::sp_runtime::app_crypto::sp_core;
 use web3::{
-    contract::tokens::Tokenizable,
     types::{H160, H256, U128, U64},
 };
+use web3::contract::tokens::Tokenize;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TransferTokenToRealis {
@@ -41,7 +41,7 @@ impl Event for TransferTokenToRealis {
         // TODO not sure about this call
         (
             String::from("transfer"),
-            vec![self.from.into_token(), U128::from(self.amount).into_token()],
+            (self.from, U128::from(self.amount)).into_tokens(),
         )
     }
 }
@@ -72,11 +72,11 @@ impl Event for TransferNftToRealis {
         // TODO not sure about this call
         (
             String::from("safeMint"),
-            vec![
-                self.dest.to_string().into_token(),
-                self.from.into_token(),
-                U128::from_dec_str(&self.token_id.to_string()).unwrap().into_token(),
-            ],
+            (
+                self.dest.to_string(),
+                self.from,
+                U128::from_dec_str(&self.token_id.to_string()).unwrap(),
+            ).into_tokens(),
         )
     }
 }
