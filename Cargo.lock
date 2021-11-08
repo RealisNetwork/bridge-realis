@@ -282,7 +282,6 @@ dependencies = [
  "realis-adapter",
  "realis-listener",
  "rust-lib",
- "substrate-api-client 0.6.0 (git+https://github.com/RealisNetwork/substrate-api-client.git)",
  "tokio 1.12.0",
 ]
 

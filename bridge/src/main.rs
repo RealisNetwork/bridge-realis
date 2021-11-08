@@ -8,8 +8,8 @@ use std::sync::{atomic::AtomicBool, Arc};
 use bsc_adapter::BinanceHandler;
 use db::Database;
 use log::{error, info, LevelFilter};
+use rust_lib::blockchain::wallets::RealisWallet;
 use realis_listener::BlockListener;
-use substrate_api_client::Pair;
 use tokio::sync::mpsc;
 
 #[allow(clippy::too_many_lines)]
@@ -99,11 +99,7 @@ fn main() {
         );
         modules.push(tokio::spawn(binance_handler.handle()));
 
-        let pair = Pair::from_string(
-            "fault pretty bird biology budget table symptom build option wrist time detail",
-            None,
-        )
-        .unwrap();
+        let pair = rust_lib::blockchain::wallets::BridgeMaster::get_private();
 
         let realis_adapter = realis_adapter::RealisAdapter::new(
             realis_rx,

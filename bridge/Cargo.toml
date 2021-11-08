@@ -14,7 +14,6 @@ bsc-adapter = { path = "../bsc-adapter" }
 primitives = { path = "../primitives" }
 db = { path = "../db" }
 #
-substrate-api-client = { git = "https://github.com/RealisNetwork/substrate-api-client.git" }
 rust-lib = { git = "https://github.com/RealisNetwork/rust-lib.git" }
 tokio = { version = "1", features = ["full"] }
 log = "0.4"
