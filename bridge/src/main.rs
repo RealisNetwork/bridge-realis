@@ -8,8 +8,8 @@ use std::sync::{atomic::AtomicBool, Arc};
 use bsc_adapter::BinanceHandler;
 use db::Database;
 use log::{error, info, LevelFilter};
-use rust_lib::blockchain::wallets::RealisWallet;
 use realis_listener::BlockListener;
+use rust_lib::blockchain::wallets::RealisWallet;
 use tokio::sync::mpsc;
 
 #[allow(clippy::too_many_lines)]
@@ -30,23 +30,23 @@ fn main() {
         error!("Workers number {} is too less! Must be at least 2!", workers_number);
     }
 
-    let (binance_tx, binance_rx) = mpsc::channel(1024);
-    let (realis_tx, realis_rx) = mpsc::channel(1024);
-
     let binance_url = Config::key_from_value("BINANCE_URL").expect("Missing env BINANCE_URL");
     let token_contract_address = Config::key_from_value("ADDRESS_TOKENS").expect("Missing env ADDRESS_TOKENS");
     let nft_contract_address = Config::key_from_value("ADDRESS_NFT").expect("Missing env ADDRESS_NFT");
     let token_topic = Config::key_from_value("TOKEN_TOPIC").expect("Missing env TOKEN_TOPIC");
     let nft_topic = Config::key_from_value("NFT_TOPIC").expect("Missing env NFT_TOPIC");
 
-    // TODO get from vault
-    let binance_master_key = "98a946173492e8e5b73577341cea3c3b8e92481bfcea038b8fd7c1940d0cd42f";
-
     // Read healthchecker options from env file
     let healthchecker_address = Config::key_from_value("HEALTHCHECK").expect("Missing env HEALTHCHECK");
 
     // Read blockchain connection options from env file
     let url = Config::key_from_value("REALIS_URL").expect("Missing env URL");
+
+    let db_host = Config::key_from_value("DATABASE_HOST").expect("Missing env DATABASE_HOST");
+    let db_port = Config::key_from_value("DATABASE_PORT").expect("Missing env DATABASE_PORT");
+    let db_user = Config::key_from_value("DATABASE_USER").expect("Missing env DATABASE_USER");
+    let db_password = Config::key_from_value("DATABASE_PASSWORD").expect("Missing env DATABASE_PASSWORD");
+    let db_name = Config::key_from_value("DATABASE_NAME").expect("Missing env DATABASE_NAME");
 
     let rt = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(workers_number)
@@ -55,13 +55,12 @@ fn main() {
         .unwrap();
     rt.block_on(async {
         // Init some variables
+        let (binance_tx, binance_rx) = mpsc::channel(1024);
+        let (realis_tx, realis_rx) = mpsc::channel(1024);
         let status = Arc::new(AtomicBool::new(true));
-
-        let db_host = Config::key_from_value("DATABASE_HOST").expect("Missing env DATABASE_HOST");
-        let db_port = Config::key_from_value("DATABASE_PORT").expect("Missing env DATABASE_PORT");
-        let db_user = Config::key_from_value("DATABASE_USER").expect("Missing env DATABASE_USER");
-        let db_password = Config::key_from_value("DATABASE_PASSWORD").expect("Missing env DATABASE_PASSWORD");
-        let db_name = Config::key_from_value("DATABASE_NAME").expect("Missing env DATABASE_NAME");
+        let pair = rust_lib::blockchain::wallets::BridgeMaster::get_private();
+        // TODO get from vault
+        let binance_master_key = "98a946173492e8e5b73577341cea3c3b8e92481bfcea038b8fd7c1940d0cd42f";
 
         let db = Arc::new(
             Database::new(&format!(
@@ -98,8 +97,6 @@ fn main() {
             Arc::clone(&db),
         );
         modules.push(tokio::spawn(binance_handler.handle()));
-
-        let pair = rust_lib::blockchain::wallets::BridgeMaster::get_private();
 
         let realis_adapter = realis_adapter::RealisAdapter::new(
             realis_rx,
