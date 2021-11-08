@@ -90,8 +90,8 @@ fn main() {
             realis_tx.clone(),
             Arc::clone(&status),
             &binance_url,
-            token_contract_address,
-            nft_contract_address,
+            token_contract_address.clone(),
+            nft_contract_address.clone(),
             binance_master_key,
             Arc::clone(&db),
         );

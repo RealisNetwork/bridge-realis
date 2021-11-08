@@ -33,7 +33,6 @@ impl Event for TransferTokenToBsc {
 
     // Rollback
     fn get_realis_call(&self) -> Call {
-        // TODO not sure about this call
         Call::RealisGameApi(RealisGameApi::Call::transfer_from_pallet(
             self.from.clone(),
             self.amount,
@@ -68,7 +67,6 @@ impl Event for TransferNftToBsc {
 
     // Rollback
     fn get_realis_call(&self) -> Call {
-        // TODO not sure about this call
         Call::RealisBridge(RealisBridgeCall::transfer_nft_to_realis(
             sp_core::H160::from(self.dest.clone().0),
             self.from.clone(),

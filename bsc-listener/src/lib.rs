@@ -28,6 +28,9 @@ pub struct BlockListener {
     tx: Sender<BscEventType>,
     status: Arc<AtomicBool>,
     db: Arc<Database>,
+    owner: Address,
+    token_contract: Address,
+    nft_contract: Address,
 }
 
 impl BlockListener {
@@ -94,7 +97,6 @@ impl BlockListener {
 
         while let Some(value) = sub.next().await {
             let block = value.unwrap();
-            // TODO CHECK update block_number
             match self.db.update_block_bsc(block.number).await {
                 Ok(_) => {
                     info!("Success add binance block to database");
@@ -136,6 +138,22 @@ impl BlockListener {
             }
         }
         sub.unsubscribe().await.unwrap();
+    }
+
+    async fn execute(&self, transaction: Transaction) {
+        if let Some(account) = transaction.to {
+            let tx_sender = TxSender::new(self.tx.clone(), self.status.clone(), self.owner).await;
+
+            if account == self.token_contract {
+                tx_sender
+                    .send_tokens(transaction, self.web3.clone(), &self.db)
+                    .await;
+            } else if account == self.nft_contract {
+                tx_sender
+                    .send_nft(transaction, self.web3.clone(), &self.db)
+                    .await;
+            }
+        }
     }
 }
 
@@ -217,7 +235,7 @@ impl TxSender {
 
     /// # Panics
     #[allow(clippy::single_match)]
-    pub async fn send_nft(self, transaction: Transaction, web3: Web3<WebSocket>, db: &Database) {
+    pub async fn send_nft(&self, transaction: Transaction, web3: Web3<WebSocket>, db: &Database) {
         match transaction.from {
             Some(account_from) => {
                 // FIXME magic address string

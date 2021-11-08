@@ -184,7 +184,6 @@ impl Database {
                     .map_err(Error::Postgres)
                     .map(|_| ())
             }
-            // TODO impl rollback logging
             BscEventType::TransferTokenToBscFail(_event) => Ok(()),
             BscEventType::TransferNftToBscFail(_event) => Ok(()),
         }

@@ -41,6 +41,7 @@ INSERT INTO request_status (id, name)
 VALUES ('5', 'Rollbacked');
 
 
+
 -- name: 3.1-extrinsics-realis
 CREATE TABLE extrinsics_realis
 (
