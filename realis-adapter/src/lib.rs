@@ -148,7 +148,7 @@ impl RealisAdapter {
 
         let hash = self
             .api
-            .send_extrinsic(tx.hex_encode(), XtStatus::InBlock)
+            .send_extrinsic(tx.hex_encode(), XtStatus::Finalized)
             .map_err(Error::Api)?;
 
         self.check_extrinsic(hash)

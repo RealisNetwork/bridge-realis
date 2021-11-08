@@ -39,6 +39,7 @@ fn main() {
 
     // TODO get from vault
     let binance_master_key = "98a946173492e8e5b73577341cea3c3b8e92481bfcea038b8fd7c1940d0cd42f";
+    let master_wallet = Config::key_from_value("OWNER").expect("Missing env OWNER");
 
     // Read healthchecker options from env file
     let healthchecker_address = Config::key_from_value("HEALTHCHECK").expect("Missing env HEALTHCHECK");
@@ -143,9 +144,16 @@ fn main() {
         match Config::key_from_value("RESTORE").map(|value| value == *"true") {
             Ok(true) => {
                 let last_block = db.get_last_block_bsc().await.unwrap();
-                let mut bsc_listener =
-                    bsc_listener::BlockListener::new(binance_url, realis_tx, Arc::clone(&status), Arc::clone(&db))
-                        .await;
+                let mut bsc_listener = bsc_listener::BlockListener::new(
+                    binance_url,
+                    realis_tx,
+                    Arc::clone(&status),
+                    Arc::clone(&db),
+                    &master_wallet,
+                    &token_contract_address,
+                    &nft_contract_address,
+                )
+                .await;
                 modules.push(tokio::spawn({
                     async move {
                         bsc_listener.listen_with_restore(last_block).await;
@@ -153,9 +161,16 @@ fn main() {
                 }));
             }
             Ok(false) | Err(_) => {
-                let mut bsc_listener =
-                    bsc_listener::BlockListener::new(binance_url, realis_tx, Arc::clone(&status), Arc::clone(&db))
-                        .await;
+                let mut bsc_listener = bsc_listener::BlockListener::new(
+                    binance_url,
+                    realis_tx,
+                    Arc::clone(&status),
+                    Arc::clone(&db),
+                    &master_wallet,
+                    &token_contract_address,
+                    &nft_contract_address,
+                )
+                .await;
                 modules.push(tokio::spawn({
                     async move {
                         bsc_listener.listen().await;

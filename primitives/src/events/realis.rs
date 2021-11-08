@@ -13,9 +13,9 @@ use runtime::{realis_game_api as RealisGameApi, AccountId, Call};
 use serde::{Deserialize, Serialize};
 use substrate_api_client::sp_runtime::app_crypto::sp_core;
 use web3::{
+    contract::tokens::Tokenize,
     types::{H160, U128},
 };
-use web3::contract::tokens::Tokenize;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TransferTokenToBsc {
@@ -42,11 +42,7 @@ impl Event for TransferTokenToBsc {
     fn get_binance_call(&self) -> (String, Vec<Token>) {
         (
             String::from("transferFromRealis"),
-            (
-                self.from.to_string(),
-                self.to,
-                U128::from(self.amount),
-            ).into_tokens(),
+            (self.from.to_string(), self.to, U128::from(self.amount)).into_tokens(),
         )
     }
 }
@@ -81,7 +77,8 @@ impl Event for TransferNftToBsc {
                 self.from.to_string(),
                 self.dest,
                 U128::from_dec_str(&self.token_id.to_string()).unwrap(),
-            ).into_tokens(),
+            )
+                .into_tokens(),
         )
     }
 }
