@@ -27,9 +27,9 @@ use primitives::{
 use web3::{
     contract::{tokens::Tokenize, Contract},
     transports::WebSocket,
+    types::{TransactionReceipt, U64},
     Web3,
 };
-use web3::types::{TransactionReceipt, U64};
 
 #[allow(dead_code)]
 pub struct BinanceHandler {
@@ -206,7 +206,10 @@ impl BinanceHandler {
             .db
             .update_status_realis(
                 &event.get_hash(),
-                result.as_ref().map(|_| Status::RollbackSuccess).unwrap_or(Status::RollbackError),
+                result
+                    .as_ref()
+                    .map(|_| Status::RollbackSuccess)
+                    .unwrap_or(Status::RollbackError),
             )
             .await;
 

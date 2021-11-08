@@ -5,6 +5,7 @@ use postgres::NoTls;
 use primitives::{
     db::Status,
     events::{bsc::BscEventType, realis::RealisEventType},
+    types::RawEvent,
 };
 use rawsql::{self, Loader};
 use std::sync::{
@@ -13,7 +14,6 @@ use std::sync::{
 };
 use tokio_postgres::Client;
 use web3::ethabi::ethereum_types::U64;
-use primitives::types::RawEvent;
 
 pub struct Database {
     client: Client,
@@ -297,13 +297,16 @@ impl Database {
     pub async fn add_raw_event(&self, raw_event: RawEvent) -> Result<(), Error> {
         self.still_alive().await?;
 
-        self.client.execute(
-            "INSERT INTO undecoded_events(block, hash, data) \
+        self.client
+            .execute(
+                "INSERT INTO undecoded_events(block, hash, data) \
             VALUES($1, $2, $3)",
-            &[&raw_event.block_number.unwrap().as_u32(),
-            &format!("{:?}", raw_event.hash),
-            &raw_event.data]
-        )
+                &[
+                    &raw_event.block_number.unwrap().as_u32(),
+                    &format!("{:?}", raw_event.hash),
+                    &raw_event.data,
+                ],
+            )
             .await
             .map_err(Error::Postgres)
             .map(|_| ())

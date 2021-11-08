@@ -128,7 +128,10 @@ impl RealisAdapter {
             .db
             .update_status_realis(
                 &event.get_hash(),
-                tx_result.as_ref().map(|_| Status::RollbackSuccess).unwrap_or(Status::RollbackError),
+                tx_result
+                    .as_ref()
+                    .map(|_| Status::RollbackSuccess)
+                    .unwrap_or(Status::RollbackError),
             )
             .await;
         tx_result

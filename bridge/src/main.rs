@@ -155,7 +155,8 @@ fn main() {
                     &token_topic,
                     &nft_topic,
                 )
-                .await.unwrap();
+                .await
+                .unwrap();
                 modules.push(tokio::spawn({
                     async move {
                         bsc_listener.listen_with_restore(last_block).await;
@@ -173,7 +174,8 @@ fn main() {
                     &token_topic,
                     &nft_topic,
                 )
-                .await.unwrap();
+                .await
+                .unwrap();
                 modules.push(tokio::spawn({
                     async move {
                         bsc_listener.listen().await;

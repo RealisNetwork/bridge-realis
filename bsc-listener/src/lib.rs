@@ -2,17 +2,18 @@ mod event_parser;
 use crate::event_parser::{EventParser, ParseError};
 
 use db::Database;
-use primitives::events::bsc::{BscEventType};
+use primitives::events::bsc::BscEventType;
 
+use ethabi::ethereum_types::H256;
+use log::{error, info, warn};
+use primitives::Error;
 use std::{
     str::FromStr,
     sync::{
-        atomic::{AtomicBool},
+        atomic::{AtomicBool, Ordering},
         Arc,
     },
 };
-use std::sync::atomic::Ordering;
-use ethabi::ethereum_types::H256;
 use tokio::sync::mpsc::Sender;
 use web3::{
     self,
@@ -21,9 +22,6 @@ use web3::{
     types::{Address, BlockNumber, Transaction},
     Web3,
 };
-use log::{error, info, warn};
-use primitives::Error;
-
 
 pub struct BlockListener {
     web3: Web3<WebSocket>,
@@ -49,15 +47,15 @@ impl BlockListener {
         token_topic: &str,
         nft_topic: &str,
     ) -> Result<Self, String> {
-        let ws = web3::transports::WebSocket::new(&url).await.map_err(|error| format!("{:?}", error))?;
+        let ws = web3::transports::WebSocket::new(&url)
+            .await
+            .map_err(|error| format!("{:?}", error))?;
         let web3 = web3::Web3::new(ws);
         let token_contract = Address::from_str(token_contract).map_err(|error| format!("{:?}", error))?;
         let nft_contract = Address::from_str(nft_contract).map_err(|error| format!("{:?}", error))?;
 
-        let token_topic = H256::from_str(token_topic)
-            .map_err(|error| format!("{:?}", error))?;
-        let nft_topic = H256::from_str(nft_topic)
-            .map_err(|error| format!("{:?}", error))?;
+        let token_topic = H256::from_str(token_topic).map_err(|error| format!("{:?}", error))?;
+        let nft_topic = H256::from_str(nft_topic).map_err(|error| format!("{:?}", error))?;
 
         Ok(Self {
             web3,
@@ -163,7 +161,7 @@ impl BlockListener {
                 Err(error) => {
                     error!("Error while decode event: {:?}", error);
                     // TODO handle this result
-                    if let Err(error) = self.db.add_raw_event(error.get_event()).await{
+                    if let Err(error) = self.db.add_raw_event(error.get_event()).await {
                         error!("[BSC Listener] - logging undecoded event - {:?}", error);
                     }
                 }
