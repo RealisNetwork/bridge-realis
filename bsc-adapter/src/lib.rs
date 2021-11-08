@@ -205,7 +205,7 @@ impl BinanceHandler {
             .db
             .update_status_realis(
                 &event.get_hash(),
-                result.as_ref().map(|_| Status::Rollbacked).unwrap_or(Status::Error),
+                result.as_ref().map(|_| Status::RollbackSuccess).unwrap_or(Status::RollbackError),
             )
             .await;
 

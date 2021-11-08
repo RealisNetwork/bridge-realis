@@ -38,9 +38,11 @@ VALUES ('4', 'Error');
 
 -- name: 2.5-in-progress
 INSERT INTO request_status (id, name)
-VALUES ('5', 'Rollbacked');
+VALUES ('5', 'RollbackSuccess');
 
-
+-- name: 2.6-in-progress
+INSERT INTO request_status (id, name)
+VALUES ('6', 'RollbackError');
 
 
 -- name: 3.1-extrinsics-realis

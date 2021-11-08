@@ -10,5 +10,7 @@ pub enum Status {
     // Blockchain fail
     Error,
     // Rollback success
-    Rollbacked,
+    RollbackSuccess,
+    // Rollback error
+    RollbackError,
 }
