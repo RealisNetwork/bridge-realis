@@ -46,22 +46,20 @@ impl BlockListener {
         db: Arc<Database>,
         token_contract: &str,
         nft_contract: &str,
-    ) -> Self {
-        // TODO get rid of unwrap
-        let ws = web3::transports::WebSocket::new(&url).await.unwrap();
+        token_topic: &str,
+        nft_topic: &str,
+    ) -> Result<Self, String> {
+        let ws = web3::transports::WebSocket::new(&url).await.map_err(|error| format!("{:?}", error))?;
         let web3 = web3::Web3::new(ws);
-        // TODO get rid of unwraps
-        let token_contract = Address::from_str(token_contract).unwrap();
-        let nft_contract = Address::from_str(nft_contract).unwrap();
+        let token_contract = Address::from_str(token_contract).map_err(|error| format!("{:?}", error))?;
+        let nft_contract = Address::from_str(nft_contract).map_err(|error| format!("{:?}", error))?;
 
-        // TODO get from env
-        let token_topic = H256::from_str("0xcd4959d4603f340036d296d8ab78401d37c53d963d84bf774509d2bebecf5702")
-            .unwrap();
-        // TODO get from env
-        let nft_topic = H256::from_str("0xcd4959d4603f340036d296d8ab78401d37c53d963d84bf774509d2bebecf5702")
-            .unwrap();
+        let token_topic = H256::from_str(token_topic)
+            .map_err(|error| format!("{:?}", error))?;
+        let nft_topic = H256::from_str(nft_topic)
+            .map_err(|error| format!("{:?}", error))?;
 
-        Self {
+        Ok(Self {
             web3,
             tx,
             status,
@@ -70,7 +68,7 @@ impl BlockListener {
             nft_contract,
             token_topic,
             nft_topic,
-        }
+        })
     }
 
     /// # Errors
@@ -118,7 +116,7 @@ impl BlockListener {
                     info!("Success add binance block to database");
                 }
                 Err(error) => {
-                    //TODO maybe should drop?
+                    self.status.store(false, Ordering::SeqCst);
                     error!("Can't add binance block with error: {:?}", error);
                 }
             }

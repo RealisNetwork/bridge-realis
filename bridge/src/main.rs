@@ -36,6 +36,8 @@ fn main() {
     let binance_url = Config::key_from_value("BINANCE_URL").expect("Missing env BINANCE_URL");
     let token_contract_address = Config::key_from_value("ADDRESS_TOKENS").expect("Missing env ADDRESS_TOKENS");
     let nft_contract_address = Config::key_from_value("ADDRESS_NFT").expect("Missing env ADDRESS_NFT");
+    let token_topic = Config::key_from_value("TOKEN_TOPIC").expect("Missing env TOKEN_TOPIC");
+    let nft_topic = Config::key_from_value("NFT_TOPIC").expect("Missing env NFT_TOPIC");
 
     // TODO get from vault
     let binance_master_key = "98a946173492e8e5b73577341cea3c3b8e92481bfcea038b8fd7c1940d0cd42f";
@@ -150,8 +152,10 @@ fn main() {
                     Arc::clone(&db),
                     &token_contract_address,
                     &nft_contract_address,
+                    &token_topic,
+                    &nft_topic,
                 )
-                .await;
+                .await.unwrap();
                 modules.push(tokio::spawn({
                     async move {
                         bsc_listener.listen_with_restore(last_block).await;
@@ -166,8 +170,10 @@ fn main() {
                     Arc::clone(&db),
                     &token_contract_address,
                     &nft_contract_address,
+                    &token_topic,
+                    &nft_topic,
                 )
-                .await;
+                .await.unwrap();
                 modules.push(tokio::spawn({
                     async move {
                         bsc_listener.listen().await;
