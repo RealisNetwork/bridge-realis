@@ -1,6 +1,6 @@
 use sp_core::{H160, H256};
 pub use substrate_api_client::BlockNumber;
-use web3::types::{self, TransactionReceipt, U64};
+use web3::types::{self, U64};
 
 pub type BscAccount = H160;
 pub type UserId = String;
