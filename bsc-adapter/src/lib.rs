@@ -29,6 +29,7 @@ use web3::{
     transports::WebSocket,
     Web3,
 };
+use web3::types::{TransactionReceipt, U64};
 
 #[allow(dead_code)]
 pub struct BinanceHandler {
@@ -218,7 +219,7 @@ impl BinanceHandler {
         func: &str,
         params: impl Tokenize,
     ) -> Result<(), Error> {
-        contract
+        let receipt = contract
             .signed_call_with_confirmations(
                 &func,
                 params,
@@ -229,9 +230,16 @@ impl BinanceHandler {
                 &self.master_key,
             )
             .await
-            .map_err(Error::Web3)
-            .map(|_| ())
+            .map_err(Error::Web3)?;
 
-        // TODO add extrinsic confirmation
+        self.check_extrinsic(receipt)
+    }
+
+    fn check_extrinsic(&self, receipt: TransactionReceipt) -> Result<(), Error> {
+        if receipt.status == Some(U64::from(1)) {
+            Ok(())
+        } else {
+            Err(Error::Custom(String::from("No confirmation found!")))
+        }
     }
 }
