@@ -91,8 +91,8 @@ impl BlockListener {
                                 }
                                 match self.process_block(block).await {
                                 Ok(_) => info!("Block {} processed!", block_number),
-                                Err(Error::Disconnected) => self.status.store(false, Ordering::SeqCst),
-                                Err(Error::Send) => self.status.store(false, Ordering::SeqCst),
+                                Err(Error::Disconnected)
+                                | Err(Error::Send) => self.status.store(false, Ordering::SeqCst),
                                 Err(error) => {
                                     error!(
                                         "Unable to process block with error: {:?}",

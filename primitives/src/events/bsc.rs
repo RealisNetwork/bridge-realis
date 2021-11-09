@@ -88,26 +88,3 @@ pub enum BscEventType {
     TransferTokenToBscFail(TransferTokenToBsc),
     TransferNftToBscFail(TransferNftToBsc),
 }
-
-impl BscEventType {
-    pub fn get_call(&self) -> Call {
-        match self {
-            BscEventType::TransferTokenToRealis(request) => request.get_realis_call(),
-            BscEventType::TransferNftToRealis(request) => request.get_realis_call(),
-            BscEventType::TransferTokenToBscFail(request) => request.get_realis_call(),
-            BscEventType::TransferNftToBscFail(request) => request.get_realis_call(),
-        }
-    }
-}
-
-impl BscEventType {
-    #[must_use]
-    pub fn get_hash(&self) -> String {
-        match self {
-            BscEventType::TransferTokenToRealis(request) => request.hash.to_string(),
-            BscEventType::TransferNftToRealis(request) => request.hash.to_string(),
-            BscEventType::TransferTokenToBscFail(request) => request.hash.to_string(),
-            BscEventType::TransferNftToBscFail(request) => request.hash.to_string(),
-        }
-    }
-}

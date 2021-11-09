@@ -64,7 +64,7 @@ impl Event for TransferNftToBsc {
     // Rollback
     fn get_realis_call(&self) -> Call {
         Call::RealisBridge(RealisBridgeCall::transfer_nft_to_realis(
-            sp_core::H160::from(self.dest.clone().0),
+            sp_core::H160::from(self.dest.0),
             self.from.clone(),
             self.token_id,
         ))
@@ -95,16 +95,4 @@ pub enum RealisEventType {
     TransferNftToBsc(TransferNftToBsc),
     TransferTokenToRealisFail(TransferTokenToRealis),
     TransferNftToRealisFail(TransferNftToRealis),
-}
-
-impl RealisEventType {
-    #[must_use]
-    pub fn get_hash(&self) -> String {
-        match self {
-            RealisEventType::TransferTokenToBsc(request) => request.hash.to_string(),
-            RealisEventType::TransferNftToBsc(request) => request.hash.to_string(),
-            RealisEventType::TransferTokenToRealisFail(request) => request.hash.to_string(),
-            RealisEventType::TransferNftToRealisFail(request) => request.hash.to_string(),
-        }
-    }
 }
