@@ -1,7 +1,7 @@
-pub mod block_parser;
+pub mod extrinsic_parser;
 
 use db::Database;
-use primitives::{block::Block, events::RealisEventType, types::BlockNumber, Error};
+use primitives::{block::Block, types::BlockNumber, Error};
 
 use log::{error, info, warn};
 use sp_core::sr25519;
@@ -12,7 +12,8 @@ use tokio::{
     sync::mpsc::{unbounded_channel, Sender, UnboundedReceiver, UnboundedSender},
 };
 
-use crate::block_parser::BlockParser;
+use crate::extrinsic_parser::ExtrinsicParser;
+use primitives::events::realis::RealisEventType;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     mpsc::channel,
@@ -80,7 +81,6 @@ impl BlockListener {
                         info!("Start process block!");
                         let db = Arc::clone(&self.db);
                         match BlockListener::get_block_sidecar(block_number).await {
-                            // TODO CHECK update block in table?
                             Ok(block) => {
                                  match &db.update_block_realis(block_number).await{
                                     Ok(_) => { info!("Success add realis block to database"); }
@@ -90,8 +90,8 @@ impl BlockListener {
                                 }
                                 match self.process_block(block).await {
                                 Ok(_) => info!("Block {} processed!", block_number),
-                                Err(Error::Disconnected) => self.status.store(false, Ordering::SeqCst),
-                                Err(Error::Send) => self.status.store(false, Ordering::SeqCst),
+                                Err(Error::Disconnected | Error::Send) =>
+                                    self.status.store(false, Ordering::SeqCst),
                                 Err(error) => {
                                     error!(
                                         "Unable to process block with error: {:?}",
@@ -174,8 +174,8 @@ impl BlockListener {
         for events in block
             .extrinsics
             .iter()
-            .filter_map(|xt| BlockParser::new(xt.clone(), block_number))
-            .map(|block| block.parse())
+            .filter_map(|xt| ExtrinsicParser::new(xt.clone(), block_number))
+            .map(extrinsic_parser::ExtrinsicParser::parse)
         {
             for event in events {
                 warn!("send to BSC {:?}", event);

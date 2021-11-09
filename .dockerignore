@@ -1,0 +1,17 @@
+
+*
+
+!Cargo.toml
+!Cargo.lock
+!src/
+
+!bridge/
+!bsc-adapter/
+!bsc-listener/
+!db/
+!primitives/
+!realis-adapter/
+!realis-listener/
+!*/res
+
+!.env

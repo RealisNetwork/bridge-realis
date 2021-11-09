@@ -1,11 +1,11 @@
-use primitives::{
-    block::Extrinsic,
-    events::{RealisEventType, TransferNftToBsc, TransferTokenToBsc},
-};
+use primitives::block::Extrinsic;
 use std::str::FromStr;
 
 use log::{error, info};
-use primitives::{events::BridgeExtrinsics, types::BlockNumber};
+use primitives::{
+    events::realis::{BridgeExtrinsics, RealisEventType, TransferNftToBsc, TransferTokenToBsc},
+    types::BlockNumber,
+};
 use runtime::AccountId;
 use rust_lib::primitives::adapter::request::token_id_from_string;
 use serde::{Deserialize, Serialize};
@@ -13,12 +13,12 @@ use serde_json::Value;
 use web3::types::H160;
 
 #[derive(Clone)]
-pub struct BlockParser {
+pub struct ExtrinsicParser {
     extrinsic: Extrinsic,
     block_number: BlockNumber,
 }
 
-impl BlockParser {
+impl ExtrinsicParser {
     #[allow(clippy::nonminimal_bool)]
     #[must_use]
     pub fn new(extrinsic: Extrinsic, block_number: BlockNumber) -> Option<Self> {
@@ -51,22 +51,10 @@ impl BlockParser {
         error!("Start parse extrinsics {:?}!", self.extrinsic);
         let args = self
             .clone()
-            .parse_args(serde_json::from_value::<Args>(self.extrinsic.args.clone()).unwrap());
+            .parse_args(serde_json::from_value::<Args>(self.extrinsic.args).unwrap());
         match args {
-            BridgeExtrinsics::TransferToken(args) => {
-                return vec![RealisEventType::TransferTokenToBsc(
-                    args,
-                    self.extrinsic.hash,
-                    self.block_number,
-                )]
-            }
-            BridgeExtrinsics::TransferNft(args) => {
-                return vec![RealisEventType::TransferNftToBsc(
-                    args,
-                    self.extrinsic.hash,
-                    self.block_number,
-                )]
-            }
+            BridgeExtrinsics::TransferToken(args) => return vec![RealisEventType::TransferTokenToBsc(args)],
+            BridgeExtrinsics::TransferNft(args) => return vec![RealisEventType::TransferNftToBsc(args)],
         }
     }
 

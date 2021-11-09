@@ -45,6 +45,7 @@ impl BlockListenerBuilder {
         let api = Api::<sr25519::Pair, WsRpcClient>::new(client).unwrap();
         let (async_tx, async_rx) = unbounded_channel();
 
+        // try use tokio spawn
         std::thread::spawn({
             let async_tx = async_tx.clone();
             let api = api.clone();
