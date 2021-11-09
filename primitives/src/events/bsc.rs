@@ -81,6 +81,7 @@ impl Event for TransferNftToRealis {
 }
 
 #[derive(Debug, Clone)]
+#[allow(clippy::pedantic)]
 pub enum BscEventType {
     TransferTokenToRealis(TransferTokenToRealis),
     TransferNftToRealis(TransferNftToRealis),

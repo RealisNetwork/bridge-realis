@@ -45,6 +45,7 @@ pub struct BinanceHandler {
 
 impl BinanceHandler {
     #[must_use]
+    #[allow(clippy::too_many_arguments)]
     /// # Panics
     pub fn new(
         rx: Receiver<RealisEventType>,
@@ -229,7 +230,7 @@ impl BinanceHandler {
     ) -> Result<(), Error> {
         let receipt = contract
             .signed_call_with_confirmations(
-                &func,
+                func,
                 params,
                 web3::contract::Options::default(),
                 1,
@@ -238,10 +239,10 @@ impl BinanceHandler {
             .await
             .map_err(Error::Web3)?;
 
-        self.check_extrinsic(receipt)
+        Self::check_extrinsic(&receipt)
     }
 
-    fn check_extrinsic(&self, receipt: TransactionReceipt) -> Result<(), Error> {
+    fn check_extrinsic(receipt: &TransactionReceipt) -> Result<(), Error> {
         if receipt.status == Some(U64::from(1)) {
             Ok(())
         } else {

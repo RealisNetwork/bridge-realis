@@ -37,6 +37,7 @@ pub struct BlockListener {
 }
 
 impl BlockListener {
+    #[allow(clippy::too_many_arguments)]
     /// # Errors
     /// # Panics
     pub async fn new(

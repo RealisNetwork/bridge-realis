@@ -51,7 +51,7 @@ impl ExtrinsicParser {
         error!("Start parse extrinsics {:?}!", self.extrinsic);
         let args = self
             .clone()
-            .parse_args(serde_json::from_value::<Args>(self.extrinsic.args.clone()).unwrap());
+            .parse_args(serde_json::from_value::<Args>(self.extrinsic.args).unwrap());
         match args {
             BridgeExtrinsics::TransferToken(args) => return vec![RealisEventType::TransferTokenToBsc(args)],
             BridgeExtrinsics::TransferNft(args) => return vec![RealisEventType::TransferNftToBsc(args)],

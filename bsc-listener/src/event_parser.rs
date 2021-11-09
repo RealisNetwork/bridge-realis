@@ -25,12 +25,12 @@ pub enum ParseError {
 impl ParseError {
     pub fn get_event(&self) -> RawEvent {
         match self {
-            ParseError::MissingParam(event, _) => event,
-            ParseError::DecodeError(event, _) => event,
-            ParseError::AccountId(event) => event,
-            ParseError::U128(event) => event,
-            ParseError::Address(event) => event,
-            ParseError::TokenID(event) => event,
+            ParseError::MissingParam(event, _)
+            | ParseError::DecodeError(event, _)
+            | ParseError::AccountId(event)
+            | ParseError::U128(event)
+            | ParseError::Address(event)
+            | ParseError::TokenID(event) => event,
         }
         .clone()
     }
@@ -64,25 +64,25 @@ impl EventParser for TokenParser {
                 let to = AccountId::from_string(
                     &params
                         .get(0)
-                        .ok_or(ParseError::MissingParam(raw_event.clone(), 0))?
+                        .ok_or_else(|| ParseError::MissingParam(raw_event.clone(), 0))?
                         .to_string(),
                 )
                 .map_err(|_| ParseError::AccountId(raw_event.clone()))?;
 
                 let amount = params
                     .get(1)
-                    .ok_or(ParseError::MissingParam(raw_event.clone(), 1))?
+                    .ok_or_else(|| ParseError::MissingParam(raw_event.clone(), 1))?
                     .clone()
                     .into_uint()
-                    .ok_or(ParseError::U128(raw_event.clone()))?
+                    .ok_or_else(|| ParseError::U128(raw_event.clone()))?
                     .as_u128();
 
                 let from = params
                     .get(2)
-                    .ok_or(ParseError::MissingParam(raw_event.clone(), 2))?
+                    .ok_or_else(|| ParseError::MissingParam(raw_event.clone(), 2))?
                     .clone()
                     .into_address()
-                    .ok_or(ParseError::Address(raw_event.clone()))?;
+                    .ok_or_else(|| ParseError::Address(raw_event.clone()))?;
 
                 Ok(BscEventType::TransferTokenToRealis(TransferTokenToRealis {
                     block: receipt.block_number,
@@ -119,15 +119,15 @@ impl EventParser for NftParser {
 
                 let from = params
                     .get(0)
-                    .ok_or(ParseError::MissingParam(raw_event.clone(), 0))?
+                    .ok_or_else(|| ParseError::MissingParam(raw_event.clone(), 0))?
                     .clone()
                     .into_address()
-                    .ok_or(ParseError::Address(raw_event.clone()))?;
+                    .ok_or_else(|| ParseError::Address(raw_event.clone()))?;
 
                 let to = AccountId::from_string(
                     &params
                         .get(1)
-                        .ok_or(ParseError::MissingParam(raw_event.clone(), 1))?
+                        .ok_or_else(|| ParseError::MissingParam(raw_event.clone(), 1))?
                         .to_string(),
                 )
                 .map_err(|_| ParseError::AccountId(raw_event.clone()))?;
@@ -135,7 +135,7 @@ impl EventParser for NftParser {
                 let token_id = TokenId::from_str(
                     &params
                         .get(2)
-                        .ok_or(ParseError::MissingParam(raw_event.clone(), 2))?
+                        .ok_or_else(|| ParseError::MissingParam(raw_event.clone(), 2))?
                         .to_string(),
                 )
                 .map_err(|_| ParseError::TokenID(raw_event.clone()))?;

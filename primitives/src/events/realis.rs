@@ -90,6 +90,7 @@ pub enum BridgeExtrinsics {
 }
 
 #[derive(Debug, Clone)]
+#[allow(clippy::pedantic)]
 pub enum RealisEventType {
     TransferTokenToBsc(TransferTokenToBsc),
     TransferNftToBsc(TransferNftToBsc),

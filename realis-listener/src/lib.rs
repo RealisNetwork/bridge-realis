@@ -90,8 +90,7 @@ impl BlockListener {
                                 }
                                 match self.process_block(block).await {
                                 Ok(_) => info!("Block {} processed!", block_number),
-                                Err(Error::Disconnected)
-                                | Err(Error::Send) => self.status.store(false, Ordering::SeqCst),
+                                Err(Error::Disconnected | Error::Send) => self.status.store(false, Ordering::SeqCst),
                                 Err(error) => {
                                     error!(
                                         "Unable to process block with error: {:?}",
@@ -175,7 +174,7 @@ impl BlockListener {
             .extrinsics
             .iter()
             .filter_map(|xt| ExtrinsicParser::new(xt.clone(), block_number))
-            .map(|block| block.parse())
+            .map(extrinsic_parser::ExtrinsicParser::parse)
         {
             for event in events {
                 warn!("send to BSC {:?}", event);

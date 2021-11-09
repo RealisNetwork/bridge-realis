@@ -294,6 +294,8 @@ impl Database {
         Ok(())
     }
 
+    /// # Panics
+    /// # Errors
     pub async fn add_raw_event(&self, raw_event: RawEvent) -> Result<(), Error> {
         self.still_alive().await?;
 

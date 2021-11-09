@@ -84,7 +84,7 @@ impl RealisAdapter {
                                 if let Some(rollback_request) = rollback_request {
                                     if let Err(error) =  self.tx.send(rollback_request).await {
                                         error!("[Realis Adapter] - send error: {:?}", error);
-                                        self.status.store(false, Ordering::SeqCst)
+                                        self.status.store(false, Ordering::SeqCst);
                                     }
                                 } else {
                                     error!("Rollback fail: {:?}", error);
@@ -167,13 +167,13 @@ impl RealisAdapter {
             .api
             .get_block::<Block>(block_hash)
             .map_err(Error::Api)?
-            .ok_or(Error::Custom(String::from("Missing block!")))?;
+            .ok_or_else(|| Error::Custom(String::from("Missing block!")))?;
 
         let events = self
             .api
             .get_storage_value::<Vec<EventRecord<RuntimeEvent, H256>>>("System", "Events", block_hash)
             .map_err(Error::Api)?
-            .ok_or(Error::Custom(String::from("Missing events!")))?;
+            .ok_or_else(|| Error::Custom(String::from("Missing events!")))?;
 
         for event in events {
             if let RuntimeEvent::System(frame_system::Event::ExtrinsicSuccess(_)) = event.event {
