@@ -3,6 +3,7 @@ use crate::event_parser::{EventParser, ParseError};
 
 use db::Database;
 use primitives::events::bsc::BscEventType;
+use rust_lib::healthchecker::HealthChecker;
 
 use ethabi::ethereum_types::H256;
 use log::{error, info, warn};
@@ -14,6 +15,7 @@ use std::{
         Arc,
     },
 };
+use tokio::select;
 use tokio::sync::mpsc::Sender;
 use web3::{
     self,
@@ -107,27 +109,34 @@ impl BlockListener {
 
         info!("Got subscription id: {:?}", sub.id());
 
-        while let Some(value) = sub.next().await {
-            let block_header = value.unwrap();
-            match self.db.update_block_bsc(block_header.number).await {
-                Ok(_) => {
-                    info!("Success add binance block to database");
-                }
-                Err(error) => {
-                    self.status.store(false, Ordering::SeqCst);
-                    error!("Can't add binance block with error: {:?}", error);
-                }
-            }
-            let block = self
-                .web3
-                .eth()
-                .block_with_txs(web3::types::BlockId::Hash(block_header.hash.unwrap()))
-                .await
-                .unwrap()
-                .unwrap();
+        loop {
+            select! {
+                () = HealthChecker::is_alive(Arc::clone(&self.status)) => break,
+                option = sub.next() => {
+                    if let Some(value) = option {
+                        let block_header = value.unwrap();
+                        match self.db.update_block_bsc(block_header.number).await {
+                            Ok(_) => {
+                                info!("Success add binance block to database");
+                            }
+                            Err(error) => {
+                                self.status.store(false, Ordering::SeqCst);
+                                error!("Can't add binance block with error: {:?}", error);
+                            }
+                        }
+                        let block = self
+                            .web3
+                            .eth()
+                            .block_with_txs(web3::types::BlockId::Hash(block_header.hash.unwrap()))
+                            .await
+                            .unwrap()
+                            .unwrap();
 
-            for transaction in block.transactions {
-                self.process(transaction).await;
+                        for transaction in block.transactions {
+                            self.process(transaction).await;
+                        }
+                    }
+                }
             }
         }
         sub.unsubscribe().await.unwrap();
@@ -160,9 +169,9 @@ impl BlockListener {
                 }
                 Err(error) => {
                     error!("Error while decode event: {:?}", error);
-                    // TODO handle this result
                     if let Err(error) = self.db.add_raw_event(error.get_event()).await {
                         error!("[BSC Listener] - logging undecoded event - {:?}", error);
+                        self.status.store(false, Ordering::SeqCst);
                     }
                 }
             }

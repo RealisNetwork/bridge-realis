@@ -82,8 +82,10 @@ impl RealisAdapter {
                                     _ => None
                                 };
                                 if let Some(rollback_request) = rollback_request {
-                                    // TODO handle result
-                                    let _result = self.tx.send(rollback_request).await;
+                                    if let Err(error) =  self.tx.send(rollback_request).await {
+                                        error!("[Realis Adapter] - send error: {:?}", error);
+                                        self.status.store(false, Ordering::SeqCst)
+                                    }
                                 } else {
                                     error!("Rollback fail: {:?}", error);
                                     self.status.store(false, Ordering::SeqCst);
@@ -106,25 +108,25 @@ impl RealisAdapter {
     }
 
     async fn process(&self, event: &impl Event) -> Result<(), Error> {
-        // TODO handle result
-        let _result = self.db.update_status_bsc(&event.get_hash(), Status::InProgress).await;
+        self.db.update_status_bsc(&event.get_hash(), Status::InProgress).await?;
         let tx_result = self.send_to_blockchain(event);
-        // TODO handle result
-        let _result = self
+        if let Err(error) = self
             .db
             .update_status_bsc(
                 &event.get_hash(),
                 tx_result.as_ref().map(|_| Status::Success).unwrap_or(Status::Error),
             )
-            .await;
+            .await {
+            error!("[Realis Adapter] - logging status to db: {:?}", error);
+            self.status.store(false, Ordering::SeqCst);
+        }
 
         tx_result
     }
 
     async fn rollback(&self, event: &impl Event) -> Result<(), Error> {
         let tx_result = self.send_to_blockchain(event);
-        // TODO handle result
-        let _result = self
+        if let Err(error) = self
             .db
             .update_status_realis(
                 &event.get_hash(),
@@ -133,7 +135,10 @@ impl RealisAdapter {
                     .map(|_| Status::RollbackSuccess)
                     .unwrap_or(Status::RollbackError),
             )
-            .await;
+            .await {
+            error!("[Realis Adapter] - logging status to db: {:?}", error);
+            self.status.store(false, Ordering::SeqCst);
+        }
         tx_result
     }
 

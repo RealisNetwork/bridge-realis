@@ -96,8 +96,10 @@ impl BinanceHandler {
                                 };
                                 if let Some(rollback_request) = rollback_request {
                                     error!("Extrinsic execute: {:?}", error);
-                                    // TODO handle result
-                                    let _result = self.tx.send(rollback_request).await;
+                                    if let Err(error) = self.tx.send(rollback_request).await {
+                                        error!("[BSC Adapter] - send error: {:?}", error);
+                                        self.status.store(false, Ordering::SeqCst);
+                                    }
                                 } else {
                                     error!("Rollback fail: {:?}", error);
                                     self.status.store(false, Ordering::SeqCst);
@@ -158,11 +160,10 @@ impl BinanceHandler {
     }
 
     async fn process(&self, event: &impl Event, contract: Contract<WebSocket>) -> Result<(), Error> {
-        // TODO handle this result
-        let _result = self
+        self
             .db
             .update_status_realis(&event.get_hash(), Status::InProgress)
-            .await;
+            .await?;
 
         let (func, params) = event.get_binance_call();
 
@@ -174,14 +175,16 @@ impl BinanceHandler {
             )
             .await;
 
-        // TODO handle this result
-        let _result = self
+        if let Err(error) = self
             .db
             .update_status_realis(
                 &event.get_hash(),
                 result.as_ref().map(|_| Status::Success).unwrap_or(Status::Error),
             )
-            .await;
+            .await {
+            error!("[BSC Adapter] - logging status to db: {:?}", error);
+            self.status.store(false, Ordering::SeqCst);
+        }
 
         result
     }
@@ -201,8 +204,7 @@ impl BinanceHandler {
                 .await
         };
 
-        // TODO handle this result
-        let _result = self
+        if let Err(error) = self
             .db
             .update_status_realis(
                 &event.get_hash(),
@@ -211,7 +213,10 @@ impl BinanceHandler {
                     .map(|_| Status::RollbackSuccess)
                     .unwrap_or(Status::RollbackError),
             )
-            .await;
+            .await {
+            error!("[BSC Adapter] - logging status to db: {:?}", error);
+            self.status.store(false, Ordering::SeqCst);
+        }
 
         result
     }
@@ -226,9 +231,7 @@ impl BinanceHandler {
             .signed_call_with_confirmations(
                 &func,
                 params,
-                // TODO get this options from blockchain data
                 web3::contract::Options::default(),
-                // TODO check this
                 1,
                 &self.master_key,
             )
