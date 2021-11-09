@@ -15,8 +15,7 @@ use std::{
         Arc,
     },
 };
-use tokio::select;
-use tokio::sync::mpsc::Sender;
+use tokio::{select, sync::mpsc::Sender};
 use web3::{
     self,
     futures::StreamExt,

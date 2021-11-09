@@ -161,8 +161,7 @@ impl BinanceHandler {
     }
 
     async fn process(&self, event: &impl Event, contract: Contract<WebSocket>) -> Result<(), Error> {
-        self
-            .db
+        self.db
             .update_status_realis(&event.get_hash(), Status::InProgress)
             .await?;
 
@@ -182,7 +181,8 @@ impl BinanceHandler {
                 &event.get_hash(),
                 result.as_ref().map(|_| Status::Success).unwrap_or(Status::Error),
             )
-            .await {
+            .await
+        {
             error!("[BSC Adapter] - logging status to db: {:?}", error);
             self.status.store(false, Ordering::SeqCst);
         }
@@ -214,7 +214,8 @@ impl BinanceHandler {
                     .map(|_| Status::RollbackSuccess)
                     .unwrap_or(Status::RollbackError),
             )
-            .await {
+            .await
+        {
             error!("[BSC Adapter] - logging status to db: {:?}", error);
             self.status.store(false, Ordering::SeqCst);
         }
@@ -229,13 +230,7 @@ impl BinanceHandler {
         params: impl Tokenize,
     ) -> Result<(), Error> {
         let receipt = contract
-            .signed_call_with_confirmations(
-                func,
-                params,
-                web3::contract::Options::default(),
-                1,
-                &self.master_key,
-            )
+            .signed_call_with_confirmations(func, params, web3::contract::Options::default(), 1, &self.master_key)
             .await
             .map_err(Error::Web3)?;
 

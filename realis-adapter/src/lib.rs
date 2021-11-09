@@ -116,7 +116,8 @@ impl RealisAdapter {
                 &event.get_hash(),
                 tx_result.as_ref().map(|_| Status::Success).unwrap_or(Status::Error),
             )
-            .await {
+            .await
+        {
             error!("[Realis Adapter] - logging status to db: {:?}", error);
             self.status.store(false, Ordering::SeqCst);
         }
@@ -135,7 +136,8 @@ impl RealisAdapter {
                     .map(|_| Status::RollbackSuccess)
                     .unwrap_or(Status::RollbackError),
             )
-            .await {
+            .await
+        {
             error!("[Realis Adapter] - logging status to db: {:?}", error);
             self.status.store(false, Ordering::SeqCst);
         }
