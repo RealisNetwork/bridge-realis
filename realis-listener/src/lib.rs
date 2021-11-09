@@ -81,7 +81,6 @@ impl BlockListener {
                         info!("Start process block!");
                         let db = Arc::clone(&self.db);
                         match BlockListener::get_block_sidecar(block_number).await {
-                            // TODO CHECK update block in table?
                             Ok(block) => {
                                  match &db.update_block_realis(block_number).await{
                                     Ok(_) => { info!("Success add realis block to database"); }
