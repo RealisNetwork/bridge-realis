@@ -3,6 +3,7 @@ use std::sync::{atomic::AtomicBool, Arc};
 
 use bsc_adapter::BinanceHandler;
 use db::Database;
+use futures::future::join_all;
 use log::{error, info, LevelFilter};
 use realis_listener::BlockListener;
 use rust_lib::blockchain::wallets::RealisWallet;
@@ -173,8 +174,6 @@ fn main() {
             }
         }
 
-        for task in modules {
-            let _result = task.await;
-        }
+        join_all(modules).await;
     });
 }
