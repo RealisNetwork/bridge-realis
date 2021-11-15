@@ -5,7 +5,8 @@ use primitives::{
 };
 use realis_primitives::TokenId;
 use runtime::AccountId;
-use sp_core::crypto::Ss58Codec;
+use serde::Deserialize;
+use serde_json::Value;
 use std::str::FromStr;
 use web3::{
     ethabi::ParamType,
@@ -16,10 +17,10 @@ use web3::{
 pub enum ParseError {
     MissingParam(RawEvent, usize),
     DecodeError(RawEvent, Error),
-    AccountId(RawEvent),
     U128(RawEvent),
     Address(RawEvent),
     TokenID(RawEvent),
+    SerdeError(RawEvent, serde_json::error::Error),
 }
 
 impl ParseError {
@@ -27,9 +28,9 @@ impl ParseError {
         match self {
             ParseError::MissingParam(event, _)
             | ParseError::DecodeError(event, _)
-            | ParseError::AccountId(event)
             | ParseError::U128(event)
             | ParseError::Address(event)
+            | ParseError::SerdeError(event, _)
             | ParseError::TokenID(event) => event,
         }
         .clone()
@@ -61,13 +62,16 @@ impl EventParser for TokenParser {
                 )
                 .map_err(|error| ParseError::DecodeError(raw_event.clone(), error))?;
 
-                let to = AccountId::from_string(
+                let json: Value = serde_json::to_value(
                     &params
-                        .get(0)
-                        .ok_or_else(|| ParseError::MissingParam(raw_event.clone(), 0))?
+                        .get(1)
+                        .ok_or_else(|| ParseError::MissingParam(raw_event.clone(), 1))?
                         .to_string(),
                 )
-                .map_err(|_| ParseError::AccountId(raw_event.clone()))?;
+                .map_err(|error| ParseError::SerdeError(raw_event.clone(), error))?;
+
+                let to: AccountId = Deserialize::deserialize(json)
+                    .map_err(|error| ParseError::SerdeError(raw_event.clone(), error))?;
 
                 let amount = params
                     .get(1)
@@ -124,13 +128,16 @@ impl EventParser for NftParser {
                     .into_address()
                     .ok_or_else(|| ParseError::Address(raw_event.clone()))?;
 
-                let to = AccountId::from_string(
+                let json: Value = serde_json::to_value(
                     &params
                         .get(1)
                         .ok_or_else(|| ParseError::MissingParam(raw_event.clone(), 1))?
                         .to_string(),
                 )
-                .map_err(|_| ParseError::AccountId(raw_event.clone()))?;
+                .map_err(|error| ParseError::SerdeError(raw_event.clone(), error))?;
+
+                let to: AccountId = Deserialize::deserialize(json)
+                    .map_err(|error| ParseError::SerdeError(raw_event.clone(), error))?;
                 let token_id = TokenId::from_str(
                     &params
                         .get(2)
