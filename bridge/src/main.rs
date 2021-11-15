@@ -1,8 +1,4 @@
-use rust_lib::{
-    config::Config,
-    healthchecker,
-    logger::{level::Parser, logger_init},
-};
+use rust_lib::{async_logger, config::Config, healthchecker};
 use std::sync::{atomic::AtomicBool, Arc};
 
 use bsc_adapter::BinanceHandler;
@@ -15,10 +11,10 @@ use tokio::sync::mpsc;
 #[allow(clippy::too_many_lines)]
 fn main() {
     // Init logger
-    match Parser::from_str(&Config::key_from_value("LOGGER_LEVEL").expect("Missing env: LOGGER_LEVEL")) {
-        Some(level) => logger_init(level),
-        None => logger_init(LevelFilter::Trace),
-    }
+    let (_, _guard) = match Config::key_from_value("LOGGER_LEVEL") {
+        Ok(level) => async_logger::init(level),
+        Err(_) => async_logger::init(LevelFilter::Trace.to_string()),
+    };
 
     // Read tokio options from env
     let workers_number = Config::key_from_value("WORKERS_NUMBER").expect("Missing env: WORKERS_NUMBER");

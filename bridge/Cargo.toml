@@ -11,7 +11,6 @@ realis-listener = { path = "../realis-listener" }
 realis-adapter = { path = "../realis-adapter" }
 bsc-listener = { path = "../bsc-listener" }
 bsc-adapter = { path = "../bsc-adapter" }
-primitives = { path = "../primitives" }
 db = { path = "../db" }
 #
 rust-lib = { git = "https://github.com/RealisNetwork/rust-lib.git" }

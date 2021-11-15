@@ -5,8 +5,8 @@ use primitives::{
 };
 use realis_primitives::TokenId;
 use runtime::AccountId;
+use sp_core::crypto::Ss58Codec;
 use std::str::FromStr;
-use substrate_api_client::sp_runtime::app_crypto::Ss58Codec;
 use web3::{
     ethabi::ParamType,
     types::{TransactionReceipt, H256},
@@ -131,7 +131,6 @@ impl EventParser for NftParser {
                         .to_string(),
                 )
                 .map_err(|_| ParseError::AccountId(raw_event.clone()))?;
-
                 let token_id = TokenId::from_str(
                     &params
                         .get(2)

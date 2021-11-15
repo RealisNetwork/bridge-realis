@@ -13,8 +13,6 @@ substrate-api-client = { git = "https://github.com/RealisNetwork/substrate-api-c
 rust-lib = { git = "https://github.com/RealisNetwork/rust-lib.git" }
 #
 runtime = { git =  "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "node-runtime" }
-realis-primitives = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "realis-primitives" }
-realis-bridge = { git = "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "realis-bridge" }
 #
 frame-system = { git = "https://github.com/paritytech/substrate", rev = "e7b93e1b1abcf0865824c68d10850bbb451e295f" }
 #
