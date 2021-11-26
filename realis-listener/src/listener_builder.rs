@@ -40,6 +40,7 @@ impl BlockListenerBuilder {
         }
     }
 
+    // TODO move subscribe() here
     pub fn build(self) -> (BlockListener, UnboundedSender<H256>) {
         let client = WsRpcClient::new(&self.url);
         let api = Api::<sr25519::Pair, WsRpcClient>::new(client).unwrap();
@@ -84,8 +85,9 @@ impl BlockListenerBuilder {
             }
         });
 
+        // TODO remove url
         (
-            BlockListener::new(async_rx, self.tx, self.status, api, self.db),
+            BlockListener::new(&self.url, self.tx, api, self.status, self.db),
             async_tx,
         )
     }
