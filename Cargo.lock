@@ -2105,7 +2105,7 @@ dependencies = [
 [[package]]
 name = "marketplace"
 version = "0.0.1"
-source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#d2342df023d2efc94c2c579b95511b3af2b1e0b1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#ecd5bf37544ace8ac28a5bfce680e25d2a043c78"
 dependencies = [
  "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=e7b93e1b1abcf0865824c68d10850bbb451e295f)",
  "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=e7b93e1b1abcf0865824c68d10850bbb451e295f)",
@@ -2390,7 +2390,7 @@ dependencies = [
 [[package]]
 name = "node-runtime"
 version = "3.0.0-dev"
-source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#d2342df023d2efc94c2c579b95511b3af2b1e0b1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#ecd5bf37544ace8ac28a5bfce680e25d2a043c78"
 dependencies = [
  "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=e7b93e1b1abcf0865824c68d10850bbb451e295f)",
  "frame-election-provider-support",
@@ -2935,7 +2935,7 @@ dependencies = [
 [[package]]
 name = "pallet-nft"
 version = "0.0.2"
-source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#d2342df023d2efc94c2c579b95511b3af2b1e0b1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#ecd5bf37544ace8ac28a5bfce680e25d2a043c78"
 dependencies = [
  "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=e7b93e1b1abcf0865824c68d10850bbb451e295f)",
  "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=e7b93e1b1abcf0865824c68d10850bbb451e295f)",
@@ -3032,7 +3032,7 @@ dependencies = [
 [[package]]
 name = "pallet-staking"
 version = "0.0.2"
-source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#d2342df023d2efc94c2c579b95511b3af2b1e0b1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#ecd5bf37544ace8ac28a5bfce680e25d2a043c78"
 dependencies = [
  "frame-election-provider-support",
  "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=e7b93e1b1abcf0865824c68d10850bbb451e295f)",
@@ -3939,7 +3939,7 @@ dependencies = [
 [[package]]
 name = "realis-bridge"
 version = "0.0.1"
-source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#d2342df023d2efc94c2c579b95511b3af2b1e0b1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#ecd5bf37544ace8ac28a5bfce680e25d2a043c78"
 dependencies = [
  "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=e7b93e1b1abcf0865824c68d10850bbb451e295f)",
  "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=e7b93e1b1abcf0865824c68d10850bbb451e295f)",
@@ -3962,7 +3962,7 @@ dependencies = [
 [[package]]
 name = "realis-game-api"
 version = "0.0.1"
-source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#d2342df023d2efc94c2c579b95511b3af2b1e0b1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#ecd5bf37544ace8ac28a5bfce680e25d2a043c78"
 dependencies = [
  "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=e7b93e1b1abcf0865824c68d10850bbb451e295f)",
  "frame-election-provider-support",
@@ -4006,7 +4006,7 @@ dependencies = [
 [[package]]
 name = "realis-primitives"
 version = "0.0.2"
-source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#d2342df023d2efc94c2c579b95511b3af2b1e0b1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#ecd5bf37544ace8ac28a5bfce680e25d2a043c78"
 dependencies = [
  "derive_more",
  "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=e7b93e1b1abcf0865824c68d10850bbb451e295f)",
@@ -4184,7 +4184,7 @@ dependencies = [
 [[package]]
 name = "runtime-common"
 version = "0.0.1"
-source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#d2342df023d2efc94c2c579b95511b3af2b1e0b1"
+source = "git+https://github.com/RealisNetwork/Realis.Network.git?branch=main#ecd5bf37544ace8ac28a5bfce680e25d2a043c78"
 dependencies = [
  "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=e7b93e1b1abcf0865824c68d10850bbb451e295f)",
  "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate?rev=e7b93e1b1abcf0865824c68d10850bbb451e295f)",
@@ -6622,7 +6622,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f559b464de2e2bdabcac6a210d12e9b5a5973c251e102c44c585c71d51bd78e"
 dependencies = [
  "cfg-if 1.0.0",
- "rand 0.3.23",
+ "rand 0.6.5",
  "static_assertions",
 ]
 
