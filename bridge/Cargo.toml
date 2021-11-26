@@ -15,5 +15,5 @@ db = { path = "../db" }
 #
 rust-lib = { git = "https://github.com/RealisNetwork/rust-lib.git" }
 tokio = { version = "1", features = ["full"] }
-futures = "0.3.17"
+futures = "0.3.18"
 log = "0.4"
