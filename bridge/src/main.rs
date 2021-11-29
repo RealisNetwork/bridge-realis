@@ -5,7 +5,7 @@ use bsc_adapter::BinanceHandler;
 use db::Database;
 use futures::future::join_all;
 use log::{error, info, LevelFilter};
-use realis_listener::BlockListener;
+use realis_listener::listener_builder::BlockListenerBuilder;
 use rust_lib::blockchain::wallets::RealisWallet;
 use tokio::sync::mpsc;
 
@@ -113,17 +113,17 @@ fn main() {
         match Config::key_from_value("RESTORE").map(|value| value == *"true") {
             Ok(true) => {
                 let last_block = db.get_last_block_realis().await.unwrap_or(0);
-                let mut listener =
-                    BlockListener::new(&url, binance_tx, Arc::clone(&status), Arc::clone(&db)).await;
+                let (mut listener, tx) =
+                    BlockListenerBuilder::new(&url, binance_tx, Arc::clone(&status), Arc::clone(&db)).build();
                 modules.push(tokio::spawn({
                     async move {
-                        listener.listen_with_restore(last_block).await;
+                        listener.listen_with_restore(last_block, tx).await;
                     }
                 }));
             }
             Ok(false) | Err(_) => {
-                let mut listener =
-                    BlockListener::new(&url, binance_tx, Arc::clone(&status), Arc::clone(&db)).await;
+                let (mut listener, _) =
+                    BlockListenerBuilder::new(&url, binance_tx, Arc::clone(&status), Arc::clone(&db)).build();
                 modules.push(tokio::spawn({
                     async move {
                         listener.listen().await;

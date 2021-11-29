@@ -10,19 +10,20 @@ use std::sync::{
 use sp_runtime::{generic, traits::BlakeTwo256};
 use substrate_api_client::{
     rpc::WsRpcClient,
-    sp_runtime::app_crypto::{sp_core::H256, sr25519},
+    sp_runtime::app_crypto::sr25519,
     Api, BlockNumber,
 };
 
-use log::error;
-use serde_json::Value;
+use log::{error, warn};
+use substrate_api_client::sp_runtime::app_crypto::sp_core::H256;
 use tokio::sync::mpsc::{unbounded_channel, Sender, UnboundedSender};
+use primitives::events::realis::RealisEventType;
 
 pub struct BlockListenerBuilder {
     url: String,
     tx: Sender<(Value, String)>,
     status: Arc<AtomicBool>,
-    db: Database,
+    db: Arc<Database>,
 }
 
 impl BlockListenerBuilder {
@@ -30,7 +31,7 @@ impl BlockListenerBuilder {
         url: &str,
         tx: Sender<(Value, String)>,
         status: Arc<AtomicBool>,
-        db: Database,
+        db: Arc<Database>,
     ) -> Self {
         Self {
             url: String::from(url),
@@ -40,12 +41,13 @@ impl BlockListenerBuilder {
         }
     }
 
+    /// # Panics
+    #[must_use]
     pub fn build(self) -> (BlockListener, UnboundedSender<H256>) {
         let client = WsRpcClient::new(&self.url);
         let api = Api::<sr25519::Pair, WsRpcClient>::new(client).unwrap();
         let (async_tx, async_rx) = unbounded_channel();
 
-        // try use tokio spawn
         std::thread::spawn({
             let async_tx = async_tx.clone();
             let api = api.clone();
@@ -85,8 +87,8 @@ impl BlockListenerBuilder {
         });
 
         (
-            BlockListener::new(async_rx, self.tx, self.status, api, self.db),
-            async_tx,
+            BlockListener::new(async_rx, self.tx, api, self.status, self.db),
+            async_tx
         )
     }
 }

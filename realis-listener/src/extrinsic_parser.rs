@@ -14,26 +14,30 @@ use web3::types::H160;
 
 #[derive(Clone)]
 pub struct ExtrinsicParser {
-    extrinsic: Extrinsic,
+    extrinsic: UncheckedExtrinsic<Address, Call, Signature, Extra>,
     block_number: BlockNumber,
 }
 
+// TODO remove file
 impl ExtrinsicParser {
     #[allow(clippy::nonminimal_bool)]
     #[must_use]
-    pub fn new(extrinsic: Extrinsic, block_number: BlockNumber) -> Option<Self> {
-        if extrinsic.method.pallet == "realisBridge"
-            && extrinsic.method.method == "transferTokenToBsc"
-            && extrinsic
-                .events
-                .iter()
-                .any(|x| x.method.method.contains("ExtrinsicSuccess"))
-            || extrinsic.method.pallet == "realisBridge"
-                && extrinsic.method.method == "transferNftToBsc"
-                && extrinsic
-                    .events
-                    .iter()
-                    .any(|x| x.method.method.contains("ExtrinsicSuccess"))
+    pub fn new(extrinsic: UncheckedExtrinsic<Address, Call, Signature, Extra>, block_number: BlockNumber) -> Option<Self> {
+        if let Some((address, signature, extra)) = extrinsic.signature.unwrap_or((Default::default(), Default::default(), ())) {
+            let z = address;
+            let x = extrinsic.signature.unwrap().0;
+        } else {}
+            // && extrinsic.method.method == "transferTokenToBsc"
+            // && extrinsic
+            //     .events
+            //     .iter()
+            //     .any(|x| x.method.method.contains("ExtrinsicSuccess"))
+            // || extrinsic.method.pallet == "realisBridge"
+            //     && extrinsic.method.method == "transferNftToBsc"
+            //     && extrinsic
+            //         .events
+            //         .iter()
+            //         .any(|x| x.method.method.contains("ExtrinsicSuccess"))
         {
             info!("Start proccess extrinsic!");
             Some(Self {
