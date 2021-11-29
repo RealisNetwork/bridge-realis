@@ -10,7 +10,7 @@ primitives = { path = "../primitives" }
 db = { path = "../db" }
 #
 substrate-api-client = { git = "https://github.com/RealisNetwork/substrate-api-client.git" }
-rust-lib = { git = "https://github.com/RealisNetwork/rust-lib.git" }
+rust-lib = { git = "https://github.com/RealisNetwork/rust-lib.git", features = ["full"] }
 #
 runtime = { git =  "https://github.com/RealisNetwork/Realis.Network.git", branch = "main", package = "node-runtime" }
 #
