@@ -8,31 +8,24 @@ use std::sync::{
 };
 
 use sp_runtime::{generic, traits::BlakeTwo256};
-use substrate_api_client::{
-    rpc::WsRpcClient,
-    sp_runtime::app_crypto::sr25519,
-    Api, BlockNumber,
-};
+use substrate_api_client::{rpc::WsRpcClient, sp_runtime::app_crypto::sr25519, Api, BlockNumber};
 
-use log::{error, warn};
+use log::error;
+use primitives::events::realis::RealisEventType;
 use substrate_api_client::sp_runtime::app_crypto::sp_core::H256;
 use tokio::sync::mpsc::{unbounded_channel, Sender, UnboundedSender};
-use primitives::events::realis::RealisEventType;
 
+#[allow(clippy::module_name_repetitions)]
 pub struct BlockListenerBuilder {
     url: String,
-    tx: Sender<(Value, String)>,
+    tx: Sender<RealisEventType>,
     status: Arc<AtomicBool>,
     db: Arc<Database>,
 }
 
 impl BlockListenerBuilder {
-    pub fn new(
-        url: &str,
-        tx: Sender<(Value, String)>,
-        status: Arc<AtomicBool>,
-        db: Arc<Database>,
-    ) -> Self {
+    #[must_use]
+    pub fn new(url: &str, tx: Sender<RealisEventType>, status: Arc<AtomicBool>, db: Arc<Database>) -> Self {
         Self {
             url: String::from(url),
             tx,
@@ -65,9 +58,10 @@ impl BlockListenerBuilder {
                     if !status.load(Ordering::Acquire) {
                         break;
                     }
-                    match sync_rx.recv().map(|header| {
-                        serde_json::from_str::<generic::Header<BlockNumber, BlakeTwo256>>(&header)
-                    }) {
+                    match sync_rx
+                        .recv()
+                        .map(|header| serde_json::from_str::<generic::Header<BlockNumber, BlakeTwo256>>(&header))
+                    {
                         Ok(Ok(header)) => {
                             if let Err(error) = async_tx.send(header.hash()) {
                                 error!("{:?}", error);
@@ -88,7 +82,7 @@ impl BlockListenerBuilder {
 
         (
             BlockListener::new(async_rx, self.tx, api, self.status, self.db),
-            async_tx
+            async_tx,
         )
     }
 }

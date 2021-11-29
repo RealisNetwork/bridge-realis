@@ -10,7 +10,7 @@ runtime = { git =  "https://github.com/RealisNetwork/Realis.Network.git", branch
 realis-primitives = { git =  "https://github.com/RealisNetwork/Realis.Network.git", branch = "main" }
 #
 
-rust-lib = { git = "https://github.com/RealisNetwork/rust-lib.git" }
+rust-lib = { git = "https://github.com/RealisNetwork/rust-lib.git", features = ["full"] }
 #
 primitives = { path = "../primitives" }
 db = { path = "../db" }

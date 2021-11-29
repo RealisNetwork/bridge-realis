@@ -19,3 +19,4 @@ features = ["sync"]
 
 [dependencies.rust-lib]
 git = "https://github.com/RealisNetwork/rust-lib.git"
+features = ["full"]
