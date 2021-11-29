@@ -114,8 +114,7 @@ fn main() {
             Ok(true) => {
                 let last_block = db.get_last_block_realis().await.unwrap_or(0);
                 let (mut listener, tx) =
-                    BlockListenerBuilder::new(&url, binance_tx, Arc::clone(&status), Arc::clone(&db))
-                        .build();
+                    BlockListenerBuilder::new(&url, binance_tx, Arc::clone(&status), Arc::clone(&db)).build();
                 modules.push(tokio::spawn({
                     async move {
                         listener.listen_with_restore(last_block, tx).await;
@@ -124,8 +123,7 @@ fn main() {
             }
             Ok(false) | Err(_) => {
                 let (mut listener, _) =
-                    BlockListenerBuilder::new(&url, binance_tx, Arc::clone(&status), Arc::clone(&db))
-                        .build();
+                    BlockListenerBuilder::new(&url, binance_tx, Arc::clone(&status), Arc::clone(&db)).build();
                 modules.push(tokio::spawn({
                     async move {
                         listener.listen().await;

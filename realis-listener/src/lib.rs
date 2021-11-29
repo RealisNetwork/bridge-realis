@@ -2,36 +2,30 @@ mod errors;
 pub mod listener_builder;
 
 use db::Database;
-use primitives::{block::Block, types::BlockNumber, Error};
-
+use errors::RpcError;
+use frame_system::{EventRecord, Phase};
 use log::{error, info, warn};
+use rust_lib::healthchecker::HealthChecker;
+use std::str::FromStr;
 use tokio::select;
 use web3::types::H160;
 
-use runtime::{
-    Block,
-    Event,
-};
-use substrate_api_client::{
-    rpc::WsRpcClient,
-    sp_runtime::app_crypto::{sr25519},
-    Api, Hash,
-};
-use substrate_api_client::sp_runtime::app_crypto::sp_core::H256;
+use primitives::events::realis::{RealisEventType, TransferNftToBsc, TransferTokenToBsc};
+use runtime::{Block, Event};
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
-use tokio::sync::mpsc::{Sender, UnboundedReceiver, UnboundedSender};
-use primitives::events::realis::{
-    RealisEventType,
-    TransferNftToBsc,
-    TransferTokenToBsc
+use substrate_api_client::{
+    rpc::WsRpcClient,
+    sp_runtime::app_crypto::{sp_core::H256, sr25519},
+    Api, Hash,
 };
+use tokio::sync::mpsc::{Sender, UnboundedReceiver, UnboundedSender};
 
 pub struct BlockListener {
     rx: UnboundedReceiver<Hash>,
-    tx: Sender<(Value, String)>,
+    tx: Sender<RealisEventType>,
     api: Api<sr25519::Pair, WsRpcClient>,
     status: Arc<AtomicBool>,
     db: Arc<Database>,
@@ -39,6 +33,7 @@ pub struct BlockListener {
 
 impl BlockListener {
     /// # Errors
+    #[must_use]
     pub fn new(
         rx: UnboundedReceiver<Hash>,
         tx: Sender<RealisEventType>,
@@ -86,12 +81,9 @@ impl BlockListener {
 
         match self.get_block(hash) {
             Ok(block) => {
-                let block_number = block.header.number as u64;
+                let block_number = u64::from(block.header.number);
                 for number in from..block_number {
-                    match self
-                        .api
-                        .get_storage_map("System", "BlockHash", number, None)
-                    {
+                    match self.api.get_storage_map("System", "BlockHash", number, None) {
                         Ok(Some(hash)) => {
                             info!("[Restore] - add to the queue - [{:^8}]", number);
                             let _result = tx.send(hash);
@@ -105,7 +97,7 @@ impl BlockListener {
                             Err(error) => {
                                 error!("Can't add realis block to database with error: {:?}", error);
                                 self.status.store(false, Ordering::SeqCst);
-                            },
+                            }
                         },
                         Err(error) => error!("{:?}", error),
                     }
@@ -129,31 +121,59 @@ impl BlockListener {
             if let Phase::ApplyExtrinsic(_) = event.phase {
                 match event.event {
                     Event::RealisBridge(realis_bridge::Event::SendTokensToBsc(from, to, value, _)) => {
-                        warn!("First");
-                        self.tx.send(RealisEventType::TransferTokenToBsc(TransferTokenToBsc{
-                            block: block_number as u64,
-                            hash: hash.unwrap(),
-                            from,
-                            to: H160::from_slice(to.to_string().as_bytes()),
-                            amount: value
-                        })).await.unwrap()
+                        match H160::from_str(&format!("{:?}", to)) {
+                            Ok(to) => {
+                                match self
+                                    .tx
+                                    .send(RealisEventType::TransferTokenToBsc(TransferTokenToBsc {
+                                        block: u64::from(block_number),
+                                        hash: hash.unwrap(),
+                                        from,
+                                        to,
+                                        amount: value,
+                                    }))
+                                    .await
+                                {
+                                    Ok(()) => info!("Success send to Binance Handler!"),
+                                    Err(error) => {
+                                        error!("Error transfer to Binance Handler {:?}", error);
+                                        self.status.store(false, Ordering::SeqCst);
+                                    }
+                                }
+                            }
+                            Err(error) => error!("Cannot parse account: {:?}", error),
+                        }
                     }
                     Event::RealisBridge(realis_bridge::Event::TransferNftToBSC(from, to, token_id)) => {
-                        warn!("Second");
-                        self.tx.send(RealisEventType::TransferNftToBsc(TransferNftToBsc{
-                            block: block_number as u64,
-                            hash: hash.unwrap(),
-                            from,
-                            dest: H160::from_slice(to.to_string().as_bytes()),
-                            token_id
-                        })).await.unwrap()
+                        match H160::from_str(&format!("{:?}", to)) {
+                            Ok(dest) => {
+                                match self
+                                    .tx
+                                    .send(RealisEventType::TransferNftToBsc(TransferNftToBsc {
+                                        block: u64::from(block_number),
+                                        hash: hash.unwrap(),
+                                        from,
+                                        dest,
+                                        token_id,
+                                    }))
+                                    .await
+                                {
+                                    Ok(()) => info!("Success send to Binance Handler!"),
+                                    Err(error) => {
+                                        error!("Error transfer to Binance Handler {:?}", error);
+                                        self.status.store(false, Ordering::SeqCst);
+                                    }
+                                }
+                            }
+                            Err(error) => error!("Cannot parse account: {:?}", error),
+                        }
                     }
                     event => warn!("[Event] - skipping - {:?}", event),
                 }
             }
         }
 
-        Ok(block_number as u32)
+        Ok(block_number)
     }
 
     // TODO remove

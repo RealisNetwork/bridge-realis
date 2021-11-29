@@ -41,6 +41,8 @@ impl BlockListenerBuilder {
         }
     }
 
+    /// # Panics
+    #[must_use]
     pub fn build(self) -> (BlockListener, UnboundedSender<H256>) {
         let client = WsRpcClient::new(&self.url);
         let api = Api::<sr25519::Pair, WsRpcClient>::new(client).unwrap();
