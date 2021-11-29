@@ -176,52 +176,17 @@ impl BlockListener {
         Ok(block_number)
     }
 
-    // TODO remove
-    fn subscribe(
-        url: &str,
-        status: Arc<AtomicBool>,
-    ) -> (UnboundedSender<BlockNumber>, UnboundedReceiver<BlockNumber>) {
-        let client = WsRpcClient::new(url);
-        let api = Api::<sr25519::Pair, WsRpcClient>::new(client).unwrap();
-        let (async_tx, async_rx) = unbounded_channel();
+    fn get_block(&self, hash: Option<H256>) -> Result<Block, RpcError> {
+        self.api
+            .get_block(hash)
+            .map_err(|_| RpcError::Api)?
+            .ok_or(RpcError::BlockNotFound)
+    }
 
-        std::thread::spawn({
-            let async_tx = async_tx.clone();
-
-            move || {
-                let (sync_tx, sync_rx) = channel();
-
-                if let Err(_error) = api.subscribe_finalized_heads(sync_tx) {
-                    status.store(false, Ordering::SeqCst);
-                    return;
-                }
-
-                loop {
-                    if !status.load(Ordering::Acquire) {
-                        break;
-                    }
-                    match sync_rx
-                        .recv()
-                        .map(|header| serde_json::from_str::<generic::Header<BlockNumber, BlakeTwo256>>(&header))
-                    {
-                        Ok(Ok(header)) => {
-                            if let Err(error) = async_tx.send(header.number) {
-                                error!("{:?}", error);
-                                return;
-                            }
-                        }
-                        Ok(Err(error)) => {
-                            error!("{:?}", error);
-                        }
-                        Err(error) => {
-                            error!("Terminating with error: {:?}", error);
-                            status.store(false, Ordering::SeqCst);
-                        }
-                    }
-                }
-            }
-        });
-
-        (async_tx, async_rx)
+    fn get_events(&self, hash: Option<H256>) -> Result<Vec<EventRecord<Event, H256>>, RpcError> {
+        self.api
+            .get_storage_value::<Vec<EventRecord<Event, H256>>>("System", "Events", hash)
+            .map_err(|_| RpcError::Api)?
+            .ok_or(RpcError::EventsNotFound)
     }
 }
