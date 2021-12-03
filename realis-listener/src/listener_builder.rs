@@ -2,7 +2,6 @@ use crate::BlockListener;
 use db::Database;
 
 use std::sync::{
-    atomic::{AtomicBool, Ordering},
     mpsc::channel,
     Arc,
 };
@@ -11,6 +10,7 @@ use sp_runtime::{generic, traits::BlakeTwo256};
 use substrate_api_client::{rpc::WsRpcClient, sp_runtime::app_crypto::sr25519, Api, BlockNumber};
 
 use log::error;
+use rust_lib::healthchecker::HealthChecker;
 use primitives::events::realis::RealisEventType;
 use substrate_api_client::sp_runtime::app_crypto::sp_core::H256;
 use tokio::sync::mpsc::{unbounded_channel, Sender, UnboundedSender};
@@ -19,17 +19,17 @@ use tokio::sync::mpsc::{unbounded_channel, Sender, UnboundedSender};
 pub struct BlockListenerBuilder {
     url: String,
     tx: Sender<RealisEventType>,
-    status: Arc<AtomicBool>,
+    health_checker: HealthChecker,
     db: Arc<Database>,
 }
 
 impl BlockListenerBuilder {
     #[must_use]
-    pub fn new(url: &str, tx: Sender<RealisEventType>, status: Arc<AtomicBool>, db: Arc<Database>) -> Self {
+    pub fn new(url: &str, tx: Sender<RealisEventType>, health_checker: HealthChecker, db: Arc<Database>) -> Self {
         Self {
             url: String::from(url),
             tx,
-            status,
+            health_checker,
             db,
         }
     }
@@ -44,18 +44,17 @@ impl BlockListenerBuilder {
         std::thread::spawn({
             let async_tx = async_tx.clone();
             let api = api.clone();
-            let status = Arc::clone(&self.status);
-
+            let health_checker = self.health_checker.clone();
             move || {
                 let (sync_tx, sync_rx) = channel();
 
                 if let Err(_error) = api.subscribe_finalized_heads(sync_tx) {
-                    status.store(false, Ordering::SeqCst);
+                    health_checker.make_sick();
                     return;
                 }
 
                 loop {
-                    if !status.load(Ordering::Acquire) {
+                    if !health_checker.is_ok() {
                         break;
                     }
                     match sync_rx
@@ -73,7 +72,7 @@ impl BlockListenerBuilder {
                         }
                         Err(error) => {
                             error!("Terminating with error: {:?}", error);
-                            status.store(false, Ordering::SeqCst);
+                            health_checker.make_sick();
                         }
                     }
                 }
@@ -81,7 +80,7 @@ impl BlockListenerBuilder {
         });
 
         (
-            BlockListener::new(async_rx, self.tx, api, self.status, self.db),
+            BlockListener::new(async_rx, self.tx, api, self.health_checker, self.db),
             async_tx,
         )
     }

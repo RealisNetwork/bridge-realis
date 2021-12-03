@@ -1,5 +1,5 @@
-use rust_lib::{async_logger, config::Config, healthchecker};
-use std::sync::{atomic::AtomicBool, Arc};
+use rust_lib::{async_logger, config::Config};
+use std::sync::Arc;
 
 use bsc_adapter::BinanceHandler;
 use db::Database;
@@ -7,6 +7,7 @@ use futures::future::join_all;
 use log::{error, info, LevelFilter};
 use realis_listener::listener_builder::BlockListenerBuilder;
 use rust_lib::blockchain::wallets::RealisWallet;
+use rust_lib::healthchecker::HealthChecker;
 use tokio::sync::mpsc;
 
 #[allow(clippy::too_many_lines)]
@@ -54,7 +55,6 @@ fn main() {
         // Init some variables
         let (binance_tx, binance_rx) = mpsc::channel(1024);
         let (realis_tx, realis_rx) = mpsc::channel(1024);
-        let status = Arc::new(AtomicBool::new(true));
         let pair = rust_lib::blockchain::wallets::BridgeMaster::get_private();
         // TODO get from vault
         let binance_master_key = "98a946173492e8e5b73577341cea3c3b8e92481bfcea038b8fd7c1940d0cd42f";
@@ -76,17 +76,12 @@ fn main() {
 
         let mut modules = vec![];
 
-        modules.push(tokio::spawn({
-            let status = Arc::clone(&status);
-            async move {
-                healthchecker::listen(status, &healthchecker_address).await;
-            }
-        }));
+       let health_checker = HealthChecker::new(&healthchecker_address, 10000).await.expect("Healthchecker error");
 
         let binance_handler = BinanceHandler::new(
             binance_rx,
             realis_tx.clone(),
-            Arc::clone(&status),
+            health_checker.clone(),
             &binance_url,
             token_contract_address.clone(),
             nft_contract_address.clone(),
@@ -98,7 +93,7 @@ fn main() {
         let realis_adapter = realis_adapter::RealisAdapter::new(
             realis_rx,
             binance_tx.clone(),
-            Arc::clone(&status),
+            health_checker.clone(),
             &url,
             pair,
             Arc::clone(&db),
@@ -114,7 +109,7 @@ fn main() {
             Ok(true) => {
                 let last_block = db.get_last_block_realis().await.unwrap_or(0);
                 let (mut listener, tx) =
-                    BlockListenerBuilder::new(&url, binance_tx, Arc::clone(&status), Arc::clone(&db)).build();
+                    BlockListenerBuilder::new(&url, binance_tx, health_checker.clone(), Arc::clone(&db)).build();
                 modules.push(tokio::spawn({
                     async move {
                         listener.listen_with_restore(last_block, tx).await;
@@ -123,7 +118,7 @@ fn main() {
             }
             Ok(false) | Err(_) => {
                 let (mut listener, _) =
-                    BlockListenerBuilder::new(&url, binance_tx, Arc::clone(&status), Arc::clone(&db)).build();
+                    BlockListenerBuilder::new(&url, binance_tx, health_checker.clone(), Arc::clone(&db)).build();
                 modules.push(tokio::spawn({
                     async move {
                         listener.listen().await;
@@ -138,7 +133,7 @@ fn main() {
                 let mut bsc_listener = bsc_listener::BlockListener::new(
                     binance_url,
                     realis_tx,
-                    Arc::clone(&status),
+                    health_checker.clone(),
                     Arc::clone(&db),
                     &token_contract_address,
                     &nft_contract_address,
@@ -157,7 +152,7 @@ fn main() {
                 let mut bsc_listener = bsc_listener::BlockListener::new(
                     binance_url,
                     realis_tx,
-                    Arc::clone(&status),
+                    health_checker.clone(),
                     Arc::clone(&db),
                     &token_contract_address,
                     &nft_contract_address,

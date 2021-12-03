@@ -13,7 +13,6 @@ use web3::types::H160;
 use primitives::events::realis::{RealisEventType, TransferNftToBsc, TransferTokenToBsc};
 use runtime::{Block, Event};
 use std::sync::{
-    atomic::{AtomicBool, Ordering},
     Arc,
 };
 use substrate_api_client::{
@@ -27,7 +26,7 @@ pub struct BlockListener {
     rx: UnboundedReceiver<Hash>,
     tx: Sender<RealisEventType>,
     api: Api<sr25519::Pair, WsRpcClient>,
-    status: Arc<AtomicBool>,
+    health_checker: HealthChecker,
     db: Arc<Database>,
 }
 
@@ -38,14 +37,14 @@ impl BlockListener {
         rx: UnboundedReceiver<Hash>,
         tx: Sender<RealisEventType>,
         api: Api<sr25519::Pair, WsRpcClient>,
-        status: Arc<AtomicBool>,
+        health_checker: HealthChecker,
         db: Arc<Database>,
     ) -> Self {
         Self {
             rx,
             tx,
             api,
-            status,
+            health_checker,
             db,
         }
     }
@@ -54,15 +53,16 @@ impl BlockListener {
     #[allow(clippy::match_same_arms)]
     pub async fn listen(&mut self) {
         loop {
+            let health_checker = self.health_checker.clone();
             select! {
-                () = HealthChecker::is_alive(Arc::clone(&self.status)) => break,
+                () = health_checker.is_alive() => break,
                 result = self.execute() => {
                     match result {
                         Ok(block_number) => match &self.db.update_block_realis(block_number.into()).await {
                             Ok(_) => info!("Success add realis block to database"),
                             Err(error) => {
                                 error!("Can't add realis block to database with error: {:?}", error);
-                                self.status.store(false, Ordering::SeqCst);
+                                self.health_checker.make_sick();
                             },
                         },
                         Err(error) => error!("{:?}", error),
@@ -96,7 +96,7 @@ impl BlockListener {
                             Ok(_) => info!("Success add realis block to database"),
                             Err(error) => {
                                 error!("Can't add realis block to database with error: {:?}", error);
-                                self.status.store(false, Ordering::SeqCst);
+                                self.health_checker.make_sick();
                             }
                         },
                         Err(error) => error!("{:?}", error),
@@ -137,7 +137,7 @@ impl BlockListener {
                                     Ok(()) => info!("Success send to Binance Handler!"),
                                     Err(error) => {
                                         error!("Error transfer to Binance Handler {:?}", error);
-                                        self.status.store(false, Ordering::SeqCst);
+                                        self.health_checker.make_sick();
                                     }
                                 }
                             }
@@ -161,7 +161,7 @@ impl BlockListener {
                                     Ok(()) => info!("Success send to Binance Handler!"),
                                     Err(error) => {
                                         error!("Error transfer to Binance Handler {:?}", error);
-                                        self.status.store(false, Ordering::SeqCst);
+                                        self.health_checker.make_sick();
                                     }
                                 }
                             }

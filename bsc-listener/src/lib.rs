@@ -11,7 +11,6 @@ use primitives::Error;
 use std::{
     str::FromStr,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
     },
 };
@@ -27,7 +26,7 @@ use web3::{
 pub struct BlockListener {
     web3: Web3<WebSocket>,
     tx: Sender<BscEventType>,
-    status: Arc<AtomicBool>,
+    health_checker: HealthChecker,
     db: Arc<Database>,
     token_contract: Address,
     nft_contract: Address,
@@ -42,7 +41,7 @@ impl BlockListener {
     pub async fn new(
         url: String,
         tx: Sender<BscEventType>,
-        status: Arc<AtomicBool>,
+        health_checker: HealthChecker,
         db: Arc<Database>,
         token_contract: &str,
         nft_contract: &str,
@@ -62,7 +61,7 @@ impl BlockListener {
         Ok(Self {
             web3,
             tx,
-            status,
+            health_checker,
             db,
             token_contract,
             nft_contract,
@@ -110,8 +109,9 @@ impl BlockListener {
         info!("Got subscription id: {:?}", sub.id());
 
         loop {
+            let health_checker = self.health_checker.clone();
             select! {
-                () = HealthChecker::is_alive(Arc::clone(&self.status)) => break,
+                () = health_checker.is_alive() => break,
                 option = sub.next() => {
                     if let Some(value) = option {
                         let block_header = value.unwrap();
@@ -120,7 +120,7 @@ impl BlockListener {
                                 info!("Success add binance block to database");
                             }
                             Err(error) => {
-                                self.status.store(false, Ordering::SeqCst);
+                                self.health_checker.make_sick();
                                 error!("Can't add binance block with error: {:?}", error);
                             }
                         }
@@ -163,7 +163,7 @@ impl BlockListener {
             match event {
                 Ok(event) => {
                     if let Err(error) = self.send(event).await {
-                        self.status.store(false, Ordering::SeqCst);
+                        self.health_checker.make_sick();
                         error!("[BSC Listener] - {:?}", error);
                     }
                 }
@@ -171,7 +171,7 @@ impl BlockListener {
                     error!("Error while decode event: {:?}", error);
                     if let Err(error) = self.db.add_raw_event(error.get_event()).await {
                         error!("[BSC Listener] - logging undecoded event - {:?}", error);
-                        self.status.store(false, Ordering::SeqCst);
+                        self.health_checker.make_sick();
                     }
                 }
             }

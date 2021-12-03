@@ -16,7 +16,6 @@ use substrate_api_client::{
 };
 
 use std::sync::{
-    atomic::{AtomicBool, Ordering},
     Arc,
 };
 
@@ -29,7 +28,7 @@ use tokio::{
 pub struct RealisAdapter {
     rx: Receiver<BscEventType>,
     tx: Sender<RealisEventType>,
-    status: Arc<AtomicBool>,
+    health_checker: HealthChecker,
     api: Api<sr25519::Pair, WsRpcClient>,
     db: Arc<Database>,
 }
@@ -40,7 +39,7 @@ impl RealisAdapter {
     pub fn new(
         rx: Receiver<BscEventType>,
         tx: Sender<RealisEventType>,
-        status: Arc<AtomicBool>,
+        health_checker: HealthChecker,
         url: &str,
         master_key: sr25519::Pair,
         db: Arc<Database>,
@@ -52,7 +51,7 @@ impl RealisAdapter {
         Self {
             rx,
             tx,
-            status,
+            health_checker,
             api,
             db,
         }
@@ -62,8 +61,9 @@ impl RealisAdapter {
     /// # Errors
     pub async fn handle(mut self) {
         loop {
+            let health_checker = self.health_checker.clone();
             select! {
-                () = HealthChecker::is_alive(Arc::clone(&self.status)) => break,
+                () = health_checker.is_alive() => break,
                 option = self.rx.recv() => {
                     if let Some(message) = option {
                         match self.execute(&message).await {
@@ -84,11 +84,11 @@ impl RealisAdapter {
                                 if let Some(rollback_request) = rollback_request {
                                     if let Err(error) =  self.tx.send(rollback_request).await {
                                         error!("[Realis Adapter] - send error: {:?}", error);
-                                        self.status.store(false, Ordering::SeqCst);
+                                        self.health_checker.make_sick();
                                     }
                                 } else {
                                     error!("Rollback fail: {:?}", error);
-                                    self.status.store(false, Ordering::SeqCst);
+                                    self.health_checker.make_sick();
                                 }
                             }
                         }
@@ -119,7 +119,7 @@ impl RealisAdapter {
             .await
         {
             error!("[Realis Adapter] - logging status to db: {:?}", error);
-            self.status.store(false, Ordering::SeqCst);
+            self.health_checker.make_sick();
         }
 
         tx_result
@@ -139,7 +139,7 @@ impl RealisAdapter {
             .await
         {
             error!("[Realis Adapter] - logging status to db: {:?}", error);
-            self.status.store(false, Ordering::SeqCst);
+            self.health_checker.make_sick();
         }
         tx_result
     }

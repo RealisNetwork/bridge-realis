@@ -15,7 +15,6 @@ use db::Database;
 use std::{
     str::FromStr,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
     },
 };
@@ -38,7 +37,7 @@ pub struct BinanceHandler {
     connection_builder: ConnectionBuilder,
     token_contract_address: String,
     nft_contract_address: String,
-    status: Arc<AtomicBool>,
+    health_checker: HealthChecker,
     master_key: SecretKey,
     db: Arc<Database>,
 }
@@ -50,7 +49,7 @@ impl BinanceHandler {
     pub fn new(
         rx: Receiver<RealisEventType>,
         tx: Sender<BscEventType>,
-        status: Arc<AtomicBool>,
+        health_checker: HealthChecker,
         url: &str,
         token_contract_address: String,
         nft_contract_address: String,
@@ -66,7 +65,7 @@ impl BinanceHandler {
             connection_builder,
             token_contract_address,
             nft_contract_address,
-            status,
+            health_checker,
             master_key,
             db,
         }
@@ -76,8 +75,9 @@ impl BinanceHandler {
     /// # Errors
     pub async fn handle(mut self) {
         loop {
+            let health_checker = self.health_checker.clone();
             select! {
-                () = HealthChecker::is_alive(Arc::clone(&self.status)) => break,
+                () = health_checker.is_alive() => break,
                 option = self.rx.recv() => {
                     if let Some(request) = option {
                         match self.execute(&request).await {
@@ -99,11 +99,11 @@ impl BinanceHandler {
                                     error!("Extrinsic execute: {:?}", error);
                                     if let Err(error) = self.tx.send(rollback_request).await {
                                         error!("[BSC Adapter] - send error: {:?}", error);
-                                        self.status.store(false, Ordering::SeqCst);
+                                        self.health_checker.make_sick();
                                     }
                                 } else {
                                     error!("Rollback fail: {:?}", error);
-                                    self.status.store(false, Ordering::SeqCst);
+                                    self.health_checker.make_sick();
                                 }
                             }
                         }
@@ -184,7 +184,7 @@ impl BinanceHandler {
             .await
         {
             error!("[BSC Adapter] - logging status to db: {:?}", error);
-            self.status.store(false, Ordering::SeqCst);
+            self.health_checker.make_sick();
         }
 
         result
@@ -217,7 +217,7 @@ impl BinanceHandler {
             .await
         {
             error!("[BSC Adapter] - logging status to db: {:?}", error);
-            self.status.store(false, Ordering::SeqCst);
+            self.health_checker.make_sick();
         }
 
         result
