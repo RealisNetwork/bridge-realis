@@ -17,7 +17,7 @@ realis-bridge = { git = "https://github.com/RealisNetwork/Realis.Network.git", b
 sp-runtime = { git = "https://github.com/paritytech/substrate.git", branch = "master", package = "sp-runtime" }
 sp-core = { git = "https://github.com/paritytech/substrate.git", branch = "master", package = "sp-core" }
 substrate-api-client = { git = "https://github.com/RealisNetwork/substrate-api-client.git" }
-serde = { version = "1.0.129", features = ["derive"] }
+serde = { version = "1.0.131", features = ["derive"] }
 reqwest = { version = "0.11.4", features = ["json"] }
 tokio = { version = "1", features = ["full"] }
 serde_json = { version = "1.0" }
