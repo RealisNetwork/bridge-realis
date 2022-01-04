@@ -3909,7 +3909,7 @@ dependencies = [
  "node-runtime",
  "primitives",
  "realis-bridge",
- "reqwest 0.11.7",
+ "reqwest 0.11.8",
  "rust-lib",
  "serde",
  "serde_json",
@@ -4055,9 +4055,9 @@ dependencies = [
 
 [[package]]
 name = "reqwest"
-version = "0.11.7"
+version = "0.11.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07bea77bc708afa10e59905c3d4af7c8fd43c9214251673095ff8b14345fcbc5"
+checksum = "7c4e0a76dc12a116108933f6301b95e83634e0c47b0afbed6abbaa0601e99258"
 dependencies = [
  "base64 0.13.0",
  "bytes 1.1.0",
@@ -4116,7 +4116,7 @@ dependencies = [
  "node-runtime",
  "ratsio",
  "realis-primitives",
- "reqwest 0.11.7",
+ "reqwest 0.11.8",
  "serde",
  "serde_json",
  "slog",
@@ -6667,7 +6667,7 @@ dependencies = [
  "log 0.4.14",
  "parking_lot 0.11.2",
  "pin-project",
- "reqwest 0.11.7",
+ "reqwest 0.11.8",
  "rlp",
  "secp256k1",
  "serde",
