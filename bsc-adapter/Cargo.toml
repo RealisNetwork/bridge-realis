@@ -14,7 +14,7 @@ web3 = "0.17.0"
 log = "0.4"
 
 [dependencies.tokio]
-version = "1.14.0"
+version = "1.15.0"
 features = ["sync"]
 
 [dependencies.rust-lib]
