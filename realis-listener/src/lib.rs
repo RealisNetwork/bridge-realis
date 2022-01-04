@@ -12,9 +12,7 @@ use web3::types::H160;
 
 use primitives::events::realis::{RealisEventType, TransferNftToBsc, TransferTokenToBsc};
 use runtime::{Block, Event};
-use std::sync::{
-    Arc,
-};
+use std::sync::Arc;
 use substrate_api_client::{
     rpc::WsRpcClient,
     sp_runtime::app_crypto::{sp_core::H256, sr25519},

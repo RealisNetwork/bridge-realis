@@ -12,12 +12,7 @@ use rust_lib::healthchecker::HealthChecker;
 use secp256k1::SecretKey;
 
 use db::Database;
-use std::{
-    str::FromStr,
-    sync::{
-        Arc,
-    },
-};
+use std::{str::FromStr, sync::Arc};
 
 use primitives::{
     db::Status,

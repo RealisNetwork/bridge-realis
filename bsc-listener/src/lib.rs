@@ -8,12 +8,7 @@ use rust_lib::healthchecker::HealthChecker;
 use ethabi::ethereum_types::H256;
 use log::{error, info, warn};
 use primitives::Error;
-use std::{
-    str::FromStr,
-    sync::{
-        Arc,
-    },
-};
+use std::{str::FromStr, sync::Arc};
 use tokio::{select, sync::mpsc::Sender};
 use web3::{
     self,

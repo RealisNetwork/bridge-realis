@@ -15,9 +15,7 @@ use substrate_api_client::{
     Api, Hash, Pair, XtStatus,
 };
 
-use std::sync::{
-    Arc,
-};
+use std::sync::Arc;
 
 use log::{error, info};
 use tokio::{

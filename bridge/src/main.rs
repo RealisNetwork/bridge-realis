@@ -6,8 +6,7 @@ use db::Database;
 use futures::future::join_all;
 use log::{error, info, LevelFilter};
 use realis_listener::listener_builder::BlockListenerBuilder;
-use rust_lib::blockchain::wallets::RealisWallet;
-use rust_lib::healthchecker::HealthChecker;
+use rust_lib::{blockchain::wallets::RealisWallet, healthchecker::HealthChecker};
 use tokio::sync::mpsc;
 
 #[allow(clippy::too_many_lines)]
@@ -76,7 +75,9 @@ fn main() {
 
         let mut modules = vec![];
 
-       let health_checker = HealthChecker::new(&healthchecker_address, 10000).await.expect("Healthchecker error");
+        let health_checker = HealthChecker::new(&healthchecker_address, 10000)
+            .await
+            .expect("Healthchecker error");
 
         let binance_handler = BinanceHandler::new(
             binance_rx,

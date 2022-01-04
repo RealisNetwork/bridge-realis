@@ -1,17 +1,14 @@
 use crate::BlockListener;
 use db::Database;
 
-use std::sync::{
-    mpsc::channel,
-    Arc,
-};
+use std::sync::{mpsc::channel, Arc};
 
 use sp_runtime::{generic, traits::BlakeTwo256};
 use substrate_api_client::{rpc::WsRpcClient, sp_runtime::app_crypto::sr25519, Api, BlockNumber};
 
 use log::error;
-use rust_lib::healthchecker::HealthChecker;
 use primitives::events::realis::RealisEventType;
+use rust_lib::healthchecker::HealthChecker;
 use substrate_api_client::sp_runtime::app_crypto::sp_core::H256;
 use tokio::sync::mpsc::{unbounded_channel, Sender, UnboundedSender};
 
