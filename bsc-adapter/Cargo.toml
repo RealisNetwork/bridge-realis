@@ -9,7 +9,7 @@ edition = "2021"
 primitives = { path = "../primitives" }
 db = { path = "../db"}
 
-secp256k1 = { version = "0.20", features = ["recovery"] }
+secp256k1 = { version = "0.21", features = ["recovery"] }
 web3 = "0.17.0"
 log = "0.4"
 
