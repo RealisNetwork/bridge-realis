@@ -1,4 +1,4 @@
-FROM rust:1.56.0-slim-buster AS dist
+FROM rust:1.57.0-slim-buster AS dist
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
