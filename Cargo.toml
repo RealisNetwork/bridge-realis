@@ -9,12 +9,3 @@ members = [
     "realis-adapter",
     "realis-listener",
 ]
-
-[patch.'https://github.com//paritytech/substrate']
-sp-core = { git = "https://github.com/paritytech/substrate"}
-
-[profile.dev]
-split-debuginfo = "unpacked"
-
-[profile.release]
-panic = "unwind"

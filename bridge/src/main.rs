@@ -58,11 +58,12 @@ fn main() {
         // TODO get from vault
         let binance_master_key = "98a946173492e8e5b73577341cea3c3b8e92481bfcea038b8fd7c1940d0cd42f";
 
+        let health_checker = HealthChecker::new(&healthchecker_address, 10000)
+            .await
+            .expect("Healthchecker error");
+
         let db = Arc::new(
-            Database::new(&format!(
-                "host={} port={} user={} password={} dbname={}",
-                db_host, db_port, db_user, db_password, db_name
-            ))
+            Database::new( &db_host, &db_port, &db_user, &db_password, &db_name, true, health_checker.clone())
             .await
             .unwrap(),
         );
@@ -74,10 +75,6 @@ fn main() {
         // Init listener modules
 
         let mut modules = vec![];
-
-        let health_checker = HealthChecker::new(&healthchecker_address, 10000)
-            .await
-            .expect("Healthchecker error");
 
         let binance_handler = BinanceHandler::new(
             binance_rx,

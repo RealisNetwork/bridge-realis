@@ -14,6 +14,11 @@ run:
 build:
 	SKIP_WASM_BUILD=1 cargo build --release
 
+udeps:
+	SKIP_WASM_BUILD=1 cargo +nightly udeps
+
+docker.build:
+	docker build . -t bridge-realis
 # Format Rust sources with rustfmt.
 #
 # Usage:

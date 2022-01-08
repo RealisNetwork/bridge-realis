@@ -1,51 +1,31 @@
 use primitives::{types::BlockNumber, Error};
 
-use log::{error, trace};
-use postgres::NoTls;
 use primitives::{
     db::Status,
     events::{bsc::BscEventType, realis::RealisEventType},
     types::RawEvent,
 };
-use rawsql::{self, Loader};
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-};
-use tokio_postgres::Client;
+use rust_lib::healthchecker::HealthChecker;
 use web3::ethabi::ethereum_types::U64;
+use rust_lib::inner_db::client_inner::DatabaseClientInner;
+use rust_lib::inner_db::client_inner_builder::DatabaseClientInnerBuilder;
 
 pub struct Database {
-    client: Client,
-    has_err: Arc<AtomicBool>,
+    client: DatabaseClientInner,
 }
 
 impl Database {
     /// # Panics
     /// # Errors
-    pub async fn new(params: &str) -> Result<Self, tokio_postgres::Error> {
-        let (client, connection) = tokio_postgres::connect(params, NoTls).await?;
-        let has_err = Arc::new(AtomicBool::new(false));
-        tokio::spawn({
-            let has_err = Arc::clone(&has_err);
-            async move {
-                if connection.await.is_err() {
-                    has_err.store(true, Ordering::Release);
-                }
-            }
-        });
-
-        Ok(Database { client, has_err })
+    pub async fn new(host: &str, port: &str, user: &str, password: &str, dbname: &str, ssl: bool, health: HealthChecker,) -> Result<Self, tokio_postgres::Error> {
+        DatabaseClientInnerBuilder::build_with_params(host, port, user, password, dbname, ssl, health).await
+            .map(|client| Self {client})
     }
 
     /// # Panics
     /// # Errors
     pub async fn still_alive(&self) -> Result<(), Error> {
-        if self.has_err.load(Ordering::Acquire) {
-            Err(Error::Disconnected)
-        } else {
-            Ok(())
-        }
+        self.client.still_alive().await.map_err(|_| Error::Disconnected)
     }
 
     /// # Panics
@@ -53,22 +33,9 @@ impl Database {
     pub async fn import_tables_from_file(&self, path: &str) -> Result<(), Error> {
         self.still_alive().await?;
 
-        let queries = Loader::get_queries_from(path)
-            .map_err(|_| Error::FileNotFound(String::from(path)))?
-            .queries;
-
-        let mut queries = queries.iter().collect::<Vec<(&String, &String)>>();
-
-        queries.sort();
-
-        for query in queries {
-            match self.client.execute(query.1.as_str(), &[]).await {
-                Ok(_value) => trace!("Successful send query!"),
-                Err(error) => error!("Cannot send query: {:?}", error),
-            }
-        }
-
-        Ok(())
+        self.client.import_tables_from_file(path).await.map_err(|error| {
+            Error::FileNotFound(format!("Error while load tables from file: {:?}", error))
+        })
     }
 
     /// # Panics
@@ -85,6 +52,7 @@ impl Database {
                 let types_nft = 2_u32;
                 let block = event.block as u32;
                 self.client
+                    .client
                     .execute(
                         "INSERT INTO extrinsics_realis(hash, block, \
                         from_account, to_account, value, type, status) \
@@ -108,6 +76,7 @@ impl Database {
                 let types_tokens = 1_u32;
                 let block = event.block as u32;
                 self.client
+                    .client
                     .execute(
                         "INSERT INTO extrinsics_realis(hash, block, \
                         from_account, to_account, value, type, status) \
@@ -144,6 +113,7 @@ impl Database {
                 let types_nft = 2_u32;
                 let block = event.block.unwrap().as_u32();
                 self.client
+                    .client
                     .execute(
                         "INSERT INTO extrinsics_bsc(hash, block, \
                         from_account, to_account, value, type, status) \
@@ -167,6 +137,7 @@ impl Database {
                 let types_tokens = 1_u32;
                 let block: u32 = event.block.unwrap().as_u32();
                 self.client
+                    .client
                     .execute(
                         "INSERT INTO extrinsics_bsc(hash, block, \
                         from_account, to_account, value, type, status) \
@@ -197,6 +168,7 @@ impl Database {
 
         let block_number_batch = self
             .client
+            .client
             .query_one("SELECT max(block) FROM blocks_realis", &[])
             .await
             .map_err(Error::Postgres)?
@@ -215,6 +187,7 @@ impl Database {
         let block = block as u32;
 
         self.client
+            .client
             .execute(
                 "INSERT INTO blocks_realis(block) \
                     VALUES ($1)",
@@ -233,6 +206,7 @@ impl Database {
 
         let block_number_batch = self
             .client
+            .client
             .query_one("SELECT max(block) FROM blocks_bsc", &[])
             .await
             .map_err(Error::Postgres)?
@@ -250,6 +224,7 @@ impl Database {
         let block = block.unwrap().as_u32();
 
         self.client
+            .client
             .execute(
                 "INSERT INTO blocks_bsc(block) \
                     VALUES ($1)",
@@ -265,6 +240,7 @@ impl Database {
     pub async fn update_status_realis(&self, hash: &str, status: Status) -> Result<(), Error> {
         self.still_alive().await?;
         self.client
+            .client
             .execute(
                 "UPDATE extrinsics_realis \
                 SET status = $1 \
@@ -282,6 +258,7 @@ impl Database {
         self.still_alive().await?;
 
         self.client
+            .client
             .execute(
                 "UPDATE extrinsics_bsc \
                 SET status = $1 \
@@ -300,6 +277,7 @@ impl Database {
         self.still_alive().await?;
 
         self.client
+            .client
             .execute(
                 "INSERT INTO undecoded_events(block, hash, data) \
             VALUES($1, $2, $3)",
