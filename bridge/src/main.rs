@@ -63,7 +63,15 @@ fn main() {
             .expect("Healthchecker error");
 
         let db = Arc::new(
-            Database::new( &db_host, &db_port, &db_user, &db_password, &db_name, true, health_checker.clone())
+            Database::new(
+                &db_host,
+                &db_port,
+                &db_user,
+                &db_password,
+                &db_name,
+                true,
+                health_checker.clone(),
+            )
             .await
             .unwrap(),
         );
