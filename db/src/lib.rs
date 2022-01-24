@@ -5,10 +5,11 @@ use primitives::{
     events::{bsc::BscEventType, realis::RealisEventType},
     types::RawEvent,
 };
-use rust_lib::healthchecker::HealthChecker;
+use rust_lib::{
+    healthchecker::HealthChecker,
+    inner_db::{client_inner::DatabaseClientInner, client_inner_builder::DatabaseClientInnerBuilder},
+};
 use web3::ethabi::ethereum_types::U64;
-use rust_lib::inner_db::client_inner::DatabaseClientInner;
-use rust_lib::inner_db::client_inner_builder::DatabaseClientInnerBuilder;
 
 pub struct Database {
     client: DatabaseClientInner,
@@ -17,9 +18,18 @@ pub struct Database {
 impl Database {
     /// # Panics
     /// # Errors
-    pub async fn new(host: &str, port: &str, user: &str, password: &str, dbname: &str, ssl: bool, health: HealthChecker,) -> Result<Self, tokio_postgres::Error> {
-        DatabaseClientInnerBuilder::build_with_params(host, port, user, password, dbname, ssl, health).await
-            .map(|client| Self {client})
+    pub async fn new(
+        host: &str,
+        port: &str,
+        user: &str,
+        password: &str,
+        dbname: &str,
+        ssl: bool,
+        health: HealthChecker,
+    ) -> Result<Self, tokio_postgres::Error> {
+        DatabaseClientInnerBuilder::build_with_params(host, port, user, password, dbname, ssl, health)
+            .await
+            .map(|client| Self { client })
     }
 
     /// # Panics
@@ -33,9 +43,10 @@ impl Database {
     pub async fn import_tables_from_file(&self, path: &str) -> Result<(), Error> {
         self.still_alive().await?;
 
-        self.client.import_tables_from_file(path).await.map_err(|error| {
-            Error::FileNotFound(format!("Error while load tables from file: {:?}", error))
-        })
+        self.client
+            .import_tables_from_file(path)
+            .await
+            .map_err(|error| Error::FileNotFound(format!("Error while load tables from file: {:?}", error)))
     }
 
     /// # Panics
