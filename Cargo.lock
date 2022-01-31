@@ -279,7 +279,7 @@ dependencies = [
  "realis-adapter",
  "realis-listener",
  "rust-lib",
- "tokio 1.15.0",
+ "tokio 1.16.1",
 ]
 
 [[package]]
@@ -291,7 +291,7 @@ dependencies = [
  "primitives",
  "rust-lib",
  "secp256k1",
- "tokio 1.15.0",
+ "tokio 1.16.1",
  "web3",
 ]
 
@@ -308,7 +308,7 @@ dependencies = [
  "rust-lib",
  "serde",
  "serde_json",
- "tokio 1.15.0",
+ "tokio 1.16.1",
  "web3",
 ]
 
@@ -645,7 +645,7 @@ dependencies = [
  "primitives",
  "rust-lib",
  "serde_json",
- "tokio 1.15.0",
+ "tokio 1.16.1",
  "tokio-postgres",
  "web3",
 ]
@@ -1318,7 +1318,7 @@ dependencies = [
  "http",
  "indexmap",
  "slab 0.4.5",
- "tokio 1.15.0",
+ "tokio 1.16.1",
  "tokio-util 0.6.9",
  "tracing",
 ]
@@ -1551,7 +1551,7 @@ dependencies = [
  "itoa 0.4.8",
  "pin-project-lite 0.2.8",
  "socket2 0.4.2",
- "tokio 1.15.0",
+ "tokio 1.16.1",
  "tower-service",
  "tracing",
  "want",
@@ -1579,7 +1579,7 @@ dependencies = [
  "bytes 1.1.0",
  "hyper 0.14.16",
  "native-tls",
- "tokio 1.15.0",
+ "tokio 1.16.1",
  "tokio-native-tls",
 ]
 
@@ -3203,7 +3203,7 @@ dependencies = [
  "fallible-iterator",
  "futures 0.3.19",
  "log 0.4.14",
- "tokio 1.15.0",
+ "tokio 1.16.1",
  "tokio-postgres",
 ]
 
@@ -3215,7 +3215,7 @@ checksum = "1de0ea6504e07ca78355a6fb88ad0f36cafe9e696cbc6717f16a207f3a60be72"
 dependencies = [
  "futures 0.3.19",
  "openssl",
- "tokio 1.15.0",
+ "tokio 1.16.1",
  "tokio-openssl",
  "tokio-postgres",
 ]
@@ -3521,7 +3521,7 @@ dependencies = [
  "primitives",
  "rust-lib",
  "substrate-api-client",
- "tokio 1.15.0",
+ "tokio 1.16.1",
 ]
 
 [[package]]
@@ -3591,7 +3591,7 @@ dependencies = [
  "sp-core 4.1.0-dev",
  "sp-runtime 4.0.0",
  "substrate-api-client",
- "tokio 1.15.0",
+ "tokio 1.16.1",
  "web3",
 ]
 
@@ -3767,7 +3767,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_urlencoded",
- "tokio 1.15.0",
+ "tokio 1.16.1",
  "tokio-native-tls",
  "url",
  "wasm-bindgen",
@@ -3819,7 +3819,7 @@ dependencies = [
  "slog-term",
  "substrate-api-client",
  "thiserror",
- "tokio 1.15.0",
+ "tokio 1.16.1",
  "tokio-minihttp",
  "tokio-postgres",
  "tokio-proto",
@@ -5583,9 +5583,9 @@ dependencies = [
 
 [[package]]
 name = "tokio"
-version = "1.15.0"
+version = "1.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fbbf1c778ec206785635ce8ad57fe52b3009ae9e0c9f574a728f3049d3e55838"
+checksum = "0c27a64b625de6d309e8c57716ba93021dccf1b3b5c97edd6d3dd2d2135afc0a"
 dependencies = [
  "bytes 1.1.0",
  "libc",
@@ -5707,7 +5707,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7d995660bd2b7f8c1568414c1126076c13fbb725c40112dc0120b78eb9b717b"
 dependencies = [
  "native-tls",
- "tokio 1.15.0",
+ "tokio 1.16.1",
 ]
 
 [[package]]
@@ -5719,7 +5719,7 @@ dependencies = [
  "futures-util",
  "openssl",
  "openssl-sys",
- "tokio 1.15.0",
+ "tokio 1.16.1",
 ]
 
 [[package]]
@@ -5741,7 +5741,7 @@ dependencies = [
  "postgres-protocol",
  "postgres-types",
  "socket2 0.4.2",
- "tokio 1.15.0",
+ "tokio 1.16.1",
  "tokio-util 0.6.9",
 ]
 
@@ -5799,7 +5799,7 @@ checksum = "50145484efff8818b5ccd256697f36863f587da82cf8b409c53adf1e840798e3"
 dependencies = [
  "futures-core",
  "pin-project-lite 0.2.8",
- "tokio 1.15.0",
+ "tokio 1.16.1",
 ]
 
 [[package]]
@@ -5924,7 +5924,7 @@ dependencies = [
  "futures-sink",
  "log 0.4.14",
  "pin-project-lite 0.2.8",
- "tokio 1.15.0",
+ "tokio 1.16.1",
 ]
 
 [[package]]
@@ -6085,7 +6085,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ee73e6e4924fe940354b8d4d98cad5231175d615cd855b758adc658c0aac6a0"
 dependencies = [
  "cfg-if 1.0.0",
- "rand 0.3.23",
+ "rand 0.8.4",
  "static_assertions",
 ]
 
@@ -6347,7 +6347,7 @@ dependencies = [
  "serde_json",
  "soketto",
  "tiny-keccak",
- "tokio 1.15.0",
+ "tokio 1.16.1",
  "tokio-stream",
  "tokio-util 0.6.9",
  "url",
@@ -6362,7 +6362,7 @@ checksum = "1f6d8d1636b2627fe63518d5a9b38a569405d9c9bc665c43c9c341de57227ebb"
 dependencies = [
  "native-tls",
  "thiserror",
- "tokio 1.15.0",
+ "tokio 1.16.1",
  "url",
 ]
 
