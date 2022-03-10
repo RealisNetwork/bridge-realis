@@ -1,13 +1,12 @@
-mod event_parser;
-use crate::event_parser::{EventParser, ParseError};
+use crate::services::event_parser::{EventParser, ParseError, TokenParser, NftParser};
 
-use db::Database;
-use primitives::events::bsc::BscEventType;
+use crate::repositories::Database;
+use crate::config::events::bsc::BscEventType;
 use rust_lib::healthchecker::HealthChecker;
 
 use ethabi::ethereum_types::H256;
 use log::{error, info, warn};
-use primitives::Error;
+use crate::config::Error;
 use std::{str::FromStr, sync::Arc};
 use tokio::{select, sync::mpsc::Sender};
 use web3::{
@@ -141,12 +140,12 @@ impl BlockListener {
         if let Some(account) = transaction.to {
             if account == self.token_contract {
                 if let Ok(Some(receipt)) = self.web3.eth().transaction_receipt(transaction.hash).await {
-                    let events = event_parser::TokenParser::parse(receipt, &self.token_topic);
+                    let events = TokenParser::parse(receipt, &self.token_topic);
                     self.execute(events).await;
                 }
             } else if account == self.nft_contract {
                 if let Ok(Some(receipt)) = self.web3.eth().transaction_receipt(transaction.hash).await {
-                    let events = event_parser::NftParser::parse(receipt, &self.nft_topic);
+                    let events = NftParser::parse(receipt, &self.nft_topic);
                     self.execute(events).await;
                 }
             }
@@ -164,7 +163,7 @@ impl BlockListener {
                 }
                 Err(error) => {
                     error!("Error while decode event: {:?}", error);
-                    if let Err(error) = self.db.add_raw_event(error.get_event()).await {
+                    if let Err(error) = self.db.add_raw_event(&error.get_event()).await {
                         error!("[BSC Listener] - logging undecoded event - {:?}", error);
                         self.health_checker.make_sick();
                     }

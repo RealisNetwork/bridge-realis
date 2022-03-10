@@ -1,8 +1,5 @@
-mod errors;
-pub mod listener_builder;
-
-use db::Database;
-use errors::RpcError;
+use crate::repositories::Database;
+use crate::services::errors::RpcError;
 use frame_system::{EventRecord, Phase};
 use log::{error, info, warn};
 use rust_lib::healthchecker::HealthChecker;
@@ -10,7 +7,7 @@ use std::str::FromStr;
 use tokio::select;
 use web3::types::H160;
 
-use primitives::events::realis::{RealisEventType, TransferNftToBsc, TransferTokenToBsc};
+use crate::config::events::realis::{RealisEventType, TransferNftToBsc, TransferTokenToBsc};
 use runtime::{Block, Event};
 use std::sync::Arc;
 use substrate_api_client::{

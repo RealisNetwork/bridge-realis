@@ -1,5 +1,5 @@
-use db::Database;
-use primitives::{
+use crate::repositories::Database;
+use crate::config::{
     db::Status,
     events::{bsc::BscEventType, realis::RealisEventType, traits::Event},
     Error,

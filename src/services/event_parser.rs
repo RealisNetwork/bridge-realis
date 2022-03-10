@@ -1,5 +1,5 @@
 use ethabi::Error;
-use primitives::{
+use crate::config::{
     events::bsc::{BscEventType, TransferNftToRealis, TransferTokenToRealis},
     types::RawEvent,
 };

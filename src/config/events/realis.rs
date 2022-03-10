@@ -1,4 +1,4 @@
-use crate::{
+use crate::config::{
     events::{
         bsc::{TransferNftToRealis, TransferTokenToRealis},
         traits::Event,

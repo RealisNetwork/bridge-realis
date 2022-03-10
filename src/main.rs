@@ -1,11 +1,21 @@
+mod services;
+mod repositories;
+mod entities;
+mod config;
+
 use rust_lib::{async_logger, config::Config};
 use std::sync::Arc;
+use std::time::Duration;
 
-use bsc_adapter::BinanceHandler;
-use db::Database;
+use entities::BinanceHandler;
+use repositories::Database;
 use futures::future::join_all;
 use log::{error, info, LevelFilter};
-use realis_listener::listener_builder::BlockListenerBuilder;
+use services::{
+    realis_adapter::RealisAdapter,
+    bsc_listener::BlockListener,
+    listener_builder::BlockListenerBuilder,
+};
 use rust_lib::{blockchain::wallets::RealisWallet, healthchecker::HealthChecker};
 use tokio::sync::mpsc;
 
@@ -40,10 +50,17 @@ fn main() {
     let url = Config::key_from_value("REALIS_URL").expect("Missing env URL");
 
     let db_host = Config::key_from_value("DATABASE_HOST").expect("Missing env DATABASE_HOST");
-    let db_port = Config::key_from_value("DATABASE_PORT").expect("Missing env DATABASE_PORT");
+    let db_port = Config::key_from_value("DATABASE_PORT")
+        .expect("Missing env DATABASE_PORT")
+        .parse::<u16>()
+        .expect("Port must be a number");
     let db_user = Config::key_from_value("DATABASE_USER").expect("Missing env DATABASE_USER");
     let db_password = Config::key_from_value("DATABASE_PASSWORD").expect("Missing env DATABASE_PASSWORD");
     let db_name = Config::key_from_value("DATABASE_NAME").expect("Missing env DATABASE_NAME");
+    let db_ssl = Config::key_from_value("DATABASE_SSL")
+        .expect("Missing env DATABASE_SSL")
+        .parse::<bool>()
+        .expect("Ssl flag must be type of bool");
 
     let rt = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(workers_number)
@@ -64,18 +81,18 @@ fn main() {
 
         let db = Arc::new(
             Database::new(
-                &db_host,
-                &db_port,
-                &db_user,
-                &db_password,
-                &db_name,
-                true,
-                health_checker.clone(),
+                db_host,
+                db_port,
+                db_user,
+                db_password,
+                db_name,
+                Some(Duration::from_secs(rust_lib::inner_db::consts::KEEPALIVES_IDLE_IN_SECS)),
+                db_ssl,
             )
-            .await
-            .unwrap(),
+                .await
+                .unwrap(),
         );
-        match db.import_tables_from_file("./db/res/tables.sql").await {
+        match db.import_tables_from_file("src/repositories/res/tables.sql").await {
             Ok(_) => info!("Creating tables was successful"),
             Err(error) => error!("Cannot create tables: {:?}", error),
         }
@@ -96,7 +113,7 @@ fn main() {
         );
         modules.push(tokio::spawn(binance_handler.handle()));
 
-        let realis_adapter = realis_adapter::RealisAdapter::new(
+        let realis_adapter = RealisAdapter::new(
             realis_rx,
             binance_tx.clone(),
             health_checker.clone(),
@@ -136,7 +153,7 @@ fn main() {
         match Config::key_from_value("RESTORE").map(|value| value == *"true") {
             Ok(true) => {
                 let last_block = db.get_last_block_bsc().await.unwrap();
-                let mut bsc_listener = bsc_listener::BlockListener::new(
+                let mut bsc_listener = BlockListener::new(
                     binance_url,
                     realis_tx,
                     health_checker.clone(),
@@ -146,8 +163,8 @@ fn main() {
                     &token_topic,
                     &nft_topic,
                 )
-                .await
-                .unwrap();
+                    .await
+                    .unwrap();
                 modules.push(tokio::spawn({
                     async move {
                         bsc_listener.listen_with_restore(last_block).await;
@@ -155,7 +172,7 @@ fn main() {
                 }));
             }
             Ok(false) | Err(_) => {
-                let mut bsc_listener = bsc_listener::BlockListener::new(
+                let mut bsc_listener = BlockListener::new(
                     binance_url,
                     realis_tx,
                     health_checker.clone(),
@@ -165,8 +182,8 @@ fn main() {
                     &token_topic,
                     &nft_topic,
                 )
-                .await
-                .unwrap();
+                    .await
+                    .unwrap();
                 modules.push(tokio::spawn({
                     async move {
                         bsc_listener.listen().await;

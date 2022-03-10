@@ -1,9 +1,8 @@
-use crate::events::{
+use crate::config::events::{
     realis::{TransferNftToBsc, TransferTokenToBsc},
     traits::Event,
 };
 use ethabi::Token;
-
 use realis_bridge::Call as RealisBridgeCall;
 use realis_primitives::TokenId;
 use runtime::{AccountId, Call};

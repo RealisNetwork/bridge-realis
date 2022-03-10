@@ -1,4 +1,4 @@
-use primitives::Error;
+use crate::config::Error;
 
 use web3::{contract::Contract, transports::WebSocket, types::Address, Web3};
 
@@ -21,7 +21,7 @@ impl ConnectionBuilder {
         let address =
             Address::from_str(contract_address).map_err(|error| Error::Custom(format!("{:?}", error)))?;
 
-        let abi = include_bytes!("./../res/BEP20.abi");
+        let abi = include_bytes!("res/BEP20.abi");
 
         Contract::from_json(connection.eth(), address, abi).map_err(|error| Error::Custom(format!("{:?}", error)))
     }
@@ -30,7 +30,7 @@ impl ConnectionBuilder {
         let address =
             Address::from_str(contract_address).map_err(|error| Error::Custom(format!("{:?}", error)))?;
 
-        let abi = include_bytes!("./../res/BEP721.abi");
+        let abi = include_bytes!("res/BEP721.abi");
 
         Contract::from_json(connection.eth(), address, abi).map_err(|error| Error::Custom(format!("{:?}", error)))
     }

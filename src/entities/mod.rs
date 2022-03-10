@@ -1,20 +1,20 @@
 mod connection_builder;
 
-use crate::connection_builder::ConnectionBuilder;
+use crate::entities::connection_builder::ConnectionBuilder;
 use tokio::{
     select,
     sync::mpsc::{Receiver, Sender},
 };
 
 use log::{error, info};
-use primitives::Error;
+use crate::config::Error;
 use rust_lib::healthchecker::HealthChecker;
 use secp256k1::SecretKey;
 
-use db::Database;
+use crate::repositories::Database;
 use std::{str::FromStr, sync::Arc};
 
-use primitives::{
+use crate::config::{
     db::Status,
     events::{bsc::BscEventType, realis::RealisEventType, traits::Event},
 };
@@ -119,28 +119,28 @@ impl BinanceHandler {
                     event,
                     ConnectionBuilder::nft(connection, &self.nft_contract_address).await?,
                 )
-                .await
+                    .await
             }
             RealisEventType::TransferTokenToBsc(event) => {
                 self.process(
                     event,
                     ConnectionBuilder::token(connection, &self.token_contract_address).await?,
                 )
-                .await
+                    .await
             }
             RealisEventType::TransferNftToRealisFail(event) => {
                 self.rollback(
                     event,
                     ConnectionBuilder::nft(connection, &self.nft_contract_address).await?,
                 )
-                .await
+                    .await
             }
             RealisEventType::TransferTokenToRealisFail(event) => {
                 self.rollback(
                     event,
                     ConnectionBuilder::token(connection, &self.token_contract_address).await?,
                 )
-                .await
+                    .await
             }
         }
     }
@@ -194,7 +194,7 @@ impl BinanceHandler {
                 &func,
                 (params[0].clone(), params[1].clone(), params[2].clone()),
             )
-            .await
+                .await
         } else {
             self.send_to_blockchain(contract, &func, (params[0].clone(), params[1].clone()))
                 .await

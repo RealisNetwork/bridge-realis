@@ -1,7 +1,7 @@
 pub mod block;
 pub mod db;
-pub mod events;
 pub mod types;
+pub mod events;
 
 use substrate_api_client::ApiClientError;
 use thiserror::Error;
@@ -17,6 +17,8 @@ pub enum Error {
     SerdeJSON(serde_json::error::Error),
     #[error("Disconnected from Database!")]
     Disconnected,
+    #[error("Error while trying use db_pool: {0}")]
+    DbPool(deadpool::managed::PoolError<tokio_postgres::Error>),
     #[error("Cannot found this file in this path {0}!")]
     FileNotFound(String),
     #[error("Cannot decode this value!")]

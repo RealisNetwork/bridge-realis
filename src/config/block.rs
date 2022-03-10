@@ -1,6 +1,5 @@
-use crate::types::{BlockNumber, Hash};
+use crate::config::types::{BlockNumber, Hash};
 use runtime::AccountId;
-
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 

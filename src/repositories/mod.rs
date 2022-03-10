@@ -1,15 +1,19 @@
-use primitives::{types::BlockNumber, Error};
+use std::time::Duration;
+use crate::config::{types::BlockNumber, Error};
 
-use primitives::{
+use crate::config::{
     db::Status,
     events::{bsc::BscEventType, realis::RealisEventType},
     types::RawEvent,
 };
 use rust_lib::{
-    healthchecker::HealthChecker,
     inner_db::{client_inner::DatabaseClientInner, client_inner_builder::DatabaseClientInnerBuilder},
 };
+use rust_lib::inner_db::client_inner_builder::BuildError;
 use web3::ethabi::ethereum_types::U64;
+use crate::config::Error::DbPool;
+use backoff::future::retry;
+use realis_macros::macro_retry;
 
 pub struct Database {
     client: DatabaseClientInner,
@@ -19,30 +23,22 @@ impl Database {
     /// # Panics
     /// # Errors
     pub async fn new(
-        host: &str,
-        port: &str,
-        user: &str,
-        password: &str,
-        dbname: &str,
+        host: String,
+        port: u16,
+        user: String,
+        password: String,
+        dbname: String,
+        keepalive_idle: Option<Duration>,
         ssl: bool,
-        health: HealthChecker,
-    ) -> Result<Self, tokio_postgres::Error> {
-        DatabaseClientInnerBuilder::build_with_params(host, port, user, password, dbname, ssl, health)
+    ) -> Result<Self, BuildError> {
+        DatabaseClientInnerBuilder::build_with_params(host, port, user, password, dbname, keepalive_idle, ssl)
             .await
             .map(|client| Self { client })
     }
 
     /// # Panics
     /// # Errors
-    pub async fn still_alive(&self) -> Result<(), Error> {
-        self.client.still_alive().await.map_err(|_| Error::Disconnected)
-    }
-
-    /// # Panics
-    /// # Errors
     pub async fn import_tables_from_file(&self, path: &str) -> Result<(), Error> {
-        self.still_alive().await?;
-
         self.client
             .import_tables_from_file(path)
             .await
@@ -51,10 +47,9 @@ impl Database {
 
     /// # Panics
     /// # Errors
+    #[macro_retry]
     #[allow(clippy::cast_possible_truncation)]
     pub async fn add_extrinsic_realis(&self, response: &RealisEventType) -> Result<(), Error> {
-        self.still_alive().await?;
-
         let status = Status::Got as u32;
 
         match response {
@@ -63,7 +58,10 @@ impl Database {
                 let types_nft = 2_u32;
                 let block = event.block as u32;
                 self.client
-                    .client
+                    .client_pool
+                    .get()
+                    .await
+                    .map_err(|error| DbPool(error))?
                     .execute(
                         "INSERT INTO extrinsics_realis(hash, block, \
                         from_account, to_account, value, type, status) \
@@ -87,7 +85,10 @@ impl Database {
                 let types_tokens = 1_u32;
                 let block = event.block as u32;
                 self.client
-                    .client
+                    .client_pool
+                    .get()
+                    .await
+                    .map_err(|error| DbPool(error))?
                     .execute(
                         "INSERT INTO extrinsics_realis(hash, block, \
                         from_account, to_account, value, type, status) \
@@ -113,9 +114,9 @@ impl Database {
 
     /// # Panics
     /// # Errors
+    #[macro_retry]
     #[allow(clippy::cast_possible_truncation)]
     pub async fn add_extrinsic_bsc(&self, response: &BscEventType) -> Result<(), Error> {
-        self.still_alive().await?;
         let status = Status::Got as u32;
 
         match response {
@@ -124,7 +125,10 @@ impl Database {
                 let types_nft = 2_u32;
                 let block = event.block.unwrap().as_u32();
                 self.client
-                    .client
+                    .client_pool
+                    .get()
+                    .await
+                    .map_err(|error| DbPool(error))?
                     .execute(
                         "INSERT INTO extrinsics_bsc(hash, block, \
                         from_account, to_account, value, type, status) \
@@ -148,7 +152,10 @@ impl Database {
                 let types_tokens = 1_u32;
                 let block: u32 = event.block.unwrap().as_u32();
                 self.client
-                    .client
+                    .client_pool
+                    .get()
+                    .await
+                    .map_err(|error| DbPool(error))?
                     .execute(
                         "INSERT INTO extrinsics_bsc(hash, block, \
                         from_account, to_account, value, type, status) \
@@ -174,12 +181,14 @@ impl Database {
 
     /// # Panics
     /// # Errors
+    #[macro_retry]
     pub async fn get_last_block_realis(&self) -> Result<BlockNumber, Error> {
-        self.still_alive().await?;
-
         let block_number_batch = self
             .client
-            .client
+            .client_pool
+            .get()
+            .await
+            .map_err(|error| DbPool(error))?
             .query_one("SELECT max(block) FROM blocks_realis", &[])
             .await
             .map_err(Error::Postgres)?
@@ -191,14 +200,16 @@ impl Database {
 
     /// # Panics
     /// # Errors
+    #[macro_retry]
     #[allow(clippy::cast_possible_truncation)]
     pub async fn update_block_realis(&self, block: BlockNumber) -> Result<(), Error> {
-        self.still_alive().await?;
-
         let block = block as u32;
 
         self.client
-            .client
+            .client_pool
+            .get()
+            .await
+            .map_err(|error| DbPool(error))?
             .execute(
                 "INSERT INTO blocks_realis(block) \
                     VALUES ($1)",
@@ -212,12 +223,14 @@ impl Database {
 
     /// # Panics
     /// # Errors
+    #[macro_retry]
     pub async fn get_last_block_bsc(&self) -> Result<BlockNumber, Error> {
-        self.still_alive().await?;
-
         let block_number_batch = self
             .client
-            .client
+            .client_pool
+            .get()
+            .await
+            .map_err(|error| DbPool(error))?
             .query_one("SELECT max(block) FROM blocks_bsc", &[])
             .await
             .map_err(Error::Postgres)?
@@ -229,13 +242,15 @@ impl Database {
 
     /// # Panics
     /// # Errors
+    #[macro_retry]
     pub async fn update_block_bsc(&self, block: Option<U64>) -> Result<(), Error> {
-        self.still_alive().await?;
-
         let block = block.unwrap().as_u32();
 
         self.client
-            .client
+            .client_pool
+            .get()
+            .await
+            .map_err(|error| DbPool(error))?
             .execute(
                 "INSERT INTO blocks_bsc(block) \
                     VALUES ($1)",
@@ -248,10 +263,13 @@ impl Database {
 
     /// # Panics
     /// # Errors
+    #[macro_retry]
     pub async fn update_status_realis(&self, hash: &str, status: Status) -> Result<(), Error> {
-        self.still_alive().await?;
         self.client
-            .client
+            .client_pool
+            .get()
+            .await
+            .map_err(|error| DbPool(error))?
             .execute(
                 "UPDATE extrinsics_realis \
                 SET status = $1 \
@@ -265,11 +283,13 @@ impl Database {
 
     /// # Panics
     /// # Errors
+    #[macro_retry]
     pub async fn update_status_bsc(&self, hash: &str, status: Status) -> Result<(), Error> {
-        self.still_alive().await?;
-
         self.client
-            .client
+            .client_pool
+            .get()
+            .await
+            .map_err(|error| DbPool(error))?
             .execute(
                 "UPDATE extrinsics_bsc \
                 SET status = $1 \
@@ -284,11 +304,13 @@ impl Database {
 
     /// # Panics
     /// # Errors
-    pub async fn add_raw_event(&self, raw_event: RawEvent) -> Result<(), Error> {
-        self.still_alive().await?;
-
+    #[macro_retry]
+    pub async fn add_raw_event(&self, raw_event: &RawEvent) -> Result<(), Error> {
         self.client
-            .client
+            .client_pool
+            .get()
+            .await
+            .map_err(|error| DbPool(error))?
             .execute(
                 "INSERT INTO undecoded_events(block, hash, data) \
             VALUES($1, $2, $3)",
