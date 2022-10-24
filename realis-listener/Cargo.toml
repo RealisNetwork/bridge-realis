@@ -18,7 +18,7 @@ sp-runtime = { git = "https://github.com/paritytech/substrate.git", branch = "ma
 sp-core = { git = "https://github.com/paritytech/substrate.git", branch = "master", package = "sp-core" }
 substrate-api-client = { git = "https://github.com/RealisNetwork/substrate-api-client.git" }
 reqwest = { version = "0.11.9", features = ["json"] }
-serde = { version = "1.0.135", features = ["derive"] }
+serde = { version = "1.0.147", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
 serde_json = { version = "1.0" }
 web3 = "0.17.0"
